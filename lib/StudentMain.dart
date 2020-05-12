@@ -14,6 +14,18 @@ class StudentMain extends StatefulWidget {
 
 class _StudentMainState extends State<StudentMain> {
   UnityWidgetController _unityWidgetController;
+  List<MockTask> tasks = [
+    MockTask('task 1', false, false),
+    MockTask('task 2', true, false),
+    MockTask('task 3', true, true),
+    MockTask('task 4', true, true),
+    MockTask('task 5', true, true),
+    MockTask('task 6', true, true),
+    MockTask('task 7', true, true),
+    MockTask('task 8', true, true),
+    MockTask('task 9', true, true),
+    MockTask('task 10', true, true),
+  ];
 
   @override
   void initState() {
@@ -27,6 +39,10 @@ class _StudentMainState extends State<StudentMain> {
 
   void onUnityCreated(controller) {
     this._unityWidgetController = controller;
+  }
+
+  Future<Null> refresh() async {
+    await Future.delayed(Duration(seconds: 3));
   }
 
   @override
@@ -46,16 +62,47 @@ class _StudentMainState extends State<StudentMain> {
       ),
       drawer: AppDrawer(),
       body: SafeArea(
-        child: Column(
-          children: <Widget>[
-            Container(
-              height: 300,
-              child: UnityWidget(
-                onUnityViewCreated: onUnityCreated,
+          child: Column(
+            children: <Widget>[
+              Container(
+                height: 300,
+                child: UnityWidget(
+                  onUnityViewCreated: onUnityCreated,
+                ),
               ),
-            ),
-          ],
-        )
+              Row(
+                children: <Widget>[
+                  Text('Sort By: //Dropdown Here'),
+                  //dropdown menu
+                ],
+              ),
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: refresh,
+                  child: ListView.builder(
+                      itemCount: tasks.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          title: Text(tasks[index].name),
+                          trailing: Wrap(
+                            children: <Widget>[
+                              Checkbox(
+                                value: tasks[index].completed,
+                                onChanged: (value) {},
+                              ),
+                              Checkbox(
+                                value: tasks[index].verified,
+                                onChanged: (value) {},
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                  ),
+                ),
+              ),
+            ],
+          )
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
@@ -66,4 +113,13 @@ class _StudentMainState extends State<StudentMain> {
       ),
     );
   }
+}
+
+class MockTask {
+  String name;
+  bool completed;
+  bool verified;
+
+  MockTask(this.name, this.completed, this.verified);
+
 }

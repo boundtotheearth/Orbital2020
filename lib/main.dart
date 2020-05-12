@@ -57,20 +57,20 @@ class _MyHomePageState extends State<MyHomePage> {
       body: SafeArea(
         bottom: false,
         child: WillPopScope(
-          onWillPop: () {
-            // Pop the category page if Android back button is pressed.
-          },
-          child: Center(
-            child: RaisedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => StudentMain()),
-                );
-              },
-              child: const Text('Open'),
-            ),
-          )
+            onWillPop: () {
+              // Pop the category page if Android back button is pressed.
+            },
+            child: Center(
+              child: RaisedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => StudentMain()),
+                  );
+                },
+                child: const Text('Open'),
+              ),
+            )
         ),
       ),
       floatingActionButton: FloatingActionButton(
