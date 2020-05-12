@@ -1,0 +1,3 @@
+Follow: https://github.com/snowballdigital/flutter-unity-view-widget
+Add unity-classes dependency on android/settings.gradle
+Change app/build.gradle minSdkVersion to 19 (or whatever is required by the UnityExport build.gradle file

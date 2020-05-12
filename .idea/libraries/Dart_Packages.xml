@@ -79,6 +79,13 @@
             </list>
           </value>
         </entry>
+        <entry key="flutter_unity_widget">
+          <value>
+            <list>
+              <option value="$USER_HOME$/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_unity_widget-0.1.6+8/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="image">
           <value>
             <list>
@@ -210,6 +217,7 @@
       <root url="file://$USER_HOME$/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/convert-2.1.1/lib" />
       <root url="file://$USER_HOME$/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/crypto-2.1.3/lib" />
       <root url="file://$USER_HOME$/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/cupertino_icons-0.1.3/lib" />
+      <root url="file://$USER_HOME$/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_unity_widget-0.1.6+8/lib" />
       <root url="file://$USER_HOME$/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/image-2.1.4/lib" />
       <root url="file://$USER_HOME$/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/matcher-0.12.6/lib" />
       <root url="file://$USER_HOME$/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/meta-1.1.8/lib" />
