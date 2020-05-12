@@ -84,6 +84,7 @@ class _StudentMainState extends State<StudentMain> {
                       itemBuilder: (context, index) {
                         return ListTile(
                           title: Text(tasks[index].name),
+                          subtitle: Text("Ms Lee (Math)"),
                           trailing: Wrap(
                             children: <Widget>[
                               Checkbox(
