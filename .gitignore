@@ -69,10 +69,26 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
-# Created by https://www.gitignore.io/api/flutter
-# Edit at https://www.gitignore.io/?templates=flutter
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
 
-### Flutter ###
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Visual Studio Code related
+.vscode/
+
 # Flutter/Dart/Pub related
 **/doc/api/
 .dart_tool/
@@ -81,7 +97,7 @@ crashlytics-build.properties
 .packages
 .pub-cache/
 .pub/
-build/
+/build/
 
 # Android related
 **/android/**/gradle-wrapper.jar
@@ -124,7 +140,3 @@ build/
 !**/ios/**/default.pbxuser
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
-
-# End of https://www.gitignore.io/api/flutter
-
-.DS_Store
