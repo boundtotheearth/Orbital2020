@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:orbital2020/StudentAddTask.dart';
 import 'StudentMain.dart';
+import 'StudentAddTask.dart';
 
 void main() => runApp(MyApp());
 
@@ -56,21 +58,29 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       body: SafeArea(
         bottom: false,
-        child: WillPopScope(
-            onWillPop: () {
-              // Pop the category page if Android back button is pressed.
-            },
-            child: Center(
-              child: RaisedButton(
+        child: Center(
+          child: Column(
+            children: <Widget>[
+              RaisedButton(
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => StudentMain()),
                   );
                 },
-                child: const Text('Open'),
+                child: const Text('Student Main'),
               ),
-            )
+              RaisedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => StudentAddTask()),
+                  );
+                },
+                child: const Text('Student Add Task'),
+              ),
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
