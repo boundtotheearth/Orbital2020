@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:orbital2020/Auth.dart';
 import 'package:orbital2020/Signup.dart';
 import 'package:orbital2020/StudentAddTask.dart';
 import 'Login.dart';
 import 'StudentMain.dart';
 import 'StudentAddTask.dart';
+import 'Auth.dart';
 
 void main() => runApp(MyApp());
 
@@ -85,7 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => SignupPage()),
+                    MaterialPageRoute(builder: (context) => SignupPage(auth: new FirebaseAuthentication())),
                   );
                 },
                 child: const Text('Signup Page'),
@@ -94,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => LoginPage()),
+                    MaterialPageRoute(builder: (context) => LoginPage(auth: new FirebaseAuthentication())),
                   );
                 },
                 child: const Text('Login Page'),

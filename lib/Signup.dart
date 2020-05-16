@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
+import 'Auth.dart';
 
 
 class SignupPage extends StatefulWidget {
+  SignupPage({this.auth});
+  final Auth auth;
 
   @override
   State<StatefulWidget> createState() => new _SignupPageState();
@@ -17,14 +20,27 @@ class _SignupPageState extends State<SignupPage> {
   String _email;
   String _password;
 
-  void validateSaveForm() {
+  bool validateSaveForm() {
     final form = formKey.currentState;
     if (form.validate()) {
       print("Form is valid");
       form.save();
       print("Name: $_name, email: $_email, password: $_password");
+      return true;
     } else {
       print("Form is invalid");
+      return false;
+    }
+  }
+
+  void signUp() async {
+    if (validateSaveForm()) {
+      try {
+        String userId = await widget.auth.createAccWithEmailPassword(_email, _password);
+        print("New Account created: $userId");
+      } catch (error) {
+        print("$error");
+      }
     }
   }
 
@@ -104,7 +120,7 @@ class _SignupPageState extends State<SignupPage> {
                                       .validateMatch(value, passwordKey.currentState.value),
               ),
               new RaisedButton(
-                onPressed: validateSaveForm,
+                onPressed: signUp,
                 color: Colors.white,
                 child: new Text("SIGN UP", style: new TextStyle(
                     color: Colors.green, fontSize: 20.0)),

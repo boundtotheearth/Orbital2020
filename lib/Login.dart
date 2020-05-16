@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'Auth.dart';
 
 class LoginPage extends StatefulWidget {
+  LoginPage({this.auth});
+  final Auth auth;
   @override
   State<StatefulWidget> createState() => new _LoginPageState();
 }
@@ -14,14 +16,27 @@ class _LoginPageState extends State<LoginPage> {
 
   final formKey = new GlobalKey<FormState>();
 
-  void validateAndLogin() {
+  bool validateAndSave() {
     final form = formKey.currentState;
     if (form.validate()) {
       print("Form is valid");
       form.save();
       print("Email: $_email, password: $_password");
+      return true;
     } else {
       print("Form is invalid");
+      return false;
+    }
+  }
+
+  void login() async {
+    if (validateAndSave()) {
+      try {
+        String userId = await widget.auth.signInWithEmailPassword(_email, _password);
+        print("Logged in: $userId");
+      } catch (error) {
+        print("Error: $error");
+      }
     }
   }
 
@@ -73,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
                 onSaved: (value) => _password = value,
               ),
               new RaisedButton(
-                onPressed: validateAndLogin,
+                onPressed: login,
                 color: Colors.white,
                 child: new Text("LOGIN", style: new TextStyle(
                     color: Colors.green, fontSize: 20.0)),
