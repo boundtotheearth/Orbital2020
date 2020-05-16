@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:form_field_validator/form_field_validator.dart';
+import 'package:orbital2020/DatabaseController.dart';
+import 'package:orbital2020/Task.dart';
 
 import 'AppDrawer.dart';
 
@@ -25,7 +28,7 @@ class _StudentAddTaskState extends State<StudentAddTask> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Task name'),
+        title: const Text('Add Task'),
       ),
       drawer: AppDrawer(),
       body: AddTaskForm()
@@ -41,14 +44,17 @@ class AddTaskForm extends StatefulWidget {
 class _AddTaskFormState extends State<AddTaskForm> {
   final _formKey = GlobalKey<FormState>();
   final _dueDateController = TextEditingController();
+  final db = DatabaseController();
 
-  DateTime dueDate;
-  List<String> mockTags = ['tag1', 'tag2', 'tag3', 'tag4', 'tag5'];
+  String _taskName;
+  String _taskDescription;
+  DateTime _dueDate;
+  List<String> _tags = [];
 
   @override
   void initState() {
     super.initState();
-    dueDate = DateTime.now();
+    _dueDate = DateTime.now();
   }
 
   Future<Null> setDueDate(BuildContext context) async {
@@ -59,25 +65,25 @@ class _AddTaskFormState extends State<AddTaskForm> {
         lastDate: DateTime(2101));
     if (picked != null)
       setState(() {
-        dueDate = picked;
+        _dueDate = picked;
       });
   }
 
   void deleteTag(String tag) {
     setState(() {
-      mockTags.remove(tag);
+      _tags.remove(tag);
     });
   }
 
   void addtag(String tag) {
     setState(() {
-      mockTags.add(tag);
+      _tags.add(tag);
     });
   }
 
   List<Widget> getTagChips() {
     List<Widget> tagChips = <Widget>[];
-    for(String tag in mockTags) {
+    for(String tag in _tags) {
       tagChips.add(Chip(
         label: Text(tag),
         onDeleted: () {
@@ -95,12 +101,44 @@ class _AddTaskFormState extends State<AddTaskForm> {
     return tagChips;
   }
 
+  void submit() {
+    if (_formKey.currentState.validate()) {
+      Scaffold
+          .of(context)
+          .showSnackBar(SnackBar(content: Text('Processing Data')));
+
+      _formKey.currentState.save();
+
+      Task newTask = Task(
+        name: _taskName,
+        description: _taskDescription,
+        createdBy: 'Me',
+        dueDate: _dueDate,
+        tags: _tags,
+      );
+
+      db.createAndAssign(newTask, 'Rsd56J6FqHEFFg12Uf3M').then((value) {
+        Scaffold
+            .of(context)
+            .showSnackBar(SnackBar(content: Text('Success')));
+        Navigator.pop(context);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
         key: _formKey,
         child: ListView(
           children: <Widget>[
+            TextFormField(
+              decoration: const InputDecoration(
+                labelText: 'Name',
+              ),
+              onSaved: (value) => _taskName = value,
+              validator: RequiredValidator(errorText: "Name cannot be empty!"),
+            ),
             AspectRatio(
               aspectRatio: 3/2,
               child: TextFormField(
@@ -112,6 +150,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
                 expands: true,
                 minLines: null,
                 maxLines: null,
+                onSaved: (value) => _taskDescription = value,
               ),
             ),
             Row(
@@ -124,9 +163,10 @@ class _AddTaskFormState extends State<AddTaskForm> {
                     ),
                     onTap: () {
                       setDueDate(context);
-                      _dueDateController.text = DateFormat('dd/MM/y').format(dueDate);
+                      _dueDateController.text = DateFormat('dd/MM/y').format(_dueDate);
                     },
                     controller: _dueDateController,
+                    validator: DateValidator('dd/MM/y', errorText: 'Invalid date format!'),
                   )
                 ),
               ],
@@ -150,13 +190,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
                 ),
                 Spacer(),
                 RaisedButton(
-                  onPressed: () {
-                    if (_formKey.currentState.validate()) {
-                      Scaffold
-                          .of(context)
-                          .showSnackBar(SnackBar(content: Text('Processing Data')));
-                    }
-                  },
+                  onPressed: submit,
                   child: const Text('Save'),
                 )
               ],

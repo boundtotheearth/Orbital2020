@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_unity_widget/flutter_unity_widget.dart';
+import 'package:orbital2020/DatabaseController.dart';
+import 'package:orbital2020/StudentAddTask.dart';
+import 'package:orbital2020/TaskWithStatus.dart';
 
 import 'AppDrawer.dart';
 
@@ -13,23 +16,15 @@ class StudentMain extends StatefulWidget {
 }
 
 class _StudentMainState extends State<StudentMain> {
+  final DatabaseController db = DatabaseController();
+
   UnityWidgetController _unityWidgetController;
-  List<MockTask> tasks = [
-    MockTask('task 1', false, false),
-    MockTask('task 2', true, false),
-    MockTask('task 3', true, true),
-    MockTask('task 4', true, true),
-    MockTask('task 5', true, true),
-    MockTask('task 6', true, true),
-    MockTask('task 7', true, true),
-    MockTask('task 8', true, true),
-    MockTask('task 9', true, true),
-    MockTask('task 10', true, true),
-  ];
+  Stream<List<TaskWithStatus>> _tasks;
 
   @override
   void initState() {
     super.initState();
+    _tasks = db.getStudentTaskSnapshots('Rsd56J6FqHEFFg12Uf3M');
   }
 
   void _incrementCounter(String amount) {
@@ -41,8 +36,36 @@ class _StudentMainState extends State<StudentMain> {
     this._unityWidgetController = controller;
   }
 
+  Widget _buildTaskList(List<TaskWithStatus> tasks) {
+    return ListView.builder(
+        itemCount: tasks.length,
+        itemBuilder: (context, index) {
+          TaskWithStatus task = tasks[index];
+          print(task.name);
+          return ListTile(
+            title: Text(task.name),
+            subtitle: Text(task.createdBy),
+            trailing: Wrap(
+              children: <Widget>[
+                Checkbox(
+                  value: task.completed,
+                  onChanged: (value) {},
+                ),
+                Checkbox(
+                  value: task.verified,
+                  onChanged: (value) {},
+                ),
+              ],
+            ),
+          );
+        }
+    );
+  }
+
   Future<Null> refresh() async {
-    await Future.delayed(Duration(seconds: 3));
+    await Future.microtask(() => setState(() {
+      _tasks = db.getStudentTaskSnapshots('Rsd56J6FqHEFFg12Uf3M');
+    }));
   }
 
   @override
@@ -54,9 +77,7 @@ class _StudentMainState extends State<StudentMain> {
           IconButton(
             icon: const Icon(Icons.search),
             tooltip: 'Search',
-            onPressed: () {
-
-            },
+            onPressed: () {},
           )
         ],
       ),
@@ -77,28 +98,19 @@ class _StudentMainState extends State<StudentMain> {
                 ],
               ),
               Expanded(
-                child: RefreshIndicator(
-                  onRefresh: refresh,
-                  child: ListView.builder(
-                      itemCount: tasks.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(tasks[index].name),
-                          subtitle: Text("Ms Lee (Math)"),
-                          trailing: Wrap(
-                            children: <Widget>[
-                              Checkbox(
-                                value: tasks[index].completed,
-                                onChanged: (value) {},
-                              ),
-                              Checkbox(
-                                value: tasks[index].verified,
-                                onChanged: (value) {},
-                              ),
-                            ],
-                          ),
-                        );
-                      }
+                child: Scrollbar(
+                  child: RefreshIndicator(
+                    onRefresh: refresh,
+                    child: StreamBuilder(
+                      stream: _tasks,
+                      builder: (context, snapshot) {
+                        if(snapshot.hasData) {
+                          return _buildTaskList(snapshot.data);
+                        } else {
+                          return CircularProgressIndicator();
+                        }
+                      },
+                    )
                   ),
                 ),
               ),
@@ -109,7 +121,11 @@ class _StudentMainState extends State<StudentMain> {
         child: const Icon(Icons.add),
         tooltip: 'Add',
         onPressed: () {
-          _incrementCounter('1');
+          //_incrementCounter('1');
+          Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => StudentAddTask())
+          );
         },
       ),
     );
