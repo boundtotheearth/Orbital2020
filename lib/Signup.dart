@@ -65,6 +65,7 @@ class _SignupPageState extends State<SignupPage> {
                 decoration: const InputDecoration(
                     icon: Icon(Icons.person),
                     labelText: "Full Name",
+                    errorStyle: TextStyle(fontSize: 10.0),
                 ),
                 validator: RequiredValidator(errorText: "Name cannot be empty!"),
                 onSaved: (value) => _name = value,
@@ -72,7 +73,8 @@ class _SignupPageState extends State<SignupPage> {
               new TextFormField(
                 decoration: const InputDecoration(
                     icon: Icon(Icons.email),
-                    labelText: "Email"
+                    labelText: "Email",
+                    errorStyle: TextStyle(fontSize: 10.0),
                 ),
                 validator: emailValidator,
                 onSaved: (value) => _email = value,
@@ -82,7 +84,9 @@ class _SignupPageState extends State<SignupPage> {
                 decoration: const InputDecoration(
                     icon: Icon(Icons.lock),
                     labelText: "Password",
-                    //helperText: "Password must have at least 8 characters with at least one special character"
+                    helperText: "Password must be at least 8 characters with special character.",
+                    helperStyle: TextStyle(fontSize: 9.0),
+                    errorStyle: TextStyle(fontSize: 10.0),
                 ),
                 obscureText: true,
                 validator: passwordValidator,
@@ -91,7 +95,8 @@ class _SignupPageState extends State<SignupPage> {
               new TextFormField(
                 decoration: const InputDecoration(
                     icon: Icon(Icons.lock),
-                    labelText: "Confirm Password"
+                    labelText: "Confirm Password",
+                    errorStyle: TextStyle(fontSize: 10.0),
                 ),
                 obscureText: true,
                 validator: (value) => MatchValidator(errorText: "Passwords do not match!")
@@ -117,13 +122,10 @@ class _SignupPageState extends State<SignupPage> {
             padding: EdgeInsets.all(16.0),
             child: ListView(
               children: <Widget>[
+                _buildHeader(),
+                _buildForm(),
                 SizedBox(
-                  height: MediaQuery.of(context).size.height / 3,
-                  child: _buildHeader()
-                ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height / 1.75,
-                  child: _buildForm()
+                  height: 30.0
                 ),
                 Center(
                   child: Text("Already have an account? Login here!",
