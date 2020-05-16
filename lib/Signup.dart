@@ -22,6 +22,7 @@ class _SignupPageState extends State<SignupPage> {
     if (form.validate()) {
       print("Form is valid");
       form.save();
+      print("Name: $_name, email: $_email, password: $_password");
     } else {
       print("Form is invalid");
     }
