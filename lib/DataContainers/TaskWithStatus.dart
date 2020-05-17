@@ -1,12 +1,13 @@
-import 'package:flutter/cupertino.dart';
-import 'package:orbital2020/Task.dart';
+import 'package:orbital2020/DataContainers/Task.dart';
 
+//Contains data related to the completion status of a task in addition to the task details
 class TaskWithStatus extends Task{
   bool completed;
   bool verified;
 
   TaskWithStatus({
-    @required String name,
+    String id,
+    String name,
     String description,
     String createdBy,
     DateTime dueDate,
@@ -16,7 +17,7 @@ class TaskWithStatus extends Task{
   }) :
     this.completed = completed ?? false,
     this.verified = verified ?? false,
-    super(name: name, description: description, createdBy: createdBy, dueDate: dueDate, tags: tags);
+    super(id: id, name: name, description: description, createdBy: createdBy, dueDate: dueDate, tags: tags);
 
   Map<String, dynamic> toKeyValuePair() {
     Map<String, dynamic> map = super.toKeyValuePair();

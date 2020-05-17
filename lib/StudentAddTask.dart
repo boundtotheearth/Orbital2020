@@ -1,11 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:form_field_validator/form_field_validator.dart';
-import 'package:orbital2020/DatabaseController.dart';
-import 'package:orbital2020/Task.dart';
 
-import 'AppDrawer.dart';
+import 'package:intl/intl.dart';
+
+import 'package:form_field_validator/form_field_validator.dart';
+
+import 'package:orbital2020/DatabaseController.dart';
+import 'package:orbital2020/DataContainers/Student.dart';
+import 'package:orbital2020/DataContainers/Task.dart';
+import 'package:orbital2020/AppDrawer.dart';
 
 
 class StudentAddTask extends StatefulWidget {
@@ -43,7 +46,7 @@ class AddTaskForm extends StatefulWidget {
 
 class _AddTaskFormState extends State<AddTaskForm> {
   final _formKey = GlobalKey<FormState>();
-  final _dueDateController = TextEditingController();
+  final _dueDateController = TextEditingController(text: "None");
   final db = DatabaseController();
 
   String _taskName;
@@ -54,19 +57,20 @@ class _AddTaskFormState extends State<AddTaskForm> {
   @override
   void initState() {
     super.initState();
-    _dueDate = DateTime.now();
   }
 
-  Future<Null> setDueDate(BuildContext context) async {
-    final picked = await showDatePicker(
+  Future<DateTime> setDueDate(BuildContext context) async {
+    return showDatePicker(
         context: context,
         initialDate: DateTime.now(),
         firstDate: DateTime.now(),
-        lastDate: DateTime(2101));
-    if (picked != null)
+        lastDate: DateTime(2101)
+    ).then((date) {
       setState(() {
-        _dueDate = picked;
+        _dueDate = date;
       });
+      return date;
+    });
   }
 
   void deleteTag(String tag) {
@@ -117,7 +121,9 @@ class _AddTaskFormState extends State<AddTaskForm> {
         tags: _tags,
       );
 
-      db.createAndAssign(newTask, 'Rsd56J6FqHEFFg12Uf3M').then((value) {
+      Student me = Student(id: 'Rsd56J6FqHEFFg12Uf3M', name: 'Me');
+
+      db.selfCreateAndAssignTask(task: newTask, student: me).then((value) {
         Scaffold
             .of(context)
             .showSnackBar(SnackBar(content: Text('Success')));
@@ -162,8 +168,14 @@ class _AddTaskFormState extends State<AddTaskForm> {
                       suffixIcon: Icon(Icons.calendar_today),
                     ),
                     onTap: () {
-                      setDueDate(context);
-                      _dueDateController.text = DateFormat('dd/MM/y').format(_dueDate);
+                      setDueDate(context).then((value) => null).then((value) {
+                        if(value != null) {
+                          _dueDateController.text =
+                              DateFormat('dd/MM/y').format(value);
+                        } else {
+                          _dueDateController.text = "None";
+                        }
+                      });
                     },
                     controller: _dueDateController,
                     validator: DateValidator('dd/MM/y', errorText: 'Invalid date format!'),

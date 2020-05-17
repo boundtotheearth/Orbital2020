@@ -1,7 +1,8 @@
-import 'package:flutter/cupertino.dart';
-import 'package:orbital2020/TaskWithStatus.dart';
+import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 
+//Contains data on a specific task and operations to convert the data into a database friendly format.
 class Task {
+  String id;
   String name;
   String description;
   String createdBy;
@@ -9,7 +10,8 @@ class Task {
   List<String> tags;
 
   Task({
-    @required this.name,
+    this.id,
+    this.name,
     this.description,
     this.createdBy,
     this.dueDate,
@@ -28,6 +30,7 @@ class Task {
 
   TaskWithStatus addStatus(bool completed, bool verified) {
     return TaskWithStatus(
+      id: id,
       name: name,
       description: description,
       createdBy: createdBy,
