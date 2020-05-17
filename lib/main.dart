@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:orbital2020/Auth.dart';
-import 'package:orbital2020/Signup.dart';
-import 'package:orbital2020/StudentAddTask.dart';
 import 'AuthProvider.dart';
-import 'Login.dart';
+import 'Root.dart';
 import 'StudentMain.dart';
 import 'StudentAddTask.dart';
 import 'Auth.dart';
@@ -91,19 +88,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => SignupPage()),
+                    MaterialPageRoute(builder: (context) => RootPage()),
                   );
                 },
-                child: const Text('Signup Page'),
-              ),
-              RaisedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginPage()),
-                  );
-                },
-                child: const Text('Login Page'),
+                child: const Text('Root Page'),
               ),
             ],
           ),

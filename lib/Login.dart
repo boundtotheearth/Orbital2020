@@ -3,26 +3,34 @@ import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:orbital2020/AuthProvider.dart';
 import 'Auth.dart';
-import 'Signup.dart';
+
 
 class LoginPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => new _LoginPageState();
 }
 
+enum DisplayType {
+  login,
+  register
+}
+
 class _LoginPageState extends State<LoginPage> {
 
+  String _name;
   String _email;
   String _password;
+  DisplayType _displayType = DisplayType.login;
 
   final formKey = new GlobalKey<FormState>();
+  final passwordKey = new GlobalKey<FormFieldState>();
 
   bool validateAndSave() {
     final form = formKey.currentState;
     if (form.validate()) {
       print("Form is valid");
       form.save();
-      print("Email: $_email, password: $_password");
+      print("Name: $_name, Email: $_email, password: $_password");
       return true;
     } else {
       print("Form is invalid");
@@ -30,12 +38,18 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void login() async {
+  Future<void> submit() async {
     if (validateAndSave()) {
       try {
         final Auth auth = AuthProvider.of(context).auth;
-        String userId = await auth.signInWithEmailPassword(_email, _password);
-        print("Logged in: $userId");
+        if (_displayType == DisplayType.login) {
+          String userId = await auth.signInWithEmailPassword(_email, _password);
+          print("Logged in: $userId");
+        } else {
+          String userId = await auth.createAccWithEmailPassword(_email, _password);
+          print("New Account created: $userId");
+        }
+
       } catch (error) {
         print("Error: $error");
       }
@@ -43,13 +57,28 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void redirectToSignup() {
-    MaterialPageRoute route = MaterialPageRoute(builder: (context) => SignupPage());
-    Navigator.push(context, route);
+    formKey.currentState.reset();
+    setState(() {
+      _displayType = DisplayType.register;
+    });
+  }
+
+  void redirectToLogin() {
+    formKey.currentState.reset();
+    setState(() {
+      _displayType = DisplayType.login;
+    });
   }
 
   final emailValidator = MultiValidator([
     RequiredValidator(errorText: "Email cannot be empty"),
     EmailValidator(errorText: "Email format is invalid!"),
+  ]);
+
+  final passwordValidator = MultiValidator([
+    RequiredValidator(errorText: "Password cannot be empty!"),
+    MinLengthValidator(8, errorText: 'Password must be at least 8 characters long!'),
+    PatternValidator(r'(?=.*?[#?!@$%^&*-])', errorText: 'Password must have at least one special character!')
   ]);
 
   Widget _buildHeader() {
@@ -67,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildForm() {
+  Widget _loginForm() {
     return Form(
         key: formKey,
         child: new Column(
@@ -95,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
                 onSaved: (value) => _password = value,
               ),
               new RaisedButton(
-                onPressed: login,
+                onPressed: submit,
                 color: Colors.white,
                 child: new Text("LOGIN", style: new TextStyle(
                     color: Colors.green, fontSize: 20.0)),
@@ -103,6 +132,95 @@ class _LoginPageState extends State<LoginPage> {
             ]
         )
     );
+  }
+
+  Widget _registerForm() {
+    return Form(
+        key: formKey,
+        child: new Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              new TextFormField(
+                decoration: const InputDecoration(
+                  icon: Icon(Icons.person),
+                  labelText: "Full Name",
+                  errorStyle: TextStyle(fontSize: 10.0),
+                ),
+                validator: RequiredValidator(errorText: "Name cannot be empty!"),
+                onSaved: (value) => _name = value,
+              ),
+              new TextFormField(
+                decoration: const InputDecoration(
+                  icon: Icon(Icons.email),
+                  labelText: "Email",
+                  errorStyle: TextStyle(fontSize: 10.0),
+                ),
+                validator: emailValidator,
+                onSaved: (value) => _email = value,
+              ),
+              new TextFormField(
+                key: passwordKey,
+                decoration: const InputDecoration(
+                  icon: Icon(Icons.lock),
+                  labelText: "Password",
+                  helperText: "Password must be at least 8 characters with special character.",
+                  helperStyle: TextStyle(fontSize: 9.0),
+                  errorStyle: TextStyle(fontSize: 10.0),
+                ),
+                obscureText: true,
+                validator: passwordValidator,
+                onSaved: (value) => _password = value,
+              ),
+              new TextFormField(
+                decoration: const InputDecoration(
+                  icon: Icon(Icons.lock),
+                  labelText: "Confirm Password",
+                  errorStyle: TextStyle(fontSize: 10.0),
+                ),
+                obscureText: true,
+                validator: (value) => MatchValidator(errorText: "Passwords do not match!")
+                    .validateMatch(value, passwordKey.currentState.value),
+              ),
+              new RaisedButton(
+                onPressed: submit,
+                color: Colors.white,
+                child: new Text("SIGN UP", style: new TextStyle(
+                    color: Colors.green, fontSize: 20.0)),
+              )
+            ]
+        )
+    );
+  }
+
+  Widget _redirectText() {
+    String question = _displayType == DisplayType.login
+        ? "Don't have an account?"
+        : "Already have an account?";
+    String action = _displayType == DisplayType.login
+        ? "Register here!"
+        :  "Login here!";
+
+    return Center(
+        child: new RichText(
+            text: TextSpan(
+                text: question,
+                style: TextStyle(color: Colors.white, fontSize: 12.0),
+                children: <TextSpan>[
+                  TextSpan(
+                      text: action,
+                      style: TextStyle(fontStyle: FontStyle.italic),
+                      recognizer: new TapGestureRecognizer()..onTap =
+                          _displayType == DisplayType.login
+                              ? redirectToSignup
+                              : redirectToLogin
+                  )
+                ]
+            )
+        )
+    );
+
   }
 
   @override
@@ -115,25 +233,11 @@ class _LoginPageState extends State<LoginPage> {
             child: ListView(
               children: <Widget>[
                 _buildHeader(),
-                _buildForm(),
+                _displayType == DisplayType.login ? _loginForm() : _registerForm(),
                 SizedBox(
                     height: 30.0
                 ),
-                Center(
-                    child: new RichText(
-                        text: TextSpan(
-                            text: "Don't have an account?",
-                            style: TextStyle(color: Colors.white, fontSize: 12.0),
-                            children: <TextSpan>[
-                              TextSpan(
-                                  text: "Register here!",
-                                  style: TextStyle(fontStyle: FontStyle.italic),
-                                  recognizer: new TapGestureRecognizer()..onTap = redirectToSignup
-                              )
-                            ]
-                        )
-                    )
-                )
+                _redirectText()
               ],
             )
         )

@@ -1,11 +1,27 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:orbital2020/AuthProvider.dart';
+
+import 'Auth.dart';
 
 class AppDrawer extends StatelessWidget {
-  const AppDrawer({ Key key }) : super(key: key);
+  const AppDrawer({ Key key, this.userId }) : super(key: key);
+
+  final String userId;
+  Future<void> signOut(BuildContext context) async {
+    print("Tapped Logout");
+    try {
+      Auth auth = AuthProvider.of(context).auth;
+      await auth.signOut();
+      print("Signed out: $userId");
+    } catch (error) {
+      print("$error");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+
     return Drawer(
         child: ListView(
           children: <Widget>[
@@ -15,7 +31,7 @@ class AppDrawer extends StatelessWidget {
               ),
               child: ListTile(
                 leading: const Icon(Icons.account_circle),
-                title: const Text('Username'),
+                title: Text('$userId'),
               ),
             ),
             ListTile(
@@ -46,6 +62,10 @@ class AppDrawer extends StatelessWidget {
                 Navigator.pop(context);
               },
             ),
+            ListTile(
+              title: Text('Logout'),
+              onTap: () => signOut(context)
+            )
           ],
         )
     );
