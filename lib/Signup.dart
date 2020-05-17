@@ -1,11 +1,12 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'Auth.dart';
+import 'AuthProvider.dart';
+import 'Login.dart';
 
 
 class SignupPage extends StatefulWidget {
-  SignupPage({this.auth});
-  final Auth auth;
 
   @override
   State<StatefulWidget> createState() => new _SignupPageState();
@@ -36,12 +37,18 @@ class _SignupPageState extends State<SignupPage> {
   void signUp() async {
     if (validateSaveForm()) {
       try {
-        String userId = await widget.auth.createAccWithEmailPassword(_email, _password);
+        final Auth auth = AuthProvider.of(context).auth;
+        String userId = await auth.createAccWithEmailPassword(_email, _password);
         print("New Account created: $userId");
       } catch (error) {
         print("$error");
       }
     }
+  }
+
+  void redirectToLogin() {
+    MaterialPageRoute route = MaterialPageRoute(builder: (context) => LoginPage());
+    Navigator.push(context, route);
   }
 
   final emailValidator = MultiValidator([
@@ -145,8 +152,19 @@ class _SignupPageState extends State<SignupPage> {
                   height: 30.0
                 ),
                 Center(
-                  child: Text("Already have an account? Login here!",
-                    style: TextStyle(color: Colors.white, fontSize: 12.0),)
+                  child: new RichText(
+                    text: TextSpan(
+                      text: "Already have an account?",
+                      style: TextStyle(color: Colors.white, fontSize: 12.0),
+                      children: <TextSpan>[
+                        TextSpan(
+                          text: "Login here!",
+                          style: TextStyle(fontStyle: FontStyle.italic),
+                          recognizer: new TapGestureRecognizer()..onTap = redirectToLogin
+                        )
+                      ]
+                    )
+                  )
                 )
               ],
             )

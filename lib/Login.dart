@@ -1,10 +1,11 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
+import 'package:orbital2020/AuthProvider.dart';
 import 'Auth.dart';
+import 'Signup.dart';
 
 class LoginPage extends StatefulWidget {
-  LoginPage({this.auth});
-  final Auth auth;
   @override
   State<StatefulWidget> createState() => new _LoginPageState();
 }
@@ -32,12 +33,18 @@ class _LoginPageState extends State<LoginPage> {
   void login() async {
     if (validateAndSave()) {
       try {
-        String userId = await widget.auth.signInWithEmailPassword(_email, _password);
+        final Auth auth = AuthProvider.of(context).auth;
+        String userId = await auth.signInWithEmailPassword(_email, _password);
         print("Logged in: $userId");
       } catch (error) {
         print("Error: $error");
       }
     }
+  }
+
+  void redirectToSignup() {
+    MaterialPageRoute route = MaterialPageRoute(builder: (context) => SignupPage());
+    Navigator.push(context, route);
   }
 
   final emailValidator = MultiValidator([
@@ -113,8 +120,19 @@ class _LoginPageState extends State<LoginPage> {
                     height: 30.0
                 ),
                 Center(
-                    child: Text("Don't have an account? Signup here!",
-                      style: TextStyle(color: Colors.white, fontSize: 12.0),)
+                    child: new RichText(
+                        text: TextSpan(
+                            text: "Don't have an account?",
+                            style: TextStyle(color: Colors.white, fontSize: 12.0),
+                            children: <TextSpan>[
+                              TextSpan(
+                                  text: "Register here!",
+                                  style: TextStyle(fontStyle: FontStyle.italic),
+                                  recognizer: new TapGestureRecognizer()..onTap = redirectToSignup
+                              )
+                            ]
+                        )
+                    )
                 )
               ],
             )
