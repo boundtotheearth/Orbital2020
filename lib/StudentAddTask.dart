@@ -168,11 +168,12 @@ class _AddTaskFormState extends State<AddTaskForm> {
                       suffixIcon: Icon(Icons.calendar_today),
                     ),
                     onTap: () {
-                      setDueDate(context).then((value) => null).then((value) {
+                      setDueDate(context).then((value) {
                         if(value != null) {
                           _dueDateController.text =
                               DateFormat('dd/MM/y').format(value);
                         } else {
+                          print("here");
                           _dueDateController.text = "None";
                         }
                       });
