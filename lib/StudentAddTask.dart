@@ -62,7 +62,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
   Future<DateTime> setDueDate(BuildContext context) async {
     return showDatePicker(
         context: context,
-        initialDate: DateTime.now(),
+        initialDate: DateTime.now().add(Duration(days: 1)),
         firstDate: DateTime.now(),
         lastDate: DateTime(2101)
     ).then((date) {
