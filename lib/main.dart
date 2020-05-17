@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:orbital2020/Signup.dart';
 import 'package:orbital2020/StudentAddTask.dart';
-import 'StudentMain.dart';
-import 'StudentAddTask.dart';
+import 'package:orbital2020/StudentMain.dart';
 
 void main() => runApp(MyApp());
 
