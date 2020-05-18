@@ -20,16 +20,28 @@ class FirebaseAuthentication implements Auth {
 
   @override
   Future<String> signInWithEmailPassword(String email, String password) async {
-    FirebaseUser user = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password)
-      .then((result) => result.user);
-    return user.uid;
+    try {
+      FirebaseUser user = await _firebaseAuth.signInWithEmailAndPassword(
+          email: email, password: password)
+          .then((result) => result.user);
+      return user.uid;
+    } catch (error) {
+      print(error);
+      return null;
+    }
   }
 
   @override
   Future<String> createAccWithEmailPassword(String email, String password) async {
-    FirebaseUser user = await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password)
-      .then((result) => result.user);
-    return user.uid;
+    try {
+      FirebaseUser user = await _firebaseAuth.createUserWithEmailAndPassword(
+          email: email, password: password)
+          .then((result) => result.user);
+      return user.uid;
+    } catch (error) {
+      print(error);
+      return null;
+    }
   }
 
   @override

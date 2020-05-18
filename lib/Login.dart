@@ -40,19 +40,32 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> submit() async {
     if (validateAndSave()) {
-      try {
-        final Auth auth = AuthProvider.of(context).auth;
-        if (_displayType == DisplayType.login) {
-          String userId = await auth.signInWithEmailPassword(_email, _password);
-          print("Logged in: $userId");
+      final Auth auth = AuthProvider.of(context).auth;
+      if (_displayType == DisplayType.login) {
+        String userId = await auth.signInWithEmailPassword(_email, _password);
+        if (userId == null) {
+          showDialog(
+              context: context,
+              builder: (_) => _alert("Login failed", "Incorrect credentials. Please try again."),
+              barrierDismissible: false
+          );
         } else {
-          String userId = await auth.createAccWithEmailPassword(_email, _password);
+          print("Logged in: $userId");
+        }
+      } else {
+        String userId = await auth.createAccWithEmailPassword(_email, _password);
+        if (userId == null) {
+          showDialog(
+              context: context,
+              builder: (_) => _alert("Register failed", "Please try again."),
+              barrierDismissible: false
+          );
+        } else {
           print("New Account created: $userId");
         }
-
-      } catch (error) {
-        print("Error: $error");
       }
+
+
     }
   }
 
@@ -221,6 +234,21 @@ class _LoginPageState extends State<LoginPage> {
         )
     );
 
+  }
+
+  Widget _alert(String header, String msg) {
+    return AlertDialog(
+      title: Text(header),
+      content: Text(msg),
+      actions: <Widget>[
+        FlatButton(
+          child: Text("Ok"),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ],
+      elevation: 24.0,
+
+    );
   }
 
   @override
