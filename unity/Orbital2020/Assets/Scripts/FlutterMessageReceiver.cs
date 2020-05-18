@@ -19,8 +19,13 @@ public class FlutterMessageReceiver : MonoBehaviour
         
     }
 
-    void Increment(string amount)
+    public void Increment(string amount)
     {
         counter.Increment(int.Parse(amount));
+    }
+
+    public void QuitApp(string useless)
+    {
+        Application.Quit();
     }
 }

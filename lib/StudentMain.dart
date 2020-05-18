@@ -31,8 +31,14 @@ class _StudentMainState extends State<StudentMain> {
     _unityWidgetController.postMessage('FlutterMessageReceiver', 'Increment', amount);
   }
 
-  void onUnityCreated(controller) {
+  void _onUnityCreated(controller) {
     this._unityWidgetController = controller;
+  }
+
+  Future<Widget> _unityWidgetBuilder() async {
+    return UnityWidget(
+      onUnityViewCreated: _onUnityCreated,
+    );
   }
 
   Widget _buildTaskList(List<TaskWithStatus> tasks) {
@@ -87,10 +93,17 @@ class _StudentMainState extends State<StudentMain> {
       body: SafeArea(
           child: Column(
             children: <Widget>[
-              Container(
-                height: 300,
-                child: UnityWidget(
-                  onUnityViewCreated: onUnityCreated,
+              AspectRatio(
+                aspectRatio: 3/2,
+                child: FutureBuilder(
+                  future: _unityWidgetBuilder(),
+                  builder: (context, snapshot) {
+                    if(snapshot.hasData) {
+                      return snapshot.data;
+                    } else {
+                      return Container();
+                    }
+                  },
                 ),
               ),
               Row(
