@@ -6,11 +6,13 @@ import 'package:orbital2020/StudentAddTask.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 
 import 'AppDrawer.dart';
+import 'Auth.dart';
+import 'AuthProvider.dart';
 
 
 class StudentMain extends StatefulWidget {
-  StudentMain({Key key}) : super(key: key);
-
+  StudentMain({Key key, this.userId}) : super(key: key);
+  final String userId;
   @override
   _StudentMainState createState() => _StudentMainState();
 }
@@ -76,6 +78,17 @@ class _StudentMainState extends State<StudentMain> {
     }));
   }
 
+  Future<void> _signOut(BuildContext context) async {
+    print("Tapped Logout");
+    try {
+      final Auth auth = AuthProvider.of(context).auth;
+      await auth.signOut();
+      print("Signed out");
+    } catch (error) {
+      print(error);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,11 +98,17 @@ class _StudentMainState extends State<StudentMain> {
           IconButton(
             icon: const Icon(Icons.search),
             tooltip: 'Search',
-            onPressed: () {},
+            onPressed: () {
+
+            },
+          ),
+          FlatButton(
+            child: Text('Logout', style: TextStyle(fontSize: 17.0, color: Colors.white)),
+            onPressed: () => _signOut(context),
           )
         ],
       ),
-      drawer: AppDrawer(),
+      drawer: AppDrawer(userId: widget.userId),
       body: SafeArea(
           child: Column(
             children: <Widget>[

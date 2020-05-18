@@ -20,6 +20,7 @@ dependencies:
   flutter:
     sdk: flutter
   form_field_validator: ^1.0.1
+  firebase_auth: ^0.16.0
   flutter_unity_widget: ^0.1.6+8
   intl: ^0.16.1
   cloud_firestore: ^0.13.5
