@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/StudentWithStatus.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
@@ -73,10 +74,90 @@ class DatabaseController {
     return tasks;
   }
 
+  //Get a stream of snapshots containing tasks that have been assigned to a group.
+  //Each snapshot contains a list of tasks, without their completion statuses.
+  Stream<List<Task>> getGroupTaskSnapshots({String teacherId, String groupId}) {
+    Stream<List<Task>> tasks = db.collection('teachers')
+        .document(teacherId)
+        .collection('groups')
+        .document(groupId)
+        .collection('tasks')
+        .snapshots()
+        .map((snapshot) => snapshot.documents)
+        .map((documents) =>
+        documents.map((document) {
+          Task t = Task(
+              id: document.documentID,
+              name: document['name'],
+              dueDate: document['dueDate'].toDate(),
+          );
+          print(t);
+          return t;
+        }).toList()
+    );
+    return tasks;
+  }
+
+  //Get a stream of snapshots containing the students in a group.
+  Stream<List<Student>> getGroupStudentSnapshots({String teacherId, String groupId}) {
+    Stream<List<Student>> students = db.collection('teachers')
+        .document(teacherId)
+        .collection('groups')
+        .document(groupId)
+        .collection('students')
+        .snapshots()
+        .map((snapshot) => snapshot.documents)
+        .map((documents) =>
+        documents.map((document) {
+          Student s = Student(
+            id: document.documentID,
+            name: document['name'],
+          );
+          return s;
+        }).toList()
+    );
+    return students;
+  }
+
+  //Get a stream of snapshots containing the groups managed by a teacher.
+  //Each snapshot contains a list of groups
+  Stream<List<Group>> getTeacherGroupSnapshots({String teacherId}) {
+    Stream<List<Group>> groups = db.collection('teachers')
+        .document(teacherId)
+        .collection('groups')
+        .snapshots()
+        .map((snapshot) => snapshot.documents)
+        .map((documents) =>
+        documents.map((document) {
+          Group g = Group(
+            id: document.documentID,
+            name: document['name'],
+          );
+          return g;
+        }).toList()
+    );
+    return groups;
+  }
+
   // Get a stream of snapshots containing students that the task was assigned to.
   // Each snapshot contains a list of Students and their completion status
   Stream<void> getTaskCompletionSnapshots(String taskId) {
-
+    Stream<List<StudentWithStatus>> students = db.collection('tasks')
+        .document(taskId)
+        .collection('students')
+        .snapshots()
+        .map((snapshot) => snapshot.documents)
+        .map((documents) =>
+        documents.map((document) {
+          StudentWithStatus s = StudentWithStatus(
+              id: document.documentID,
+              name: document['name'],
+              completed: document['completed'],
+              verified: document['verified']);
+          return s;
+        }).toList()
+    );
+    return students;
   }
 
   //Creates a new task with a random taskID and returns the taskID

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:orbital2020/TeacherGroups.dart';
+import 'package:orbital2020/TeacherTaskView.dart';
 
 import 'AuthProvider.dart';
 import 'Root.dart';
@@ -94,6 +96,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   );
                 },
                 child: const Text('Root Page'),
+              ),
+              RaisedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => TeacherGroups(userId: 'D7w524hmfMMzuoXJl1Dn',)),
+                  );
+                },
+                child: const Text('Teacher Groups Page'),
               ),
             ],
           ),
