@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:orbital2020/Login.dart';
 import 'package:orbital2020/StudentMain.dart';
+import 'package:provider/provider.dart';
 import 'Auth.dart';
 import 'AuthProvider.dart';
+import 'HomePage.dart';
 
 class RootPage extends StatelessWidget {
   @override
@@ -13,7 +15,12 @@ class RootPage extends StatelessWidget {
       builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
         if (snapshot.connectionState == ConnectionState.active) {
           final bool isLoggedIn = snapshot.hasData;
-          return isLoggedIn ? StudentMain(userId: snapshot.data,) : LoginPage();
+          return isLoggedIn
+            ? Provider<String>(
+                create: (_) => snapshot.data,
+                child: HomePage()
+              )
+            : LoginPage();
         } else {
           return _buildLoading();
         }
