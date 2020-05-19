@@ -178,12 +178,3 @@ class _StudentMainState extends State<StudentMain> {
     );
   }
 }
-
-class MockTask {
-  String name;
-  bool completed;
-  bool verified;
-
-  MockTask(this.name, this.completed, this.verified);
-
-}
