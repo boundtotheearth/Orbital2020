@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
           print("Logged in: $userId");
         }
       } else {
-        String userId = await auth.createAccWithEmailPassword(_email, _password);
+        String userId = await auth.createAccWithEmailPassword(_name, _email, _password);
         if (userId == null) {
           showDialog(
               context: context,

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -13,8 +14,8 @@ import 'package:provider/provider.dart';
 
 
 class StudentAddTask extends StatefulWidget {
-  StudentAddTask({Key key, this.userId}) : super(key: key);
-  final String userId;
+  StudentAddTask({Key key}) : super(key: key);
+
 
   @override
   _StudentAddTaskState createState() => _StudentAddTaskState();
@@ -52,7 +53,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
   final db = DatabaseController();
 
 
-  String _userId;
+  FirebaseUser _user;
   String _taskName;
   String _taskDescription;
   DateTime _dueDate;
@@ -61,7 +62,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
   @override
   void initState() {
     super.initState();
-    _userId = Provider.of<String>(context, listen: false);
+    _user = Provider.of<FirebaseUser>(context, listen: false);
   }
 
   Future<DateTime> setDueDate(BuildContext context) async {
@@ -126,7 +127,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
         tags: _tags,
       );
 
-      Student me = Student(id: _userId, name: 'Me');
+      Student me = Student(id: _user.uid, name: 'Me');
 
       db.selfCreateAndAssignTask(task: newTask, student: me).then((value) {
         Scaffold

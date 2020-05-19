@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:orbital2020/Login.dart';
 import 'package:orbital2020/StudentMain.dart';
@@ -10,13 +11,13 @@ class RootPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Auth auth = AuthProvider.of(context).auth;
-    return StreamBuilder<String>(
+    return StreamBuilder<FirebaseUser>(
       stream: auth.onAuthStateChanged,
-      builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {
         if (snapshot.connectionState == ConnectionState.active) {
           final bool isLoggedIn = snapshot.hasData;
           return isLoggedIn
-            ? Provider<String>(
+            ? Provider<FirebaseUser>(
                 create: (_) => snapshot.data,
                 child: HomePage()
               )
