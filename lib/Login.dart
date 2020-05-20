@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:orbital2020/AuthProvider.dart';
 import 'Auth.dart';
+import 'DataContainers/Student.dart';
+import 'DatabaseController.dart';
 
 
 class LoginPage extends StatefulWidget {
@@ -22,6 +24,7 @@ class _LoginPageState extends State<LoginPage> {
   String _password;
   DisplayType _displayType = DisplayType.login;
 
+  final DatabaseController db = DatabaseController();
   final formKey = new GlobalKey<FormState>();
   final passwordKey = new GlobalKey<FormFieldState>();
 
@@ -53,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
           print("Logged in: $userId");
         }
       } else {
-        String userId = await auth.createAccWithEmailPassword(_email, _password);
+        String userId = await auth.createAccWithEmailPassword(_name, _email, _password);
         if (userId == null) {
           showDialog(
               context: context,
@@ -61,11 +64,11 @@ class _LoginPageState extends State<LoginPage> {
               barrierDismissible: false
           );
         } else {
+          Student newStudent = new Student(id: userId, name: _name);
+          db.initialiseNewStudent(newStudent);
           print("New Account created: $userId");
         }
       }
-
-
     }
   }
 
