@@ -98,10 +98,11 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               RaisedButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => TeacherGroups(userId: 'D7w524hmfMMzuoXJl1Dn',)),
-                  );
+//                  Navigator.push(
+//                    context,
+//                    MaterialPageRoute(builder: (context) => TeacherGroups(userId: 'D7w524hmfMMzuoXJl1Dn',)),
+//                  );
+                  Navigator.of(context).pushNamed('teacher_groups');
                 },
                 child: const Text('Teacher Groups Page'),
               ),

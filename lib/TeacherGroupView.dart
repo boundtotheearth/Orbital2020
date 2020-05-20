@@ -173,7 +173,7 @@ class _TeacherGroupViewState extends State<TeacherGroupView> {
           child: const Icon(Icons.add),
           tooltip: 'Assign Task',
           onPressed: () {
-
+            Navigator.of(context).pushNamed('teacher_addTask');
           },
         ),
       ),

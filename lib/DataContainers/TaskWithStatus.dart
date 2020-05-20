@@ -9,7 +9,8 @@ class TaskWithStatus extends Task{
     String id,
     String name,
     String description,
-    String createdBy,
+    String createdByName,
+    String createdById,
     DateTime dueDate,
     List<String> tags = const [],
     bool completed,
@@ -17,7 +18,7 @@ class TaskWithStatus extends Task{
   }) :
     this.completed = completed ?? false,
     this.verified = verified ?? false,
-    super(id: id, name: name, description: description, createdBy: createdBy, dueDate: dueDate, tags: tags);
+    super(id: id, name: name, description: description, createdByName: createdByName, createdById: createdById, dueDate: dueDate, tags: tags);
 
   Map<String, dynamic> toKeyValuePair() {
     Map<String, dynamic> map = super.toKeyValuePair();

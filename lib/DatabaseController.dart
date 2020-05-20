@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/StudentWithStatus.dart';
@@ -20,28 +21,42 @@ class DatabaseController {
   
   //Method to be called with a student creates and assigns themself a task
   Future<void> selfCreateAndAssignTask({Task task, Student student}) {
-    return _createTask(task).then((taskId) =>
+    return _createTask(task).then((task) =>
         Future.wait([
-          _assignTaskToStudent(task, taskId, student.id),
-          _assignStudentToTask(student, student.id, taskId)
+          _assignTaskToStudent(task, task.id, student.id),
+          _assignStudentToTask(student, student.id, task.id)
       ])
     );
   }
 
-  //Method to be called with a teacher creates and assigns a task to a student
-  Future<void> teacherCreateAndAssignTask(Task task, Student student) {
-    return _createTask(task).then((taskId) =>
-        Future.wait([
-          _assignTaskToStudent(task, taskId, student.id),
-          _assignStudentToTask(student, student.id, taskId)
-        ])
-    );
+  //Method to be called when a teacher creates a new task
+  Future<Task> teacherCreateTask({Task task}) {
+    return _createTask(task);
+  }
+
+  //Method to be called when a teacher assigns a task to list of students
+  Future<void> teacherAssignTasksToStudent(Iterable<Task> tasks, Student student) {
+    WriteBatch batch = db.batch();
+
+    for(Task task in tasks) {
+      DocumentReference taskDoc = db.collection('students')
+          .document(student.id)
+          .collection('tasks')
+          .document(task.id);
+      DocumentReference stuDoc = db.collection('tasks')
+          .document(task.id)
+          .collection('students')
+          .document(student.id);
+
+      batch.setData(taskDoc, task.addStatus(false, false).toKeyValuePair());
+      batch.setData(stuDoc, student.addStatus(false, false).toKeyValuePair());
+    }
+
+    return batch.commit();
   }
 
   Future<void> createAndAssignTaskToGroup(Task task, String groupId) {
     return Future(null);
-    //1. Pull list of students from database
-    //2. For each student, run teacherCreateAndAssigntask
   }
 
   Future<void> updateTaskCompletion(String taskId, String studentId, bool completed) {
@@ -58,24 +73,68 @@ class DatabaseController {
     ]);
   }
 
+  //Get a stream of snapshots containing all students and groups in the system.
+  Stream<List<Group>> getAllStudentsAndGroupsSnapshots() {
+    Stream<List<Group>> groups = db.collection('students')
+        .snapshots()
+        .map((snapshot) {
+          List<DocumentSnapshot> documents = snapshot.documents;
+          return documents.map((document) {
+            Group g = Group(
+              id: document.documentID,
+              name: document['name'],
+            );
+            return g;
+          })
+          .toList();
+    });
+
+    return groups;
+  }
+
+  //Get a stream of snapshots containing all tasks created by a teacher.
+  Stream<List<Task>> getTeacherTasksSnapshots({String teacherId}) {
+    Stream<List<Task>> groups = db.collection('tasks')
+        .where('createdById', isEqualTo: teacherId)
+        .snapshots()
+        .map((snapshot) {
+      List<DocumentSnapshot> documents = snapshot.documents;
+      return documents.map((document) {
+        Task g = Task(
+          id: document.documentID,
+          name: document['name'],
+          dueDate: document['dueDate'].toDate(),
+        );
+        return g;
+      })
+          .toList();
+    });
+
+    return groups;
+  }
+
   //Get a stream of snapshots containing tasks assigned to a student with studentId.
   //Each snapshot contains a list of tasks with their corresponding completion status.
-  Stream<List<TaskWithStatus>> getStudentTaskSnapshots({String studentId}) {
+  Stream<List<TaskWithStatus>> getStudentTaskSnapshots({@required String studentId, String teacherId}) {
     Stream<List<TaskWithStatus>> tasks = db.collection('students')
         .document(studentId)
         .collection('tasks')
         .snapshots()
         .map((snapshot) => snapshot.documents)
-        .map((documents) =>
-        documents.map((document) {
-          TaskWithStatus t = TaskWithStatus(
-              id: document.documentID,
-              name: document['name'],
-              createdBy: document['createdBy'],
-              completed: document['completed'],
-              verified: document['verified']);
-          return t;
-        }).toList()
+        .map((documents) {
+          if(teacherId != null) {
+            documents = documents.where((document) => document['createdById'] == teacherId);
+          }
+          return documents.map((document) {
+            TaskWithStatus t = TaskWithStatus(
+                id: document.documentID,
+                name: document['name'],
+                createdByName: document['createdByName'],
+                completed: document['completed'],
+                verified: document['verified']);
+            return t;
+          }).toList();
+        }
     );
     return tasks;
   }
@@ -167,10 +226,13 @@ class DatabaseController {
   }
 
   //Creates a new task with a random taskID and returns the taskID
-  Future<String> _createTask(Task task) {
+  Future<Task> _createTask(Task task) {
     DocumentReference newDoc = db.collection('tasks').document();
     return newDoc.setData(task.toKeyValuePair())
-        .then((value) => newDoc.documentID);
+        .then((value) {
+          task.id = newDoc.documentID;
+          return task;
+    });
   }
 
   //Assigns the task with taskID to the student with studentID, duplicating the task data

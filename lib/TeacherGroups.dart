@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DatabaseController.dart';
-import 'package:orbital2020/TeacherGroupView.dart';
 
 import 'AppDrawer.dart';
 
@@ -36,10 +35,7 @@ class _TeacherGroupsState extends State<TeacherGroups> {
             leading: Icon(Icons.group),
             title: Text(group.name),
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => TeacherGroupView(userId: widget.userId, group: group,)),
-              );
+              Navigator.of(context).pushNamed('teacher_groupView', arguments: group);
             },
           );
         }

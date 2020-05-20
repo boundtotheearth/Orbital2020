@@ -25,7 +25,7 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
   @override
   void initState() {
     super.initState();
-    _tasks = db.getStudentTaskSnapshots(studentId: widget.student.id);
+    _tasks = db.getStudentTaskSnapshots(studentId: widget.student.id, teacherId: widget.userId);
   }
 
   Widget _buildTaskList(List<TaskWithStatus> tasks) {
@@ -118,7 +118,7 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
         child: const Icon(Icons.add),
         tooltip: 'Assign Task',
         onPressed: () {
-
+          Navigator.of(context).pushNamed('teacher_assignTask', arguments: widget.student);
         },
       ),
     );
