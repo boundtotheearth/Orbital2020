@@ -162,7 +162,7 @@ class _TeacherGroupViewState extends State<TeacherGroupView> {
             ],
           ),
         ),
-        drawer: AppDrawer(userId: widget.userId),
+        drawer: AppDrawer(),
         body: TabBarView(
           children: <Widget>[
             _buildTasksTabView(),

@@ -130,7 +130,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
           ),
         ],
       ),
-      drawer: AppDrawer(userId: widget.userId),
+      drawer: AppDrawer(),
       body: SafeArea(
           child: Column(
             children: <Widget>[

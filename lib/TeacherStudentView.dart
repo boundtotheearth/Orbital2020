@@ -77,7 +77,7 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
           ),
         ],
       ),
-      drawer: AppDrawer(userId: widget.userId),
+      drawer: AppDrawer(),
       body: SafeArea(
           child: Column(
             children: <Widget>[

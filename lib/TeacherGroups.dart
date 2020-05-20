@@ -67,7 +67,7 @@ class _TeacherGroupsState extends State<TeacherGroups> {
           ),
         ],
       ),
-      drawer: AppDrawer(userId: widget.userId),
+      drawer: AppDrawer(),
       body: SafeArea(
         child: Scrollbar(
           child: RefreshIndicator(
