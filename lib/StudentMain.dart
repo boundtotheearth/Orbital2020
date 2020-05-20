@@ -7,6 +7,8 @@ import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:provider/provider.dart';
 
 import 'AppDrawer.dart';
+import 'Auth.dart';
+import 'AuthProvider.dart';
 
 
 class StudentMain extends StatefulWidget {
@@ -78,6 +80,17 @@ class _StudentMainState extends State<StudentMain> {
     await Future.microtask(() => setState(() {
       _tasks = db.getStudentTaskSnapshots(studentId: _user.uid);
     }));
+  }
+
+  Future<void> _signOut(BuildContext context) async {
+    print("Tapped Logout");
+    try {
+      final Auth auth = AuthProvider.of(context).auth;
+      await auth.signOut();
+      print("Signed out");
+    } catch (error) {
+      print(error);
+    }
   }
 
   @override
@@ -165,4 +178,13 @@ class _StudentMainState extends State<StudentMain> {
       ),
     );
   }
+}
+
+class MockTask {
+  String name;
+  bool completed;
+  bool verified;
+
+  MockTask(this.name, this.completed, this.verified);
+
 }
