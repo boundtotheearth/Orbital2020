@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -9,10 +10,12 @@ import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/AppDrawer.dart';
+import 'package:provider/provider.dart';
 
 
 class StudentAddTask extends StatefulWidget {
   StudentAddTask({Key key}) : super(key: key);
+
 
   @override
   _StudentAddTaskState createState() => _StudentAddTaskState();
@@ -49,6 +52,8 @@ class _AddTaskFormState extends State<AddTaskForm> {
   final _dueDateController = TextEditingController(text: "None");
   final db = DatabaseController();
 
+
+  FirebaseUser _user;
   String _taskName;
   String _taskDescription;
   DateTime _dueDate;
@@ -57,6 +62,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
   @override
   void initState() {
     super.initState();
+    _user = Provider.of<FirebaseUser>(context, listen: false);
   }
 
   Future<DateTime> setDueDate(BuildContext context) async {
@@ -121,13 +127,13 @@ class _AddTaskFormState extends State<AddTaskForm> {
         tags: _tags,
       );
 
-      Student me = Student(id: 'Rsd56J6FqHEFFg12Uf3M', name: 'Me');
+      Student me = Student(id: _user.uid, name: 'Me');
 
       db.selfCreateAndAssignTask(task: newTask, student: me).then((value) {
         Scaffold
             .of(context)
             .showSnackBar(SnackBar(content: Text('Success')));
-        Navigator.pop(context);
+        Navigator.pushReplacementNamed(context, 'main');
       });
     }
   }

@@ -11,6 +11,12 @@ class DatabaseController {
   void test() async {
     TaskWithStatus t = TaskWithStatus(id: '1', name: 'test');
   }
+
+  Future<void> initialiseNewStudent(Student student)  {
+    return db.collection('students')
+            .document(student.id)
+            .setData(student.toKeyValuePair());
+  }
   
   //Method to be called with a student creates and assigns themself a task
   Future<void> selfCreateAndAssignTask({Task task, Student student}) {
