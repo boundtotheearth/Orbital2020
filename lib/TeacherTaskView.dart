@@ -175,7 +175,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
         child: const Icon(Icons.add),
         tooltip: 'Add Student',
         onPressed: () {
-
+          Navigator.of(context).pushNamed('teacher_assignStudent', arguments: widget.task);
         },
       ),
     );

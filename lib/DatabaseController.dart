@@ -63,6 +63,26 @@ class DatabaseController {
     return batch.commit();
   }
 
+  Future<void> teacherAssignStudentsToTask(Iterable<Student> students, Task task) {
+    WriteBatch batch = db.batch();
+
+    for(Student student in students) {
+      DocumentReference taskDoc = db.collection('students')
+          .document(student.id)
+          .collection('tasks')
+          .document(task.id);
+      DocumentReference stuDoc = db.collection('tasks')
+          .document(task.id)
+          .collection('students')
+          .document(student.id);
+
+      batch.setData(taskDoc, task.addStatus(false, false).toKeyValuePair());
+      batch.setData(stuDoc, student.addStatus(false, false).toKeyValuePair());
+    }
+
+    return batch.commit();
+  }
+
   Future<void> createAndAssignTaskToGroup(Task task, String groupId) {
     return Future(null);
   }

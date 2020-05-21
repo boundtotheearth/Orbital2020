@@ -4,6 +4,7 @@ import 'package:orbital2020/StudentMain.dart';
 import 'package:orbital2020/TeacherAddGroup.dart';
 import 'package:orbital2020/TeacherAddStudentToGroup.dart';
 import 'package:orbital2020/TeacherAddTask.dart';
+import 'package:orbital2020/TeacherAssignStudent.dart';
 import 'package:orbital2020/TeacherAssignTask.dart';
 import 'package:orbital2020/TeacherGroupView.dart';
 import 'package:orbital2020/TeacherGroups.dart';
@@ -55,6 +56,9 @@ class HomePage extends StatelessWidget {
               break;
             case 'teacher_assignTask':
               builder = (_) => TeacherAssignTask(userId: 'CBHrubROTEaYnNwhrxpc3DBwhXx1', student: settings.arguments);
+              break;
+            case 'teacher_assignStudent':
+              builder = (_) => TeacherAssignStudent(userId: 'CBHrubROTEaYnNwhrxpc3DBwhXx1', task: settings.arguments);
               break;
             default:
               throw Exception("Invalid route: ${settings.name}");
