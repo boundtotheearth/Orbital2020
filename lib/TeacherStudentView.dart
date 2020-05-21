@@ -121,7 +121,7 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
         child: const Icon(Icons.add),
         tooltip: 'Assign Task',
         onPressed: () {
-          Navigator.of(context).pushNamed('teacher_assignTask');
+          Navigator.of(context).pushNamed('teacher_assignTask', arguments: widget.student);
         },
       ),
     );

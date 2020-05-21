@@ -132,10 +132,11 @@ class _AddTaskFormState extends State<AddTaskForm> {
       );
 
       db.teacherCreateTask(task: newTask, group: widget.group).then((task) {
+        print(task.id);
         Scaffold
             .of(context)
             .showSnackBar(SnackBar(content: Text('Success')));
-        Navigator.of(context).pushReplacementNamed('teacher_assignStudent');
+        Navigator.of(context).pushReplacementNamed('teacher_assignStudent', arguments: task);
       });
     }
   }

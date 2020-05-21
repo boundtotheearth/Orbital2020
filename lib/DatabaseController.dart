@@ -39,9 +39,9 @@ class DatabaseController {
 
   //Method to be called when a teacher creates a new task
   Future<Task> teacherCreateTask({Task task, Group group}) {
-    return _createTask(task).then((value) {
-      _assignTaskToGroup(task, group);
-      return task;
+    return _createTask(task).then((newTask) {
+      _assignTaskToGroup(newTask, group);
+      return newTask;
     });
   }
 
@@ -307,7 +307,7 @@ class DatabaseController {
 
   Future<void> _assignTaskToGroup(Task task, Group group) {
     return db.collection('teachers')
-        .document()
+        .document(task.createdById)
         .collection('groups')
         .document(group.id)
         .collection('tasks')
