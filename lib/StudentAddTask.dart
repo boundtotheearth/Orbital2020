@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +10,8 @@ import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/AppDrawer.dart';
 import 'package:provider/provider.dart';
+
+import 'DataContainers/User.dart';
 
 
 class StudentAddTask extends StatefulWidget {
@@ -53,7 +54,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
   final db = DatabaseController();
 
 
-  FirebaseUser _user;
+  User _user;
   String _taskName;
   String _taskDescription;
   DateTime _dueDate;
@@ -62,7 +63,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
   @override
   void initState() {
     super.initState();
-    _user = Provider.of<FirebaseUser>(context, listen: false);
+    _user = Provider.of<User>(context, listen: false);
   }
 
   Future<DateTime> setDueDate(BuildContext context) async {
@@ -128,7 +129,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
         tags: _tags,
       );
 
-      Student me = Student(id: _user.uid, name: 'Me');
+      Student me = Student(id: _user.id, name: 'Me');
 
       db.selfCreateAndAssignTask(task: newTask, student: me).then((value) {
         Scaffold

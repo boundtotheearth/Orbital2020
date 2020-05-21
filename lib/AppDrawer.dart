@@ -1,21 +1,21 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:orbital2020/AuthProvider.dart';
 import 'package:provider/provider.dart';
 
 import 'Auth.dart';
+import 'DataContainers/User.dart';
 
 class AppDrawer extends StatelessWidget {
   AppDrawer({ Key key }) : super(key: key);
-  FirebaseUser _user;
+  User _user;
 
   Future<void> signOut(BuildContext context) async {
     print("Tapped Logout");
     try {
       Auth auth = AuthProvider.of(context).auth;
       await auth.signOut();
-      print("Signed out: ${_user.uid}");
+      print("Signed out: ${_user.id}");
     } catch (error) {
       print("$error");
     }
@@ -23,7 +23,7 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _user = Provider.of<FirebaseUser>(context, listen: false);
+    _user = Provider.of<User>(context, listen: false);
     return Drawer(
         child: ListView(
           children: <Widget>[
@@ -33,7 +33,7 @@ class AppDrawer extends StatelessWidget {
               ),
               child: ListTile(
                 leading: const Icon(Icons.account_circle),
-                title: Text('${_user.displayName}'),
+                title: Text('${_user.name}'),
               ),
             ),
             ListTile(
