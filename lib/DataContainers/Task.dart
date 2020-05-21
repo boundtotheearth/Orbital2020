@@ -5,7 +5,8 @@ class Task {
   String id;
   String name;
   String description;
-  String createdBy;
+  String createdByName;
+  String createdById;
   DateTime dueDate;
   List<String> tags;
 
@@ -13,16 +14,18 @@ class Task {
     this.id,
     this.name,
     this.description,
-    this.createdBy,
+    this.createdByName,
+    this.createdById,
     this.dueDate,
     this.tags = const [],
   });
 
   Map<String, dynamic> toKeyValuePair() {
     Map<String, dynamic> map = Map();
-    map['name'] = name;
+    if(name != null) map['name'] = name;
     if(description != null) map['description'] = description;
-    if(createdBy != null) map['createdBy'] = createdBy;
+    if(createdByName != null) map['createdByName'] = createdByName;
+    if(createdById != null) map['createdById'] = createdById;
     if(dueDate != null) map['dueDate'] = dueDate;
     if(tags.isNotEmpty) map['tags'] = tags;
     return map;
@@ -33,7 +36,8 @@ class Task {
       id: id,
       name: name,
       description: description,
-      createdBy: createdBy,
+      createdByName: createdByName,
+      createdById: createdById,
       dueDate: dueDate,
       tags: tags,
       completed: completed,

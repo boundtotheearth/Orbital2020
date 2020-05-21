@@ -2,16 +2,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
+import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
+import 'package:provider/provider.dart';
 
 import 'AppDrawer.dart';
 
 
 class TeacherStudentView extends StatefulWidget {
-  final String userId;
   final Student student;
 
-  TeacherStudentView({Key key, this.userId, this.student}) : super(key: key);
+  TeacherStudentView({Key key, @required this.student}) : super(key: key);
 
   @override
   _TeacherStudentViewState createState() => _TeacherStudentViewState();
@@ -20,12 +21,14 @@ class TeacherStudentView extends StatefulWidget {
 class _TeacherStudentViewState extends State<TeacherStudentView> {
   final DatabaseController db = DatabaseController();
 
+  User _user;
   Stream<List<TaskWithStatus>> _tasks;
 
   @override
   void initState() {
     super.initState();
-    _tasks = db.getStudentTaskSnapshots(studentId: widget.student.id);
+    _user = Provider.of<User>(context, listen: false);
+    _tasks = db.getStudentTaskSnapshots(studentId: widget.student.id, teacherId: _user.id);
   }
 
   Widget _buildTaskList(List<TaskWithStatus> tasks) {
@@ -35,7 +38,7 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
           TaskWithStatus task = tasks[index];
           return ListTile(
             title: Text(task.name),
-            trailing: Wrap(
+            trailing: task.createdById == _user.id ? Wrap(
               children: <Widget>[
                 Checkbox(
                   value: task.completed,
@@ -50,7 +53,7 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
                   },
                 ),
               ],
-            ),
+            ) : Text('Task not created by you!')
           );
         }
     );
@@ -118,7 +121,7 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
         child: const Icon(Icons.add),
         tooltip: 'Assign Task',
         onPressed: () {
-
+          Navigator.of(context).pushNamed('teacher_assignTask', arguments: widget.student);
         },
       ),
     );

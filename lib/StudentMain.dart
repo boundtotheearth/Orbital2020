@@ -52,7 +52,7 @@ class _StudentMainState extends State<StudentMain> {
           TaskWithStatus task = tasks[index];
           return ListTile(
             title: Text(task.name),
-            subtitle: Text(task.createdBy),
+            subtitle: Text(task.createdByName),
             trailing: Wrap(
               children: <Widget>[
                 Checkbox(
@@ -160,7 +160,7 @@ class _StudentMainState extends State<StudentMain> {
 ////              context,
 ////              MaterialPageRoute(builder: (context) => StudentAddTask())
 ////          );
-          Navigator.of(context).pushNamed('addTask');
+          Navigator.of(context).pushNamed('student_addTask');
         },
       ),
     );
