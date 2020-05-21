@@ -19,4 +19,19 @@ class Student extends Group {
         verified: verified
     );
   }
+
+  @override
+  bool operator ==(other) {
+    if (identical(this, other))
+      return true;
+    if (other.runtimeType != runtimeType)
+      return false;
+    return other is Student
+        && other.id == id;
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode;
+  }
 }

@@ -3,7 +3,7 @@ import 'package:orbital2020/DataContainers/Student.dart';
 class Group {
   String id;
   String name;
-  List<Student> students;
+  Set<Student> students;
 
   Group({this.id, this.name, this.students});
 

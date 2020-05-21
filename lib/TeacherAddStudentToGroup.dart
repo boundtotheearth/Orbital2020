@@ -6,22 +6,22 @@ import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DatabaseController.dart';
 
 //View shown when teacher is assigning a task to a student
-class TeacherAddGroup extends StatefulWidget {
+class TeacherAddStudentToGroup extends StatefulWidget {
   final String userId;
+  final Group group;
 
-  TeacherAddGroup({Key key, this.userId}) : super(key: key);
+  TeacherAddStudentToGroup({Key key, this.userId, this.group}) : super(key: key);
 
 
   @override
-  _TeacherAddGroupState createState() => _TeacherAddGroupState();
+  _TeacherAddStudentToGroupState createState() => _TeacherAddStudentToGroupState();
 }
 
-class _TeacherAddGroupState extends State<TeacherAddGroup> {
+class _TeacherAddStudentToGroupState extends State<TeacherAddStudentToGroup> {
   final DatabaseController db = DatabaseController();
 
   Stream<List<Student>> _allStudents;
-  Set<Student> _students;
-  String _groupName;
+  Set<Student> _studentsToAdd;
   String _searchText;
 
 
@@ -29,13 +29,13 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
   void initState() {
     super.initState();
     _allStudents = db.getAllStudentsSnapshots();
-    _students = Set();
+    _studentsToAdd = Set();
     _searchText = "";
   }
 
   List<Widget> buildChips() {
     List<Widget> studentChips = <Widget>[];
-    for(Student student in _students) {
+    for(Student student in _studentsToAdd) {
       studentChips.add(Chip(
         label: Text(student.name),
         onDeleted: () {
@@ -48,13 +48,13 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
 
   void deleteStudent(Student student) {
     setState(() {
-      _students.remove(student);
+      _studentsToAdd.remove(student);
     });
   }
 
   void addStudent(Student student) {
     setState(() {
-      _students.add(student);
+      _studentsToAdd.add(student);
     });
   }
 
@@ -65,7 +65,8 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
         if(snapshot.hasData) {
           List<Student> allStudents = snapshot.data;
           List<Student> suggestions = allStudents.where((element) =>
-              element.name.startsWith(_searchText)).toList();
+              element.name.startsWith(_searchText) &&
+                  !widget.group.students.contains(element)).toList();
           return ListView.builder(
               itemCount: suggestions.length,
               itemBuilder: (context, index) {
@@ -85,31 +86,21 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
     );
   }
 
-  Future<void> submitGroup() {
-    Group newGroup = Group(name: _groupName, students: _students);
-    return db.teacherCreateGroup(teacherId: widget.userId, group: newGroup);
+  Future<void> submitAdd() {
+    return db.teacherAddStudentsToGroup(teacherId: widget.userId,
+        group: widget.group,
+        students: _studentsToAdd);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('New Group'),
+        title: const Text('Add Students'),
       ),
       body: SafeArea(
           child: Column(
             children: <Widget>[
-              TextField(
-                decoration: const InputDecoration(
-                  icon: Icon(Icons.group),
-                  labelText: 'Group Name',
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    _groupName = value;
-                  });
-                },
-              ),
               TextField(
                 decoration: const InputDecoration(
                   labelText: 'Add Students',
@@ -131,9 +122,9 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.check),
-        tooltip: 'Add New Group',
+        tooltip: 'Add Students',
         onPressed: () {
-          submitGroup()
+          submitAdd()
               .then((value) => Navigator.pop(context));
         },
       ),

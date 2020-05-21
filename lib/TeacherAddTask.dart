@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -9,11 +8,11 @@ import 'package:form_field_validator/form_field_validator.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/AppDrawer.dart';
-import 'package:provider/provider.dart';
 
 
 class TeacherAddTask extends StatefulWidget {
-  TeacherAddTask({Key key}) : super(key: key);
+  final String userId;
+  TeacherAddTask({Key key, this.userId}) : super(key: key);
 
 
   @override
@@ -42,6 +41,9 @@ class _TeacherAddTaskState extends State<TeacherAddTask> {
 }
 
 class AddTaskForm extends StatefulWidget {
+  final String userId;
+  AddTaskForm({Key key, this.userId}) : super(key: key);
+
   @override
   _AddTaskFormState createState() => _AddTaskFormState();
 }
@@ -52,7 +54,6 @@ class _AddTaskFormState extends State<AddTaskForm> {
   final db = DatabaseController();
 
 
-  FirebaseUser _user;
   String _taskName;
   String _taskDescription;
   DateTime _dueDate;
@@ -61,7 +62,6 @@ class _AddTaskFormState extends State<AddTaskForm> {
   @override
   void initState() {
     super.initState();
-    _user = Provider.of<FirebaseUser>(context, listen: false);
   }
 
   Future<DateTime> setDueDate(BuildContext context) async {
@@ -121,8 +121,8 @@ class _AddTaskFormState extends State<AddTaskForm> {
       Task newTask = Task(
         name: _taskName,
         description: _taskDescription,
-        createdByName: _user.displayName,
-        createdById: _user.uid,
+        createdByName: "A hardcoded teacher",
+        createdById: widget.userId,
         dueDate: _dueDate,
         tags: _tags,
       );

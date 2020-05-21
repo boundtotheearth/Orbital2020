@@ -33,6 +33,10 @@ class DatabaseController {
     return _createGroup(teacherId, group);
   }
 
+  Future<void> teacherAddStudentsToGroup({String teacherId, Group group, Iterable<Student> students}) {
+    return _addStudentsToGroup(teacherId, group, students);
+  }
+
   //Method to be called when a teacher creates a new task
   Future<Task> teacherCreateTask({Task task}) {
     return _createTask(task);
@@ -167,8 +171,8 @@ class DatabaseController {
   }
 
   //Get a stream of snapshots containing the students in a group.
-  Stream<List<Student>> getGroupStudentSnapshots({String teacherId, String groupId}) {
-    Stream<List<Student>> students = db.collection('teachers')
+  Stream<Set<Student>> getGroupStudentSnapshots({String teacherId, String groupId}) {
+    Stream<Set<Student>> students = db.collection('teachers')
         .document(teacherId)
         .collection('groups')
         .document(groupId)
@@ -182,7 +186,7 @@ class DatabaseController {
             name: document['name'],
           );
           return s;
-        }).toList()
+        }).toSet()
     );
     return students;
   }
@@ -250,6 +254,22 @@ class DatabaseController {
     }
 
     return batch.commit().then((value) => group);
+  }
+
+  Future<void> _addStudentsToGroup(String teacherId, Group group, Iterable<Student> students) {
+    WriteBatch batch = db.batch();
+
+    for(Student student in students) {
+      DocumentReference stuDoc = db.collection('teachers')
+          .document(teacherId)
+          .collection('groups')
+          .document(group.id)
+          .collection('students')
+          .document(student.id);
+      batch.setData(stuDoc, student.toKeyValuePair());
+    }
+
+    return batch.commit();
   }
 
   //Creates a new task with a random taskID and returns the taskID

@@ -21,15 +21,17 @@ class TeacherGroupView extends StatefulWidget {
   _TeacherGroupViewState createState() => _TeacherGroupViewState();
 }
 
-class _TeacherGroupViewState extends State<TeacherGroupView> {
+class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerProviderStateMixin{
   final DatabaseController db = DatabaseController();
 
   Stream<List<Task>> _tasks;
-  Stream<List<Student>> _students;
+  Stream<Set<Student>> _students;
+  TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this, initialIndex: 0);
     _tasks = db.getGroupTaskSnapshots(
         teacherId: widget.userId,
         groupId: widget.group.id,
@@ -59,11 +61,12 @@ class _TeacherGroupViewState extends State<TeacherGroupView> {
     );
   }
 
-  Widget _buildStudentList(List<Student> students) {
+  Widget _buildStudentList(Set<Student> students) {
+    widget.group.students = students;
     return ListView.builder(
         itemCount: students.length,
         itemBuilder: (context, index) {
-          Student student = students[index];
+          Student student = students.elementAt(index);
           return ListTile(
             title: Text(student.name),
             onTap: () {
@@ -140,42 +143,52 @@ class _TeacherGroupViewState extends State<TeacherGroupView> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(widget.group.name),
-          actions: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.search),
-              tooltip: 'Search',
-              onPressed: () {
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
-              },
-            ),
-          ],
-          bottom: TabBar(
-            tabs: <Widget>[
-              Tab(child: Text('Tasks'),),
-              Tab(child: Text('Students'),),
-            ],
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.group.name),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.search),
+            tooltip: 'Search',
+            onPressed: () {
+
+            },
           ),
-        ),
-        drawer: AppDrawer(),
-        body: TabBarView(
-          children: <Widget>[
-            _buildTasksTabView(),
-            _buildStudentsTabView(),
+        ],
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: <Widget>[
+            Tab(child: Text('Tasks'),),
+            Tab(child: Text('Students'),),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          child: const Icon(Icons.add),
-          tooltip: 'Assign Task',
-          onPressed: () {
+      ),
+      drawer: AppDrawer(),
+      body: TabBarView(
+        controller: _tabController,
+        children: <Widget>[
+          _buildTasksTabView(),
+          _buildStudentsTabView(),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        tooltip: 'Assign Task',
+        onPressed: () {
+          if(_tabController.index == 0) {
             Navigator.of(context).pushNamed('teacher_addTask');
-          },
-        ),
+          } else if(_tabController.index == 1) {
+            Navigator.of(context).pushNamed(
+                'teacher_addStudentToGroup', arguments: widget.group);
+          }
+        },
       ),
     );
   }

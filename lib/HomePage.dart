@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:orbital2020/StudentAddTask.dart';
 import 'package:orbital2020/StudentMain.dart';
 import 'package:orbital2020/TeacherAddGroup.dart';
+import 'package:orbital2020/TeacherAddStudentToGroup.dart';
 import 'package:orbital2020/TeacherAddTask.dart';
 import 'package:orbital2020/TeacherAssignTask.dart';
 import 'package:orbital2020/TeacherGroupView.dart';
@@ -37,11 +38,14 @@ class HomePage extends StatelessWidget {
             case 'teacher_addGroup':
               builder = (_) => TeacherAddGroup(userId: 'CBHrubROTEaYnNwhrxpc3DBwhXx1',);
               break;
+            case 'teacher_addStudentToGroup':
+              builder = (_) => TeacherAddStudentToGroup(userId: 'CBHrubROTEaYnNwhrxpc3DBwhXx1', group: settings.arguments,);
+              break;
             case 'teacher_groupView':
               builder = (_) => TeacherGroupView(userId: 'CBHrubROTEaYnNwhrxpc3DBwhXx1',group: settings.arguments);
               break;
             case 'teacher_addTask':
-              builder = (_) => TeacherAddTask();
+              builder = (_) => TeacherAddTask(userId: 'CBHrubROTEaYnNwhrxpc3DBwhXx1');
               break;
             case 'teacher_studentView':
               builder = (_) => TeacherStudentView(userId: 'CBHrubROTEaYnNwhrxpc3DBwhXx1',student: settings.arguments);
