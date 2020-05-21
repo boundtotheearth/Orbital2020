@@ -8,10 +8,9 @@ import 'AppDrawer.dart';
 
 
 class TeacherTaskView extends StatefulWidget {
-  final String userId;
   final Task task;
 
-  TeacherTaskView({Key key, this.userId, this.task}) : super(key: key);
+  TeacherTaskView({Key key, @required this.task}) : super(key: key);
 
   @override
   _TeacherTaskViewState createState() => _TeacherTaskViewState();

@@ -2,14 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
+import 'package:orbital2020/DataContainers/User.dart';
 
 import 'package:orbital2020/DatabaseController.dart';
+import 'package:provider/provider.dart';
 
 //View shown when teacher is assigning a task to a student
 class TeacherAddGroup extends StatefulWidget {
-  final String userId;
 
-  TeacherAddGroup({Key key, this.userId}) : super(key: key);
+  TeacherAddGroup({Key key}) : super(key: key);
 
 
   @override
@@ -18,6 +19,8 @@ class TeacherAddGroup extends StatefulWidget {
 
 class _TeacherAddGroupState extends State<TeacherAddGroup> {
   final DatabaseController db = DatabaseController();
+
+  User _user;
 
   Stream<List<Student>> _allStudents;
   Set<Student> _students;
@@ -28,6 +31,7 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
   @override
   void initState() {
     super.initState();
+    _user = Provider.of<User>(context, listen: false);
     _allStudents = db.getAllStudentsSnapshots();
     _students = Set();
     _searchText = "";
@@ -86,8 +90,8 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
   }
 
   Future<void> submitGroup() {
-    Group newGroup = Group(name: _groupName, students: _students, createdById: widget.userId);
-    return db.teacherCreateGroup(teacherId: widget.userId, group: newGroup);
+    Group newGroup = Group(name: _groupName, students: _students);
+    return db.teacherCreateGroup(teacherId: _user.id, group: newGroup);
   }
 
   @override

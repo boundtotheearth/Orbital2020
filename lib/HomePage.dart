@@ -34,31 +34,31 @@ class HomePage extends StatelessWidget {
               builder = (_) => StudentAddTask();
               break;
             case 'teacher_groups':
-              builder = (_) => TeacherGroups(userId: 'CBHrubROTEaYnNwhrxpc3DBwhXx1',);
+              builder = (_) => TeacherGroups();
               break;
             case 'teacher_addGroup':
-              builder = (_) => TeacherAddGroup(userId: 'CBHrubROTEaYnNwhrxpc3DBwhXx1',);
+              builder = (_) => TeacherAddGroup();
               break;
             case 'teacher_addStudentToGroup':
-              builder = (_) => TeacherAddStudentToGroup(userId: 'CBHrubROTEaYnNwhrxpc3DBwhXx1', group: settings.arguments,);
+              builder = (_) => TeacherAddStudentToGroup(group: settings.arguments);
               break;
             case 'teacher_groupView':
-              builder = (_) => TeacherGroupView(userId: 'CBHrubROTEaYnNwhrxpc3DBwhXx1',group: settings.arguments);
+              builder = (_) => TeacherGroupView(group: settings.arguments);
               break;
             case 'teacher_addTask':
-              builder = (_) => TeacherAddTask(userId: 'CBHrubROTEaYnNwhrxpc3DBwhXx1', group: settings.arguments);
+              builder = (_) => TeacherAddTask(group: settings.arguments);
               break;
             case 'teacher_studentView':
-              builder = (_) => TeacherStudentView(userId: 'CBHrubROTEaYnNwhrxpc3DBwhXx1',student: settings.arguments);
+              builder = (_) => TeacherStudentView(student: settings.arguments);
               break;
             case 'teacher_taskView':
-              builder = (_) => TeacherTaskView();
+              builder = (_) => TeacherTaskView(task: settings.arguments);
               break;
             case 'teacher_assignTask':
-              builder = (_) => TeacherAssignTask(userId: 'CBHrubROTEaYnNwhrxpc3DBwhXx1', student: settings.arguments);
+              builder = (_) => TeacherAssignTask(student: settings.arguments);
               break;
             case 'teacher_assignStudent':
-              builder = (_) => TeacherAssignStudent(userId: 'CBHrubROTEaYnNwhrxpc3DBwhXx1', task: settings.arguments);
+              builder = (_) => TeacherAssignStudent(task: settings.arguments);
               break;
             default:
               throw Exception("Invalid route: ${settings.name}");

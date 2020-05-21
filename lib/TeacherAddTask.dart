@@ -5,17 +5,18 @@ import 'package:intl/intl.dart';
 
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
+import 'package:orbital2020/DataContainers/User.dart';
 
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/AppDrawer.dart';
+import 'package:provider/provider.dart';
 
 
 class TeacherAddTask extends StatefulWidget {
-  final String userId;
   final Group group;
 
-  TeacherAddTask({Key key, this.userId, this.group}) : super(key: key);
+  TeacherAddTask({Key key, @required this.group}) : super(key: key);
 
   @override
   _TeacherAddTaskState createState() => _TeacherAddTaskState();
@@ -23,12 +24,10 @@ class TeacherAddTask extends StatefulWidget {
 
 class _TeacherAddTaskState extends State<TeacherAddTask> {
 
-
   @override
   void initState() {
     super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -37,15 +36,15 @@ class _TeacherAddTaskState extends State<TeacherAddTask> {
           title: const Text('Add Task'),
         ),
         drawer: AppDrawer(),
-        body: AddTaskForm(userId: widget.userId, group: widget.group,)
+        body: AddTaskForm(group: widget.group)
     );
   }
 }
 
 class AddTaskForm extends StatefulWidget {
-  final String userId;
   final Group group;
-  AddTaskForm({Key key, this.userId, this.group}) : super(key: key);
+
+  AddTaskForm({Key key, @required this.group}) : super(key: key);
 
   @override
   _AddTaskFormState createState() => _AddTaskFormState();
@@ -56,6 +55,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
   final _dueDateController = TextEditingController(text: "None");
   final db = DatabaseController();
 
+  User _user;
 
   String _taskName;
   String _taskDescription;
@@ -65,6 +65,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
   @override
   void initState() {
     super.initState();
+    _user = Provider.of<User>(context, listen: false);
   }
 
   Future<DateTime> setDueDate(BuildContext context) async {
@@ -125,7 +126,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
         name: _taskName,
         description: _taskDescription,
         createdByName: "A hardcoded teacher",
-        createdById: widget.userId,
+        createdById: _user.id,
         dueDate: _dueDate,
         tags: _tags,
       );
@@ -134,8 +135,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
         Scaffold
             .of(context)
             .showSnackBar(SnackBar(content: Text('Success')));
-        //Navigator.pushReplacementNamed(context, 'main');
-        Navigator.of(context).popAndPushNamed('teacher_assignStudent', arguments: task);
+        Navigator.of(context).pushReplacementNamed('teacher_assignStudent');
       });
     }
   }

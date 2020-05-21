@@ -1,15 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
+import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
+import 'package:provider/provider.dart';
 
 import 'AppDrawer.dart';
 
 
 class TeacherGroups extends StatefulWidget {
-  final String userId;
 
-  TeacherGroups({Key key, this.userId}) : super(key: key);
+  TeacherGroups({Key key}) : super(key: key);
 
   @override
   _TeacherGroupsState createState() => _TeacherGroupsState();
@@ -18,12 +19,14 @@ class TeacherGroups extends StatefulWidget {
 class _TeacherGroupsState extends State<TeacherGroups> {
   final DatabaseController db = DatabaseController();
 
+  User _user;
   Stream<List<Group>> _groups;
 
   @override
   void initState() {
     super.initState();
-    _groups = db.getTeacherGroupSnapshots(teacherId: widget.userId);
+    _user = Provider.of<User>(context, listen: false);
+    _groups = db.getTeacherGroupSnapshots(teacherId: _user.id);
   }
 
   Widget _buildGroupList(List<Group> groups) {
@@ -44,7 +47,7 @@ class _TeacherGroupsState extends State<TeacherGroups> {
 
   Future<Null> _refresh() async {
     await Future.microtask(() => setState(() {
-      _groups = db.getTeacherGroupSnapshots(teacherId: widget.userId);
+      _groups = db.getTeacherGroupSnapshots(teacherId: _user.id);
     }));
   }
 

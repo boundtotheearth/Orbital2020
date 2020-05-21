@@ -1,9 +1,11 @@
-import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/StudentWithStatus.dart';
 
 //A student is a group with 1 member.
-class Student extends Group {
-  Student({String id, String name}) : super(id: id, name: name);
+class Student {
+  final String id;
+  final String name;
+
+  Student({this.id, this.name});
 
   Map<String, dynamic> toKeyValuePair() {
     Map<String, dynamic> map = Map();

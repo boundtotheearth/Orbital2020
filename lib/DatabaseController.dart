@@ -307,7 +307,7 @@ class DatabaseController {
 
   Future<void> _assignTaskToGroup(Task task, Group group) {
     return db.collection('teachers')
-        .document(group.createdById)
+        .document()
         .collection('groups')
         .document(group.id)
         .collection('tasks')

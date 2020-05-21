@@ -2,15 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
-
 import 'package:orbital2020/DatabaseController.dart';
 
 //View shown when teacher is assigning a task to a student
 class TeacherAssignStudent extends StatefulWidget {
-  final String userId;
   final Task task;
 
-  TeacherAssignStudent({Key key, this.userId, this.task}) : super(key: key);
+  TeacherAssignStudent({Key key, @required this.task}) : super(key: key);
 
   @override
   _TeacherAssignStudentState createState() => _TeacherAssignStudentState();

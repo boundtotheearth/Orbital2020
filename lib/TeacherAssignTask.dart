@@ -1,16 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
+import 'package:orbital2020/DataContainers/User.dart';
 
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
+import 'package:provider/provider.dart';
 
 //View shown when teacher is assigning a task to a student
 class TeacherAssignTask extends StatefulWidget {
-  final String userId;
   final Student student;
 
-  TeacherAssignTask({Key key, this.userId, this.student}) : super(key: key);
+  TeacherAssignTask({Key key, @required this.student}) : super(key: key);
 
 
   @override
@@ -20,6 +21,8 @@ class TeacherAssignTask extends StatefulWidget {
 class _TeacherAssignTaskState extends State<TeacherAssignTask> {
   final DatabaseController db = DatabaseController();
 
+  User _user;
+
   Stream<List<Task>> _allTasks;
   Set<Task> _tasks;
   String _searchText;
@@ -28,7 +31,8 @@ class _TeacherAssignTaskState extends State<TeacherAssignTask> {
   @override
   void initState() {
     super.initState();
-    _allTasks = db.getTeacherTasksSnapshots(teacherId: widget.userId);
+    _user = Provider.of<User>(context, listen: false);
+    _allTasks = db.getTeacherTasksSnapshots(teacherId: _user.id);
     _tasks = Set();
     _searchText = "";
   }
