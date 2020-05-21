@@ -38,8 +38,11 @@ class DatabaseController {
   }
 
   //Method to be called when a teacher creates a new task
-  Future<Task> teacherCreateTask({Task task}) {
-    return _createTask(task);
+  Future<Task> teacherCreateTask({Task task, Group group}) {
+    return _createTask(task).then((value) {
+      _assignTaskToGroup(task, group);
+      return task;
+    });
   }
 
   //Method to be called when a teacher assigns a task to list of students
@@ -300,6 +303,16 @@ class DatabaseController {
           task.id = newDoc.documentID;
           return task;
     });
+  }
+
+  Future<void> _assignTaskToGroup(Task task, Group group) {
+    return db.collection('teachers')
+        .document(group.createdById)
+        .collection('groups')
+        .document(group.id)
+        .collection('tasks')
+        .document(task.id)
+        .setData(task.addStatus(false, false).toKeyValuePair());
   }
 
   //Assigns the task with taskID to the student with studentID, duplicating the task data

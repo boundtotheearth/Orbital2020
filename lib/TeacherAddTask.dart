@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'package:form_field_validator/form_field_validator.dart';
+import 'package:orbital2020/DataContainers/Group.dart';
 
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
@@ -12,8 +13,9 @@ import 'package:orbital2020/AppDrawer.dart';
 
 class TeacherAddTask extends StatefulWidget {
   final String userId;
-  TeacherAddTask({Key key, this.userId}) : super(key: key);
+  final Group group;
 
+  TeacherAddTask({Key key, this.userId, this.group}) : super(key: key);
 
   @override
   _TeacherAddTaskState createState() => _TeacherAddTaskState();
@@ -35,14 +37,15 @@ class _TeacherAddTaskState extends State<TeacherAddTask> {
           title: const Text('Add Task'),
         ),
         drawer: AppDrawer(),
-        body: AddTaskForm()
+        body: AddTaskForm(userId: widget.userId, group: widget.group,)
     );
   }
 }
 
 class AddTaskForm extends StatefulWidget {
   final String userId;
-  AddTaskForm({Key key, this.userId}) : super(key: key);
+  final Group group;
+  AddTaskForm({Key key, this.userId, this.group}) : super(key: key);
 
   @override
   _AddTaskFormState createState() => _AddTaskFormState();
@@ -127,12 +130,12 @@ class _AddTaskFormState extends State<AddTaskForm> {
         tags: _tags,
       );
 
-      db.teacherCreateTask(task: newTask).then((task) {
+      db.teacherCreateTask(task: newTask, group: widget.group).then((task) {
         Scaffold
             .of(context)
             .showSnackBar(SnackBar(content: Text('Success')));
         //Navigator.pushReplacementNamed(context, 'main');
-        Navigator.of(context).pushNamed('teacher_assignStudent', arguments: task);
+        Navigator.of(context).popAndPushNamed('teacher_assignStudent', arguments: task);
       });
     }
   }

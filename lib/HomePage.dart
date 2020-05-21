@@ -46,7 +46,7 @@ class HomePage extends StatelessWidget {
               builder = (_) => TeacherGroupView(userId: 'CBHrubROTEaYnNwhrxpc3DBwhXx1',group: settings.arguments);
               break;
             case 'teacher_addTask':
-              builder = (_) => TeacherAddTask(userId: 'CBHrubROTEaYnNwhrxpc3DBwhXx1');
+              builder = (_) => TeacherAddTask(userId: 'CBHrubROTEaYnNwhrxpc3DBwhXx1', group: settings.arguments);
               break;
             case 'teacher_studentView':
               builder = (_) => TeacherStudentView(userId: 'CBHrubROTEaYnNwhrxpc3DBwhXx1',student: settings.arguments);

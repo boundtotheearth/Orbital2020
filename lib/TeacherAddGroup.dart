@@ -86,7 +86,7 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
   }
 
   Future<void> submitGroup() {
-    Group newGroup = Group(name: _groupName, students: _students);
+    Group newGroup = Group(name: _groupName, students: _students, createdById: widget.userId);
     return db.teacherCreateGroup(teacherId: widget.userId, group: newGroup);
   }
 

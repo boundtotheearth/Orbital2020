@@ -183,7 +183,7 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
         tooltip: 'Assign Task',
         onPressed: () {
           if(_tabController.index == 0) {
-            Navigator.of(context).pushNamed('teacher_addTask');
+            Navigator.of(context).pushNamed('teacher_addTask', arguments: widget.group);
           } else if(_tabController.index == 1) {
             Navigator.of(context).pushNamed(
                 'teacher_addStudentToGroup', arguments: widget.group);
