@@ -54,7 +54,11 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
             title: Text(task.name),
             subtitle: Text("Due: " + DateFormat('dd/MM/y').format(task.dueDate)),
             onTap: () {
-              Navigator.of(context).pushNamed('teacher_taskView', arguments: task);
+              Map<String, dynamic> arguments = {
+                'task': task,
+                'group': widget.group
+              };
+              Navigator.of(context).pushNamed('teacher_taskView', arguments: arguments);
             },
           );
         }

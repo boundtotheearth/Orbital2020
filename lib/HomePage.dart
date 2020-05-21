@@ -10,7 +10,6 @@ import 'package:orbital2020/TeacherGroupView.dart';
 import 'package:orbital2020/TeacherGroups.dart';
 import 'package:orbital2020/TeacherStudentView.dart';
 import 'package:orbital2020/TeacherTaskView.dart';
-import 'package:orbital2020/main.dart';
 
 class HomePage extends StatelessWidget {
   final navigatorKey = GlobalKey<NavigatorState>();
@@ -49,13 +48,15 @@ class HomePage extends StatelessWidget {
               builder = (_) => TeacherStudentView(student: settings.arguments);
               break;
             case 'teacher_taskView':
-              builder = (_) => TeacherTaskView(task: settings.arguments);
+              Map<String, dynamic> arguments = settings.arguments;
+              builder = (_) => TeacherTaskView(task: arguments['task'], group: arguments['group']);
               break;
             case 'teacher_assignTask':
               builder = (_) => TeacherAssignTask(student: settings.arguments);
               break;
             case 'teacher_assignStudent':
-              builder = (_) => TeacherAssignStudent(task: settings.arguments);
+              Map<String, dynamic> arguments = settings.arguments;
+              builder = (_) => TeacherAssignStudent(task: arguments['task'], group: arguments['group']);
               break;
             default:
               throw Exception("Invalid route: ${settings.name}");

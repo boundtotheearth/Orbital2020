@@ -1,14 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
+import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
+import 'package:provider/provider.dart';
 
 //View shown when teacher is assigning a task to a student
 class TeacherAssignStudent extends StatefulWidget {
   final Task task;
+  final Group group;
 
-  TeacherAssignStudent({Key key, @required this.task}) : super(key: key);
+  TeacherAssignStudent({Key key, @required this.task, @required this.group}) : super(key: key);
 
   @override
   _TeacherAssignStudentState createState() => _TeacherAssignStudentState();
@@ -17,7 +21,9 @@ class TeacherAssignStudent extends StatefulWidget {
 class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
   final DatabaseController db = DatabaseController();
 
-  Stream<List<Student>> _allStudents;
+  User _user;
+
+  Stream<Set<Student>> _allStudents;
   Set<Student> _students;
   String _searchText;
 
@@ -25,7 +31,8 @@ class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
   @override
   void initState() {
     super.initState();
-    _allStudents = db.getAllStudentsSnapshots();
+    _user = Provider.of<User>(context, listen: false);
+    _allStudents = db.getGroupStudentSnapshots(teacherId: _user.id, groupId: widget.group.id);
     _students = Set();
     _searchText = "";
   }
@@ -60,7 +67,7 @@ class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
       stream: _allStudents,
       builder: (context, snapshot) {
         if(snapshot.hasData) {
-          List<Student> allStudents = snapshot.data;
+          Set<Student> allStudents = snapshot.data;
           List<Student> suggestions = allStudents.where((element) =>
           element.name.startsWith(_searchText)).toList();
           return ListView.builder(
@@ -90,7 +97,7 @@ class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Students'),
+        title: const Text('Assign to Students'),
       ),
       body: SafeArea(
           child: Column(

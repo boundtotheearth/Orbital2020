@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/StudentWithStatus.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/DatabaseController.dart';
@@ -9,8 +10,9 @@ import 'AppDrawer.dart';
 
 class TeacherTaskView extends StatefulWidget {
   final Task task;
+  final Group group;
 
-  TeacherTaskView({Key key, @required this.task}) : super(key: key);
+  TeacherTaskView({Key key, @required this.task, @required this.group}) : super(key: key);
 
   @override
   _TeacherTaskViewState createState() => _TeacherTaskViewState();
@@ -174,7 +176,11 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
         child: const Icon(Icons.add),
         tooltip: 'Add Student',
         onPressed: () {
-          Navigator.of(context).pushNamed('teacher_assignStudent', arguments: widget.task);
+          Map<String, dynamic> arguments = {
+            'task': widget.task,
+            'group': widget.group
+          };
+          Navigator.of(context).pushNamed('teacher_assignStudent', arguments: arguments);
         },
       ),
     );
