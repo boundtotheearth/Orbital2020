@@ -35,7 +35,7 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
           TaskWithStatus task = tasks[index];
           return ListTile(
             title: Text(task.name),
-            trailing: Wrap(
+            trailing: task.createdById == widget.userId ? Wrap(
               children: <Widget>[
                 Checkbox(
                   value: task.completed,
@@ -50,7 +50,7 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
                   },
                 ),
               ],
-            ),
+            ) : Text('Task not created by you!')
           );
         }
     );

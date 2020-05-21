@@ -29,6 +29,10 @@ class DatabaseController {
     );
   }
 
+  Future<Group> teacherCreateGroup({String teacherId, Group group}) {
+    return _createGroup(teacherId, group);
+  }
+
   //Method to be called when a teacher creates a new task
   Future<Task> teacherCreateTask({Task task}) {
     return _createTask(task);
@@ -74,22 +78,22 @@ class DatabaseController {
   }
 
   //Get a stream of snapshots containing all students and groups in the system.
-  Stream<List<Group>> getAllStudentsAndGroupsSnapshots() {
-    Stream<List<Group>> groups = db.collection('students')
+  Stream<List<Student>> getAllStudentsSnapshots() {
+    Stream<List<Student>> students = db.collection('students')
         .snapshots()
         .map((snapshot) {
           List<DocumentSnapshot> documents = snapshot.documents;
           return documents.map((document) {
-            Group g = Group(
+            Student s = Student(
               id: document.documentID,
               name: document['name'],
             );
-            return g;
+            return s;
           })
           .toList();
     });
 
-    return groups;
+    return students;
   }
 
   //Get a stream of snapshots containing all tasks created by a teacher.
@@ -115,6 +119,7 @@ class DatabaseController {
 
   //Get a stream of snapshots containing tasks assigned to a student with studentId.
   //Each snapshot contains a list of tasks with their corresponding completion status.
+  //If a teacher ID is provided, only tasks belonging to the teacher ID will have their status included
   Stream<List<TaskWithStatus>> getStudentTaskSnapshots({@required String studentId, String teacherId}) {
     Stream<List<TaskWithStatus>> tasks = db.collection('students')
         .document(studentId)
@@ -122,14 +127,12 @@ class DatabaseController {
         .snapshots()
         .map((snapshot) => snapshot.documents)
         .map((documents) {
-          if(teacherId != null) {
-            documents = documents.where((document) => document['createdById'] == teacherId);
-          }
           return documents.map((document) {
             TaskWithStatus t = TaskWithStatus(
                 id: document.documentID,
                 name: document['name'],
                 createdByName: document['createdByName'],
+                createdById: document['createdById'],
                 completed: document['completed'],
                 verified: document['verified']);
             return t;
@@ -223,6 +226,30 @@ class DatabaseController {
         }).toList()
     );
     return students;
+  }
+
+  Future<Group> _createGroup(String teacherId, Group group) {
+    DocumentReference newGroup = db.collection('teachers')
+        .document(teacherId)
+        .collection('groups')
+        .document();
+    group.id = newGroup.documentID;
+
+    WriteBatch batch = db.batch();
+
+    batch.setData(newGroup, group.toKeyValuePair());
+
+    for(Student student in group.students) {
+      DocumentReference stuDoc = db.collection('teachers')
+          .document(teacherId)
+          .collection('groups')
+          .document(group.id)
+          .collection('students')
+          .document(student.id);
+      batch.setData(stuDoc, student.toKeyValuePair());
+    }
+
+    return batch.commit().then((value) => group);
   }
 
   //Creates a new task with a random taskID and returns the taskID

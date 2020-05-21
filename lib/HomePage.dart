@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:orbital2020/StudentAddTask.dart';
 import 'package:orbital2020/StudentMain.dart';
+import 'package:orbital2020/TeacherAddGroup.dart';
 import 'package:orbital2020/TeacherAddTask.dart';
 import 'package:orbital2020/TeacherAssignTask.dart';
 import 'package:orbital2020/TeacherGroupView.dart';
 import 'package:orbital2020/TeacherGroups.dart';
 import 'package:orbital2020/TeacherStudentView.dart';
 import 'package:orbital2020/TeacherTaskView.dart';
+import 'package:orbital2020/main.dart';
 
 class HomePage extends StatelessWidget {
   final navigatorKey = GlobalKey<NavigatorState>();
@@ -16,10 +18,13 @@ class HomePage extends StatelessWidget {
       onWillPop: () async => !await navigatorKey.currentState.maybePop(),
       child: Navigator(
         key: navigatorKey,
-        initialRoute: 'student_main',
+        initialRoute: 'main',
         onGenerateRoute: (RouteSettings settings) {
           WidgetBuilder builder;
           switch (settings.name) {
+            case 'main':
+              builder = (_) => MyHomePage();
+              break;
             case 'student_main':
               builder = (_) => StudentMain();
               break;
@@ -28,6 +33,9 @@ class HomePage extends StatelessWidget {
               break;
             case 'teacher_groups':
               builder = (_) => TeacherGroups(userId: 'CBHrubROTEaYnNwhrxpc3DBwhXx1',);
+              break;
+            case 'teacher_addGroup':
+              builder = (_) => TeacherAddGroup(userId: 'CBHrubROTEaYnNwhrxpc3DBwhXx1',);
               break;
             case 'teacher_groupView':
               builder = (_) => TeacherGroupView(userId: 'CBHrubROTEaYnNwhrxpc3DBwhXx1',group: settings.arguments);

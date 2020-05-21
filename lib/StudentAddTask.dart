@@ -123,6 +123,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
         name: _taskName,
         description: _taskDescription,
         createdByName: _user.displayName,
+        createdById: _user.uid,
         dueDate: _dueDate,
         tags: _tags,
       );

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:orbital2020/TeacherGroups.dart';
+import 'package:orbital2020/HomePage.dart';
 
 import 'AuthProvider.dart';
 import 'Root.dart';
@@ -30,7 +30,8 @@ class MyApp extends StatelessWidget {
           // is not restarted.
           primarySwatch: Colors.green,
         ),
-        home: MyHomePage(title: 'Flutter Demo Home Page'),
+        //home: MyHomePage(title: 'Flutter Demo Home Page'),
+        home: HomePage(),
       ),
     );
   }
