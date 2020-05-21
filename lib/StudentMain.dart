@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_unity_widget/flutter_unity_widget.dart';
@@ -7,6 +6,7 @@ import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:provider/provider.dart';
 
 import 'AppDrawer.dart';
+import 'DataContainers/User.dart';
 
 
 class StudentMain extends StatefulWidget {
@@ -18,7 +18,7 @@ class StudentMain extends StatefulWidget {
 
 class _StudentMainState extends State<StudentMain> {
   final DatabaseController db = DatabaseController();
-  FirebaseUser _user;
+  User _user;
 
 
   UnityWidgetController _unityWidgetController;
@@ -27,8 +27,8 @@ class _StudentMainState extends State<StudentMain> {
   @override
   void initState() {
     super.initState();
-    _user = Provider.of<FirebaseUser>(context, listen: false);
-    _tasks = db.getStudentTaskSnapshots(studentId: _user.uid);
+    _user = Provider.of<User>(context, listen: false);
+    _tasks = db.getStudentTaskSnapshots(studentId: _user.id);
   }
 
   void _incrementCounter(String amount) {
@@ -58,13 +58,13 @@ class _StudentMainState extends State<StudentMain> {
                 Checkbox(
                   value: task.completed,
                   onChanged: (value) {
-                    db.updateTaskCompletion(task.id, _user.uid, value);
+                    db.updateTaskCompletion(task.id, _user.id, value);
                   },
                 ),
                 Checkbox(
                   value: task.verified,
                   onChanged: (value) {
-                    db.updateTaskVerification(task.id, _user.uid, value);
+                    db.updateTaskVerification(task.id, _user.id, value);
                   },
                 ),
               ],
@@ -76,7 +76,7 @@ class _StudentMainState extends State<StudentMain> {
 
   Future<Null> refresh() async {
     await Future.microtask(() => setState(() {
-      _tasks = db.getStudentTaskSnapshots(studentId: _user.uid);
+      _tasks = db.getStudentTaskSnapshots(studentId: _user.id);
     }));
   }
 
@@ -84,7 +84,7 @@ class _StudentMainState extends State<StudentMain> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Welcome ${_user.displayName}'),
+        title: Text('Welcome ${_user.name}'),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.search),
