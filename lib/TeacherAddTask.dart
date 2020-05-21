@@ -125,7 +125,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
       Task newTask = Task(
         name: _taskName,
         description: _taskDescription,
-        createdByName: "A hardcoded teacher",
+        createdByName: _user.displayName,
         createdById: _user.id,
         dueDate: _dueDate,
         tags: _tags,
@@ -136,7 +136,11 @@ class _AddTaskFormState extends State<AddTaskForm> {
         Scaffold
             .of(context)
             .showSnackBar(SnackBar(content: Text('Success')));
-        Navigator.of(context).pushReplacementNamed('teacher_assignStudent', arguments: task);
+        Map<String, dynamic> arguments = {
+          'task': task,
+          'group': widget.group
+        };
+        Navigator.of(context).pushReplacementNamed('teacher_assignStudent', arguments: arguments);
       });
     }
   }
