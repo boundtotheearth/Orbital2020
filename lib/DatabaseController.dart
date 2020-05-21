@@ -185,6 +185,7 @@ class DatabaseController {
               id: document.documentID,
               name: document['name'],
               dueDate: document['dueDate'].toDate(),
+              createdById: document['createdById'],
           );
           print(t);
           return t;
