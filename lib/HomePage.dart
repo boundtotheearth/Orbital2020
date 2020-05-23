@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:orbital2020/StudentAddTask.dart';
 import 'package:orbital2020/StudentMain.dart';
 
+import 'Schedule.dart';
+
 class HomePage extends StatelessWidget {
   final navigatorKey = GlobalKey<NavigatorState>();
   @override
@@ -19,6 +21,9 @@ class HomePage extends StatelessWidget {
               break;
             case 'addTask':
               builder = (_) => StudentAddTask();
+              break;
+            case 'schedule':
+              builder = (_) => Schedule();
               break;
             default:
               throw Exception("Invalid route: ${settings.name}");

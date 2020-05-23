@@ -156,10 +156,6 @@ class _StudentMainState extends State<StudentMain> {
         tooltip: 'Add',
         onPressed: () {
           _incrementCounter('1');
-//          Navigator.push(
-////              context,
-////              MaterialPageRoute(builder: (context) => StudentAddTask())
-////          );
           Navigator.of(context).pushNamed('addTask');
         },
       ),
