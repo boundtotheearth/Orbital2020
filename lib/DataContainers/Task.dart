@@ -17,7 +17,7 @@ class Task {
     this.createdByName,
     this.createdById,
     this.dueDate,
-    this.tags = const [],
+    this.tags,
   });
 
   Map<String, dynamic> toKeyValuePair() {

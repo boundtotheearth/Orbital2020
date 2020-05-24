@@ -202,13 +202,15 @@ class DatabaseController {
         .map((snapshot) => snapshot.documents)
         .map((documents) =>
         documents.map((document) {
+          //print(document['tags'].runtimeType);
           Task t = Task(
               id: document.documentID,
               name: document['name'],
+              description: document['description'],
               dueDate: document['dueDate'].toDate(),
+              tags: document['tags']?.cast<String>() ?? [],
               createdById: document['createdById'],
           );
-          print(t);
           return t;
         }).toSet()
     );
