@@ -69,7 +69,7 @@ class _TeacherAssignTaskState extends State<TeacherAssignTask> {
         if(snapshot.hasData) {
           List<Task> allTasks = snapshot.data;
           List<Task> suggestions = allTasks.where((element) =>
-              element.name.startsWith(_searchText)).toList();
+              element.name.startsWith(_searchText) && !_tasks.contains(element)).toList();
           return ListView.builder(
               itemCount: suggestions.length,
               itemBuilder: (context, index) {
@@ -104,7 +104,7 @@ class _TeacherAssignTaskState extends State<TeacherAssignTask> {
           children: <Widget>[
             TextField(
               decoration: const InputDecoration(
-                labelText: 'Add Students/Groups',
+                labelText: 'Assign Tasks',
               ),
               onChanged: (value) {
                 setState(() {

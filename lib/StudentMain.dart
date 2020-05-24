@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_unity_widget/flutter_unity_widget.dart';
+import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:provider/provider.dart';
@@ -50,28 +51,44 @@ class _StudentMainState extends State<StudentMain> {
         itemCount: tasks.length,
         itemBuilder: (context, index) {
           TaskWithStatus task = tasks[index];
-          return ListTile(
-            title: Text(task.name),
-            subtitle: Text(task.createdByName),
-            trailing: Wrap(
-              children: <Widget>[
-                Checkbox(
-                  value: task.completed,
-                  onChanged: (value) {
-                    db.updateTaskCompletion(task.id, _user.id, value);
-                  },
-                ),
-                Checkbox(
-                  value: task.verified,
-                  onChanged: (value) {
-                    db.updateTaskVerification(task.id, _user.id, value);
-                  },
-                ),
-              ],
+          return Dismissible(
+            key: Key(task.id),
+            background: Container(
+              alignment: Alignment.centerLeft,
+              color: Colors.red,
+              child: const Text('Delete', style: TextStyle(color: Colors.white),),
+            ),
+            onDismissed: (direction) {
+              tasks.remove(task);
+              deleteTask(task);
+            },
+            child: ListTile(
+              title: Text(task.name),
+              subtitle: Text(task.createdByName ?? "Null"),
+              trailing: Wrap(
+                children: <Widget>[
+                  Checkbox(
+                    value: task.completed,
+                    onChanged: (value) {
+                      db.updateTaskCompletion(task.id, _user.id, value);
+                    },
+                  ),
+                  Checkbox(
+                    value: task.verified,
+                    onChanged: (value) {
+                      db.updateTaskVerification(task.id, _user.id, value);
+                    },
+                  ),
+                ],
+              ),
             ),
           );
         }
     );
+  }
+
+  void deleteTask(Task task) {
+    //run db command
   }
 
   Future<Null> refresh() async {
