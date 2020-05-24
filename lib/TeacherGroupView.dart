@@ -24,7 +24,7 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
 
   User _user;
 
-  Stream<List<Task>> _tasks;
+  Stream<Set<Task>> _tasks;
   Stream<Set<Student>> _students;
   TabController _tabController;
 
@@ -45,11 +45,13 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
     );
   }
 
-  Widget _buildTaskList(List<Task> tasks) {
-    return ListView.builder(
+  Widget _buildTaskList(Set<Task> tasks) {
+    widget.group.tasks = tasks;
+    print(widget.group.tasks.length)
+;    return ListView.builder(
         itemCount: tasks.length,
         itemBuilder: (context, index) {
-          Task task = tasks[index];
+          Task task = tasks.elementAt(index);
           return ListTile(
             title: Text(task.name),
             subtitle: Text("Due: " + DateFormat('dd/MM/y').format(task.dueDate)),
@@ -74,7 +76,11 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
           return ListTile(
             title: Text(student.name),
             onTap: () {
-              Navigator.of(context).pushNamed('teacher_studentView', arguments: student);
+              Map<String, dynamic> arguments = {
+                'student': student,
+                'group': widget.group
+              };
+              Navigator.of(context).pushNamed('teacher_studentView', arguments: arguments);
             },
           );
         }

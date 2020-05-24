@@ -45,14 +45,16 @@ class HomePage extends StatelessWidget {
               builder = (_) => TeacherAddTask(group: settings.arguments);
               break;
             case 'teacher_studentView':
-              builder = (_) => TeacherStudentView(student: settings.arguments);
+              Map<String, dynamic> arguments = settings.arguments;
+              builder = (_) => TeacherStudentView(student: arguments['student'], group: arguments['group']);
               break;
             case 'teacher_taskView':
               Map<String, dynamic> arguments = settings.arguments;
               builder = (_) => TeacherTaskView(task: arguments['task'], group: arguments['group']);
               break;
             case 'teacher_assignTask':
-              builder = (_) => TeacherAssignTask(student: settings.arguments);
+              Map<String, dynamic> arguments = settings.arguments;
+              builder = (_) => TeacherAssignTask(student: arguments['student'], group: arguments['group']);
               break;
             case 'teacher_assignStudent':
               Map<String, dynamic> arguments = settings.arguments;

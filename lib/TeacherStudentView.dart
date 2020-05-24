@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:orbital2020/DataContainers/User.dart';
@@ -11,8 +12,9 @@ import 'AppDrawer.dart';
 
 class TeacherStudentView extends StatefulWidget {
   final Student student;
+  final Group group;
 
-  TeacherStudentView({Key key, @required this.student}) : super(key: key);
+  TeacherStudentView({Key key, @required this.student, @required this.group}) : super(key: key);
 
   @override
   _TeacherStudentViewState createState() => _TeacherStudentViewState();
@@ -22,20 +24,20 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
   final DatabaseController db = DatabaseController();
 
   User _user;
-  Stream<List<TaskWithStatus>> _tasks;
+  Stream<Set<TaskWithStatus>> _tasks;
 
   @override
   void initState() {
     super.initState();
     _user = Provider.of<User>(context, listen: false);
-    _tasks = db.getStudentTaskSnapshots(studentId: widget.student.id, teacherId: _user.id);
+    _tasks = db.getStudentTaskSnapshots(studentId: widget.student.id);
   }
 
-  Widget _buildTaskList(List<TaskWithStatus> tasks) {
+  Widget _buildTaskList(Set<TaskWithStatus> tasks) {
     return ListView.builder(
         itemCount: tasks.length,
         itemBuilder: (context, index) {
-          TaskWithStatus task = tasks[index];
+          TaskWithStatus task = tasks.elementAt(index);
           return ListTile(
             title: Text(task.name),
             trailing: task.createdById == _user.id ? Wrap(
@@ -121,7 +123,11 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
         child: const Icon(Icons.add),
         tooltip: 'Assign Task',
         onPressed: () {
-          Navigator.of(context).pushNamed('teacher_assignTask', arguments: widget.student);
+          Map<String, dynamic> arguments = {
+            'student': widget.student,
+            'group': widget.group
+          };
+          Navigator.of(context).pushNamed('teacher_assignTask', arguments: arguments);
         },
       ),
     );

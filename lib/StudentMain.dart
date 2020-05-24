@@ -23,7 +23,7 @@ class _StudentMainState extends State<StudentMain> {
 
 
   UnityWidgetController _unityWidgetController;
-  Stream<List<TaskWithStatus>> _tasks;
+  Stream<Set<TaskWithStatus>> _tasks;
 
   @override
   void initState() {
@@ -46,11 +46,11 @@ class _StudentMainState extends State<StudentMain> {
     );
   }
 
-  Widget _buildTaskList(List<TaskWithStatus> tasks) {
+  Widget _buildTaskList(Set<TaskWithStatus> tasks) {
     return ListView.builder(
         itemCount: tasks.length,
         itemBuilder: (context, index) {
-          TaskWithStatus task = tasks[index];
+          TaskWithStatus task = tasks.elementAt(index);
           return Dismissible(
             key: Key(task.id),
             background: Container(

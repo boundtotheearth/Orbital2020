@@ -44,4 +44,23 @@ class Task {
       verified: verified
     );
   }
+
+  @override
+  bool operator ==(other) {
+    if (identical(this, other))
+      return true;
+    return other is Task
+        && other.id == id;
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode;
+  }
+
+  @override
+  String toString() {
+    // TODO: implement toString
+    return id;
+  }
 }
