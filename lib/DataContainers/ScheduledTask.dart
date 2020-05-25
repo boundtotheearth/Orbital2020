@@ -21,7 +21,7 @@ class ScheduledTask {
         this.endTime = endTime;
 
   Map<String, dynamic> toKeyValuePair() {
-    Map<String, dynamic> map;
+    Map<String, dynamic> map = Map();
     map["name"] = this.name;
     map["scheduledDate"] = this.scheduledDate;
     map["startTime"] = this.startTime;

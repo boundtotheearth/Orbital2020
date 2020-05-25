@@ -23,12 +23,10 @@ class DatabaseController {
   }
 
   //Student schedules his task
-  Future<void> scheduleTask(Student student, ScheduledTask task) {
+  Future<void> scheduleTask(String studentId, ScheduledTask task) {
     return db.collection('students')
-        .document(student.id)
-        .collection("Calendar")
-        .document(task.scheduledDate.toIso8601String())
-        .collection("ScheduledTasks")
+        .document(studentId)
+        .collection("scheduledTasks")
         .document(task.id)
         .setData(task.toKeyValuePair());
   }

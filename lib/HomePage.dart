@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:orbital2020/AddTaskToSchedule.dart';
 import 'package:orbital2020/StudentAddTask.dart';
 import 'package:orbital2020/StudentMain.dart';
 
@@ -24,6 +25,9 @@ class HomePage extends StatelessWidget {
               break;
             case 'schedule':
               builder = (_) => Schedule();
+              break;
+            case 'addSchedule':
+              builder = (_) => AddTaskToSchedule(scheduledDate: settings.arguments);
               break;
             default:
               throw Exception("Invalid route: ${settings.name}");

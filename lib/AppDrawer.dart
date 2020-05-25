@@ -61,7 +61,8 @@ class AppDrawer extends StatelessWidget {
               title: const Text("Schedule"),
               onTap: () {
                 print("Tapped Schedule");
-                Navigator.of(context).pushReplacementNamed("schedule");
+                Navigator.pop(context);
+                Navigator.of(context).pushNamed("schedule");
               }
             ),
             ListTile(

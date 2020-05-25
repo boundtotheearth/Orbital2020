@@ -21,6 +21,7 @@ class _ScheduleState extends State<Schedule> {
   Map<DateTime, List> _scheduledTasks;
   List _selectedTasks;
   final CalendarController _calendarController = CalendarController();
+  final formatTime = DateFormat.Hm();
   DateTime _selectedDate;
   User _user;
 
@@ -101,7 +102,13 @@ class _ScheduleState extends State<Schedule> {
         itemBuilder: (context, index) {
           ScheduledTask task = tasks[index];
           return ListTile(
-            title: Text("${task.name}, from ${task.startTime} to ${task.endTime}"),
+            leading: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text("From ${formatTime.format(task.startTime)} to ${formatTime.format(task.endTime)}"),
+              ],
+            ),
+            title: Text(task.name),
             onTap: () {}
 
           );
@@ -130,7 +137,11 @@ class _ScheduleState extends State<Schedule> {
       body: SafeArea(
         //padding: EdgeInsets.symmetric(horizontal: 16.0),
         child: _buildCalendar()
-      )
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () => Navigator.of(context).pushNamed("addSchedule", arguments: _selectedDate),
+      ),
     );
   }
 
