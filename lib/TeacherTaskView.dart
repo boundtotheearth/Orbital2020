@@ -22,18 +22,25 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
   final DatabaseController db = DatabaseController();
 
   Stream<List<StudentWithStatus>> _students;
+  String _searchText;
+  bool _searchBarActive;
 
   @override
   void initState() {
     super.initState();
     _students = db.getTaskCompletionSnapshots(widget.task.id);
+    _searchText = '';
+    _searchBarActive = false;
   }
 
   Widget _buildStudentList(List<StudentWithStatus> students) {
+    List<StudentWithStatus> filteredStudents = students.where((student) =>
+        student.name.toLowerCase().startsWith(_searchText)).toList();
+
     return ListView.builder(
-        itemCount: students.length,
+        itemCount: filteredStudents.length,
         itemBuilder: (context, index) {
-          StudentWithStatus student = students[index];
+          StudentWithStatus student = filteredStudents[index];
           return ListTile(
             title: Text(student.name),
             trailing: Wrap(
@@ -119,18 +126,61 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
     return Future(null);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
+  void _activateSearchBar() {
+    setState(() {
+      _searchBarActive = true;
+    });
+  }
+
+  void _deactivateSearchBar() {
+    setState(() {
+      _searchBarActive = false;
+    });
+  }
+
+  Widget buildAppBar() {
+    if(_searchBarActive) {
+      return AppBar(
+        title: TextField(
+          decoration: const InputDecoration(
+            hintText: 'Search',
+          ),
+          onChanged: (value) {
+            setState(() {
+              _searchText = value.toLowerCase();
+            });
+          },
+          autofocus: true,
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.cancel),
+            tooltip: 'Cancel',
+            onPressed: _deactivateSearchBar,
+          )
+        ],
+      );
+    } else {
+      return AppBar(
         title: Text(widget.task.name),
         actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: _activateSearchBar,
+          ),
           PopupMenuButton(
             itemBuilder: _actionMenuBuilder,
             onSelected: _onActionMenuSelected,
           ),
         ],
-      ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: buildAppBar(),
       drawer: AppDrawer(),
       body: SafeArea(
           child: Column(
