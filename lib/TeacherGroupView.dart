@@ -27,6 +27,8 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
   Stream<List<Task>> _tasks;
   Stream<Set<Student>> _students;
   TabController _tabController;
+  String _searchText;
+  bool _searchBarActive;
 
   @override
   void initState() {
@@ -35,6 +37,8 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
     _user = Provider.of<User>(context, listen: false);
 
     _tabController = TabController(length: 2, vsync: this, initialIndex: 0);
+    _searchText = '';
+    _searchBarActive = false;
     _tasks = db.getGroupTaskSnapshots(
         teacherId: _user.id,
         groupId: widget.group.id,
@@ -46,10 +50,13 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
   }
 
   Widget _buildTaskList(List<Task> tasks) {
+    List<Task> filteredTasks = tasks.where((task) =>
+        task.name.toLowerCase().startsWith(_searchText)).toList();
+
     return ListView.builder(
-        itemCount: tasks.length,
+        itemCount: filteredTasks.length,
         itemBuilder: (context, index) {
-          Task task = tasks[index];
+          Task task = filteredTasks[index];
           return ListTile(
             title: Text(task.name),
             subtitle: Text("Due: " + DateFormat('dd/MM/y').format(task.dueDate)),
@@ -67,10 +74,14 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
 
   Widget _buildStudentList(Set<Student> students) {
     widget.group.students = students;
+
+    Set<Student> filteredStudents = students.where((student) =>
+        student.name.toLowerCase().startsWith(_searchText)).toSet();
+
     return ListView.builder(
-        itemCount: students.length,
+        itemCount: filteredStudents.length,
         itemBuilder: (context, index) {
-          Student student = students.elementAt(index);
+          Student student = filteredStudents.elementAt(index);
           return ListTile(
             title: Text(student.name),
             onTap: () {
@@ -125,6 +136,68 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
     );
   }
 
+  void _activateSearchBar() {
+    setState(() {
+      _searchBarActive = true;
+    });
+  }
+
+  void _deactivateSearchBar() {
+    setState(() {
+      _searchBarActive = false;
+    });
+  }
+
+  Widget buildAppBar() {
+    if(_searchBarActive) {
+      return AppBar(
+        title: TextField(
+          decoration: const InputDecoration(
+            hintText: 'Search',
+          ),
+          onChanged: (value) {
+            setState(() {
+              _searchText = value.toLowerCase();
+            });
+          },
+          autofocus: true,
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.cancel),
+            tooltip: 'Cancel',
+            onPressed: _deactivateSearchBar,
+          )
+        ],
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: <Widget>[
+            Tab(child: Text('Tasks'),),
+            Tab(child: Text('Students'),),
+          ],
+        ),
+      );
+    } else {
+      return AppBar(
+        title: Text(widget.group.name),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.search),
+            tooltip: 'Search',
+            onPressed: _activateSearchBar,
+          ),
+        ],
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: <Widget>[
+            Tab(child: Text('Tasks'),),
+            Tab(child: Text('Students'),),
+          ],
+        ),
+      );
+    }
+  }
+
   Future<Null> _refreshTasks() async {
     await Future.microtask(() => setState(() {
       _tasks = db.getGroupTaskSnapshots(
@@ -152,25 +225,7 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.group.name),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.search),
-            tooltip: 'Search',
-            onPressed: () {
-
-            },
-          ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: <Widget>[
-            Tab(child: Text('Tasks'),),
-            Tab(child: Text('Students'),),
-          ],
-        ),
-      ),
+      appBar: buildAppBar(),
       drawer: AppDrawer(),
       body: TabBarView(
         controller: _tabController,

@@ -23,12 +23,16 @@ class _StudentMainState extends State<StudentMain> {
 
   UnityWidgetController _unityWidgetController;
   Stream<List<TaskWithStatus>> _tasks;
+  String _searchText;
+  bool _searchBarActive;
 
   @override
   void initState() {
     super.initState();
     _user = Provider.of<User>(context, listen: false);
     _tasks = db.getStudentTaskSnapshots(studentId: _user.id);
+    _searchText = "";
+    _searchBarActive = false;
   }
 
   void _incrementCounter(String amount) {
@@ -45,14 +49,30 @@ class _StudentMainState extends State<StudentMain> {
     );
   }
 
+  void _activateSearchBar() {
+    setState(() {
+      _searchBarActive = true;
+    });
+  }
+
+  void _deactivateSearchBar() {
+    setState(() {
+      _searchBarActive = false;
+    });
+  }
+
   Widget _buildTaskList(List<TaskWithStatus> tasks) {
+    List<TaskWithStatus> filteredTasks = tasks.where((task) =>
+        task.name.toLowerCase().startsWith(_searchText) ||
+        (task.createdByName?.toLowerCase()?.startsWith(_searchText) ?? false)).toList();
+
     return ListView.builder(
-        itemCount: tasks.length,
+        itemCount: filteredTasks.length,
         itemBuilder: (context, index) {
-          TaskWithStatus task = tasks[index];
+          TaskWithStatus task = filteredTasks[index];
           return ListTile(
             title: Text(task.name),
-            subtitle: Text(task.createdByName),
+            subtitle: Text(task.createdByName ?? ""),
             trailing: Wrap(
               children: <Widget>[
                 Checkbox(
@@ -74,6 +94,42 @@ class _StudentMainState extends State<StudentMain> {
     );
   }
 
+  Widget buildAppBar() {
+    if(_searchBarActive) {
+      return AppBar(
+        title: TextField(
+          decoration: const InputDecoration(
+            hintText: 'Search',
+          ),
+          onChanged: (value) {
+            setState(() {
+              _searchText = value.toLowerCase();
+            });
+          },
+          autofocus: true,
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.cancel),
+            tooltip: 'Cancel',
+            onPressed: _deactivateSearchBar,
+          )
+        ],
+      );
+    } else {
+      return AppBar(
+        title: Text('Welcome ${_user.name}'),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.search),
+            tooltip: 'Search',
+            onPressed: _activateSearchBar,
+          ),
+        ],
+      );
+    }
+  }
+
   Future<Null> refresh() async {
     await Future.microtask(() => setState(() {
       _tasks = db.getStudentTaskSnapshots(studentId: _user.id);
@@ -83,18 +139,7 @@ class _StudentMainState extends State<StudentMain> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Welcome ${_user.name}'),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.search),
-            tooltip: 'Search',
-            onPressed: () {
-
-            },
-          ),
-        ],
-      ),
+      appBar: buildAppBar(),
       drawer: AppDrawer(),
       body: SafeArea(
             child: Column(
