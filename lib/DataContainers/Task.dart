@@ -17,7 +17,7 @@ class Task {
     this.createdByName,
     this.createdById,
     this.dueDate,
-    this.tags = const [],
+    this.tags,
   });
 
   Map<String, dynamic> toKeyValuePair() {
@@ -43,5 +43,24 @@ class Task {
       completed: completed,
       verified: verified
     );
+  }
+
+  @override
+  bool operator ==(other) {
+    if (identical(this, other))
+      return true;
+    return other is Task
+        && other.id == id;
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode;
+  }
+
+  @override
+  String toString() {
+    // TODO: implement toString
+    return id;
   }
 }

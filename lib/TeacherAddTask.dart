@@ -125,7 +125,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
       Task newTask = Task(
         name: _taskName,
         description: _taskDescription,
-        createdByName: _user.displayName,
+        createdByName: _user.name,
         createdById: _user.id,
         dueDate: _dueDate,
         tags: _tags,
