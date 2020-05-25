@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_unity_widget/flutter_unity_widget.dart';
+import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +23,7 @@ class _StudentMainState extends State<StudentMain> {
 
 
   UnityWidgetController _unityWidgetController;
-  Stream<List<TaskWithStatus>> _tasks;
+  Stream<Set<TaskWithStatus>> _tasks;
 
   @override
   void initState() {
@@ -45,33 +46,49 @@ class _StudentMainState extends State<StudentMain> {
     );
   }
 
-  Widget _buildTaskList(List<TaskWithStatus> tasks) {
+  Widget _buildTaskList(Set<TaskWithStatus> tasks) {
     return ListView.builder(
         itemCount: tasks.length,
         itemBuilder: (context, index) {
-          TaskWithStatus task = tasks[index];
-          return ListTile(
-            title: Text(task.name),
-            subtitle: Text(task.createdBy),
-            trailing: Wrap(
-              children: <Widget>[
-                Checkbox(
-                  value: task.completed,
-                  onChanged: (value) {
-                    db.updateTaskCompletion(task.id, _user.id, value);
-                  },
-                ),
-                Checkbox(
-                  value: task.verified,
-                  onChanged: (value) {
-                    db.updateTaskVerification(task.id, _user.id, value);
-                  },
-                ),
-              ],
+          TaskWithStatus task = tasks.elementAt(index);
+          return Dismissible(
+            key: Key(task.id),
+            background: Container(
+              alignment: Alignment.centerLeft,
+              color: Colors.red,
+              child: const Text('Delete', style: TextStyle(color: Colors.white),),
+            ),
+            onDismissed: (direction) {
+              tasks.remove(task);
+              deleteTask(task);
+            },
+            child: ListTile(
+              title: Text(task.name),
+              subtitle: Text(task.createdByName ?? "Null"),
+              trailing: Wrap(
+                children: <Widget>[
+                  Checkbox(
+                    value: task.completed,
+                    onChanged: (value) {
+                      db.updateTaskCompletion(task.id, _user.id, value);
+                    },
+                  ),
+                  Checkbox(
+                    value: task.verified,
+                    onChanged: (value) {
+                      db.updateTaskVerification(task.id, _user.id, value);
+                    },
+                  ),
+                ],
+              ),
             ),
           );
         }
     );
+  }
+
+  void deleteTask(Task task) {
+    //run db command
   }
 
   Future<Null> refresh() async {
@@ -156,7 +173,7 @@ class _StudentMainState extends State<StudentMain> {
         tooltip: 'Add',
         onPressed: () {
           _incrementCounter('1');
-          Navigator.of(context).pushNamed('addTask');
+          Navigator.of(context).pushNamed('student_addTask');
         },
       ),
     );

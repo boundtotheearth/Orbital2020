@@ -1,8 +1,9 @@
 import 'package:orbital2020/DataContainers/StudentWithStatus.dart';
 
+//A student is a group with 1 member.
 class Student {
-  String id;
-  String name;
+  final String id;
+  final String name;
 
   Student({this.id, this.name});
 
@@ -19,5 +20,18 @@ class Student {
         completed: completed,
         verified: verified
     );
+  }
+
+  @override
+  bool operator ==(other) {
+    if (identical(this, other))
+      return true;
+    return other is Student
+        && other.id == id;
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode;
   }
 }

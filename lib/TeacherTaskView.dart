@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/StudentWithStatus.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/DatabaseController.dart';
@@ -8,10 +10,10 @@ import 'AppDrawer.dart';
 
 
 class TeacherTaskView extends StatefulWidget {
-  final String userId;
   final Task task;
+  final Group group;
 
-  TeacherTaskView({Key key, this.userId, this.task}) : super(key: key);
+  TeacherTaskView({Key key, @required this.task, @required this.group}) : super(key: key);
 
   @override
   _TeacherTaskViewState createState() => _TeacherTaskViewState();
@@ -118,6 +120,16 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
     return Future(null);
   }
 
+  List<Widget> getTagChips() {
+    List<Widget> tagChips = <Widget>[];
+    for(String tag in widget.task.tags) {
+      tagChips.add(Chip(
+        label: Text(tag),
+      ));
+    }
+    return tagChips;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -137,6 +149,13 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
               AspectRatio(
                 aspectRatio: 3/2,
                 child: Container(),
+              ),
+              Text(widget.task.description ?? "No Description"),
+              Text("Due: " + DateFormat('dd/MM/y').format(widget.task.dueDate)),
+              Text('Tags:'),
+              Wrap(
+                spacing: 8.0,
+                children: getTagChips(),
               ),
               Row(
                 children: <Widget>[
@@ -175,7 +194,11 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
         child: const Icon(Icons.add),
         tooltip: 'Add Student',
         onPressed: () {
-
+          Map<String, dynamic> arguments = {
+            'task': widget.task,
+            'group': widget.group
+          };
+          Navigator.of(context).pushNamed('teacher_assignStudent', arguments: arguments);
         },
       ),
     );
