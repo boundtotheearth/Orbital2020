@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/StudentWithStatus.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
@@ -139,7 +140,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
   }
 
   Widget buildAppBar() {
-    if(_searchBarActive) {
+    if (_searchBarActive) {
       return AppBar(
         title: TextField(
           decoration: const InputDecoration(
@@ -177,6 +178,16 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
     }
   }
 
+  List<Widget> getTagChips() {
+    List<Widget> tagChips = <Widget>[];
+    for(String tag in widget.task.tags) {
+      tagChips.add(Chip(
+        label: Text(tag),
+      ));
+    }
+    return tagChips;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -188,6 +199,13 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
               AspectRatio(
                 aspectRatio: 3/2,
                 child: Container(),
+              ),
+              Text(widget.task.description ?? "No Description"),
+              Text("Due: " + DateFormat('dd/MM/y').format(widget.task.dueDate)),
+              Text('Tags:'),
+              Wrap(
+                spacing: 8.0,
+                children: getTagChips(),
               ),
               Row(
                 children: <Widget>[

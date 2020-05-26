@@ -22,7 +22,7 @@ class _StudentMainState extends State<StudentMain> {
 
 
   UnityWidgetController _unityWidgetController;
-  Stream<List<TaskWithStatus>> _tasks;
+  Stream<Set<TaskWithStatus>> _tasks;
   String _searchText;
   bool _searchBarActive;
 
@@ -95,7 +95,7 @@ class _StudentMainState extends State<StudentMain> {
   }
 
   Widget buildAppBar() {
-    if(_searchBarActive) {
+    if (_searchBarActive) {
       return AppBar(
         title: TextField(
           decoration: const InputDecoration(
@@ -201,10 +201,6 @@ class _StudentMainState extends State<StudentMain> {
         tooltip: 'Add',
         onPressed: () {
           _incrementCounter('1');
-//          Navigator.push(
-////              context,
-////              MaterialPageRoute(builder: (context) => StudentAddTask())
-////          );
           Navigator.of(context).pushNamed('student_addTask');
         },
       ),

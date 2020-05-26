@@ -123,19 +123,19 @@ class _AddTaskFormState extends State<AddTaskForm> {
       Task newTask = Task(
         name: _taskName,
         description: _taskDescription,
-        createdByName: _user.displayName,
+        createdByName: _user.name,
         createdById: _user.id,
         dueDate: _dueDate,
         tags: _tags,
       );
 
-      Student me = Student(id: _user.id, name: 'Me');
+      Student me = Student(id: _user.id, name: _user.name);
 
       db.selfCreateAndAssignTask(task: newTask, student: me).then((value) {
         Scaffold
             .of(context)
             .showSnackBar(SnackBar(content: Text('Success')));
-        Navigator.pushReplacementNamed(context, 'main');
+        Navigator.of(context).pushReplacementNamed('student_main');
       });
     }
   }

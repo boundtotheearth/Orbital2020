@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 
@@ -10,8 +11,9 @@ import 'package:provider/provider.dart';
 //View shown when teacher is assigning a task to a student
 class TeacherAssignTask extends StatefulWidget {
   final Student student;
+  final Group group;
 
-  TeacherAssignTask({Key key, @required this.student}) : super(key: key);
+  TeacherAssignTask({Key key, @required this.student, @required this.group}) : super(key: key);
 
 
   @override
@@ -23,7 +25,8 @@ class _TeacherAssignTaskState extends State<TeacherAssignTask> {
 
   User _user;
 
-  Stream<List<Task>> _allTasks;
+  Stream<Set<Task>> _allTasks;
+  Stream<Set<Task>> _alreadyAssigned;
   Set<Task> _tasks;
   String _searchText;
 
@@ -32,7 +35,8 @@ class _TeacherAssignTaskState extends State<TeacherAssignTask> {
   void initState() {
     super.initState();
     _user = Provider.of<User>(context, listen: false);
-    _allTasks = db.getTeacherTasksSnapshots(teacherId: _user.id);
+    _allTasks = db.getGroupTaskSnapshots(teacherId: _user.id, groupId: widget.group.id);
+    _alreadyAssigned = db.getStudentTaskSnapshots(studentId: widget.student.id);
     _tasks = Set();
     _searchText = "";
   }
@@ -65,27 +69,45 @@ class _TeacherAssignTaskState extends State<TeacherAssignTask> {
   Widget buildSuggestions() {
     return StreamBuilder(
       stream: _allTasks,
-      builder: (context, snapshot) {
-        if(snapshot.hasData) {
-          List<Task> allTasks = snapshot.data;
-          List<Task> suggestions = allTasks.where((element) =>
-              element.name.startsWith(_searchText)).toList();
-          return ListView.builder(
-              itemCount: suggestions.length,
-              itemBuilder: (context, index) {
-                Task task = suggestions[index];
-                return ListTile(
-                  title: Text(task.name),
-                  onTap: () {
-                    addTask(task);
-                  },
-                );
+      builder: (context, allTasksSnapshot) =>
+        StreamBuilder(
+          stream: _alreadyAssigned,
+          builder: (context, alreadyAssignedSnapshot) {
+            if (allTasksSnapshot.hasData && alreadyAssignedSnapshot.hasData) {
+              Set<Task> allTasks = allTasksSnapshot.data;
+              Set<Task> alreadyAssigned = alreadyAssignedSnapshot.data;
+              print("len here" + alreadyAssigned.length.toString());
+              print(allTasks.toString());
+              print(alreadyAssigned.toString());
+
+              for(Task task in allTasks) {
+                if(alreadyAssigned.contains(task)) {
+                  print(task.toString());
+                }
               }
-          );
-        } else {
-          return CircularProgressIndicator();
-        }
-      },
+
+              List<Task> suggestions = allTasks.where((element) =>
+              element.name.startsWith(_searchText)
+                  && !alreadyAssigned.contains(element)
+                  && !_tasks.contains(element)).toList();
+
+              return ListView.builder(
+                  itemCount: suggestions.length,
+                  itemBuilder: (context, index) {
+                    Task task = suggestions[index];
+                    return ListTile(
+                      title: Text(task.name),
+                      onTap: () {
+                        addTask(task);
+                      },
+                    );
+                  }
+              );
+            } else {
+              return CircularProgressIndicator();
+            }
+          }
+        ),
     );
   }
 
@@ -104,7 +126,7 @@ class _TeacherAssignTaskState extends State<TeacherAssignTask> {
           children: <Widget>[
             TextField(
               decoration: const InputDecoration(
-                labelText: 'Add Students/Groups',
+                labelText: 'Assign Tasks',
               ),
               onChanged: (value) {
                 setState(() {

@@ -146,9 +146,8 @@ class DatabaseController {
 
   //Get a stream of snapshots containing tasks assigned to a student with studentId.
   //Each snapshot contains a list of tasks with their corresponding completion status.
-  //If a teacher ID is provided, only tasks belonging to the teacher ID will have their status included
-  Stream<List<TaskWithStatus>> getStudentTaskSnapshots({@required String studentId, String teacherId}) {
-    Stream<List<TaskWithStatus>> tasks = db.collection('students')
+  Stream<Set<TaskWithStatus>> getStudentTaskSnapshots({@required String studentId}) {
+    Stream<Set<TaskWithStatus>> tasks = db.collection('students')
         .document(studentId)
         .collection('tasks')
         .snapshots()
@@ -164,16 +163,38 @@ class DatabaseController {
                 completed: document['completed'],
                 verified: document['verified']);
             return t;
-          }).toList();
+          }).toSet();
         }
     );
     return tasks;
   }
 
+  //Get a stream of snapshots containing students assigned to a task with taskId.
+  //Each snapshot contains a list of students with their corresponding completion status.
+  Stream<Set<StudentWithStatus>> getTaskStudentSnapshots({@required String taskId}) {
+    Stream<Set<StudentWithStatus>> students = db.collection('tasks')
+        .document(taskId)
+        .collection('students')
+        .snapshots()
+        .map((snapshot) => snapshot.documents)
+        .map((documents) {
+      return documents.map((document) {
+        StudentWithStatus s = StudentWithStatus(
+            id: document.documentID,
+            name: document['name'],
+            completed: document['completed'],
+            verified: document['verified']);
+        return s;
+      }).toSet();
+    }
+    );
+    return students;
+  }
+
   //Get a stream of snapshots containing tasks that have been assigned to a group.
   //Each snapshot contains a list of tasks, without their completion statuses.
-  Stream<List<Task>> getGroupTaskSnapshots({String teacherId, String groupId}) {
-    Stream<List<Task>> tasks = db.collection('teachers')
+  Stream<Set<Task>> getGroupTaskSnapshots({String teacherId, String groupId}) {
+    Stream<Set<Task>> tasks = db.collection('teachers')
         .document(teacherId)
         .collection('groups')
         .document(groupId)
@@ -182,15 +203,17 @@ class DatabaseController {
         .map((snapshot) => snapshot.documents)
         .map((documents) =>
         documents.map((document) {
+          //print(document['tags'].runtimeType);
           Task t = Task(
               id: document.documentID,
               name: document['name'],
+              description: document['description'],
               dueDate: document['dueDate'].toDate(),
+              tags: document['tags']?.cast<String>() ?? [],
               createdById: document['createdById'],
           );
-          print(t);
           return t;
-        }).toList()
+        }).toSet()
     );
     return tasks;
   }

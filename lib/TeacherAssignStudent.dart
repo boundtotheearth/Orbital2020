@@ -24,6 +24,7 @@ class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
   User _user;
 
   Stream<Set<Student>> _allStudents;
+  Stream<Set<Student>> _alreadyAssigned;
   Set<Student> _students;
   String _searchText;
 
@@ -33,6 +34,7 @@ class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
     super.initState();
     _user = Provider.of<User>(context, listen: false);
     _allStudents = db.getGroupStudentSnapshots(teacherId: _user.id, groupId: widget.group.id);
+    _alreadyAssigned = db.getTaskStudentSnapshots(taskId: widget.task.id);
     _students = Set();
     _searchText = "";
   }
@@ -65,27 +67,36 @@ class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
   Widget buildSuggestions() {
     return StreamBuilder(
       stream: _allStudents,
-      builder: (context, snapshot) {
-        if(snapshot.hasData) {
-          Set<Student> allStudents = snapshot.data;
-          List<Student> suggestions = allStudents.where((element) =>
-          element.name.startsWith(_searchText)).toList();
-          return ListView.builder(
-              itemCount: suggestions.length,
-              itemBuilder: (context, index) {
-                Student student = suggestions[index];
-                return ListTile(
-                  title: Text(student.name),
-                  onTap: () {
-                    addStudent(student);
-                  },
-                );
-              }
-          );
-        } else {
-          return CircularProgressIndicator();
-        }
-      },
+      builder: (context, allStudentsSnapshot) =>
+          StreamBuilder(
+          stream: _alreadyAssigned,
+          builder: (context, alreadyAssignedSnapshot) {
+            if(allStudentsSnapshot.hasData && alreadyAssignedSnapshot.hasData) {
+              Set<Student> allStudents = allStudentsSnapshot.data;
+              Set<Student> alreadyAssigned = alreadyAssignedSnapshot.data;
+
+              List<Student> suggestions = allStudents.where((element) =>
+              element.name.startsWith(_searchText)
+                  && !alreadyAssigned.contains(element)
+                  && !_students.contains(element)).toList();
+
+              return ListView.builder(
+                  itemCount: suggestions.length,
+                  itemBuilder: (context, index) {
+                    Student student = suggestions[index];
+                    return ListTile(
+                      title: Text(student.name),
+                      onTap: () {
+                        addStudent(student);
+                      },
+                    );
+                  }
+              );
+            } else {
+              return CircularProgressIndicator();
+            }
+          },
+        )
     );
   }
 

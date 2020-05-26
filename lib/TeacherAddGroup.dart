@@ -69,7 +69,7 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
         if(snapshot.hasData) {
           List<Student> allStudents = snapshot.data;
           List<Student> suggestions = allStudents.where((element) =>
-              element.name.startsWith(_searchText)).toList();
+              element.name.startsWith(_searchText) && !_students.contains(element)).toList();
           return ListView.builder(
               itemCount: suggestions.length,
               itemBuilder: (context, index) {

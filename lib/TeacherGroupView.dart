@@ -24,7 +24,7 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
 
   User _user;
 
-  Stream<List<Task>> _tasks;
+  Stream<Set<Task>> _tasks;
   Stream<Set<Student>> _students;
   TabController _tabController;
   String _searchText;
@@ -49,7 +49,7 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
     );
   }
 
-  Widget _buildTaskList(List<Task> tasks) {
+  Widget _buildTaskList(Set<Task> tasks) {
     List<Task> filteredTasks = tasks.where((task) =>
         task.name.toLowerCase().startsWith(_searchText)).toList();
 
@@ -85,7 +85,11 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
           return ListTile(
             title: Text(student.name),
             onTap: () {
-              Navigator.of(context).pushNamed('teacher_studentView', arguments: student);
+              Map<String, dynamic> arguments = {
+                'student': student,
+                'group': widget.group
+              };
+              Navigator.of(context).pushNamed('teacher_studentView', arguments: arguments);
             },
           );
         }
