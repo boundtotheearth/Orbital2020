@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:intl/intl.dart';
@@ -151,13 +150,14 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
             ),
             onTap: () {
               _setTime(context, Time.start).then((value) {
-                _startTimeController.text = value.format(context);
+                _startTimeController.text = DateFormat("HH:mm")
+                  .format(_scheduledDate.add(Duration(hours: value.hour, minutes: value.minute)));
               });
             },
             controller: _startTimeController,
             validator: MultiValidator([
               RequiredValidator(errorText: "Start Time cannot be empty!"),
-              DateValidator("h:mm a", errorText: "Invalid time format! Should be HH:mm")
+              DateValidator("h:mm", errorText: "Invalid time format! Should be HH:mm")
             ]),
           ),
           TextFormField(
@@ -167,13 +167,14 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
             ),
             onTap: () {
               _setTime(context, Time.end).then((value) {
-                _endTimeController.text = value.format(context);
+                _endTimeController.text = DateFormat("HH:mm")
+                    .format(_scheduledDate.add(Duration(hours: value.hour, minutes: value.minute)));
               });
             },
             controller: _endTimeController,
             validator: MultiValidator([
               RequiredValidator(errorText: "End Time cannot be empty!"),
-              DateValidator("h:mm a", errorText: "Invalid time format! Should be HH:mm"),
+              DateValidator("h:mm", errorText: "Invalid time format! Should be HH:mm"),
             ]),
           ),
           RaisedButton(
