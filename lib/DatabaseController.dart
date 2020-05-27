@@ -157,6 +157,7 @@ class DatabaseController {
             TaskWithStatus t = TaskWithStatus(
                 id: document.documentID,
                 name: document['name'],
+                dueDate: document['dueDate'].toDate(),
                 createdByName: document['createdByName'],
                 createdById: document['createdById'],
                 completed: document['completed'],

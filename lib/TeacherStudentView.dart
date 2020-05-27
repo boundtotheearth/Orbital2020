@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
@@ -25,21 +26,29 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
 
   User _user;
   Stream<Set<TaskWithStatus>> _tasks;
+  String _searchText;
+  bool _searchBarActive;
 
   @override
   void initState() {
     super.initState();
     _user = Provider.of<User>(context, listen: false);
     _tasks = db.getStudentTaskSnapshots(studentId: widget.student.id);
+    _searchText = '';
+    _searchBarActive = false;
   }
 
   Widget _buildTaskList(Set<TaskWithStatus> tasks) {
+    List<TaskWithStatus> filteredTasks = tasks.where((task) =>
+        task.name.toLowerCase().startsWith(_searchText)).toList();
+
     return ListView.builder(
-        itemCount: tasks.length,
+        itemCount: filteredTasks.length,
         itemBuilder: (context, index) {
-          TaskWithStatus task = tasks.elementAt(index);
+          TaskWithStatus task = filteredTasks.elementAt(index);
           return ListTile(
             title: Text(task.name),
+            subtitle: Text(task.dueDate != null ? ("Due: " + DateFormat('dd/MM/y').format(task.dueDate)) : ""),
             trailing: task.createdById == _user.id ? Wrap(
               children: <Widget>[
                 Checkbox(
@@ -61,6 +70,81 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
     );
   }
 
+  List<PopupMenuItem> _actionMenuBuilder(BuildContext context) {
+    return [
+      PopupMenuItem(
+        value: 'remove_student',
+        child: Text('Remove Student'),
+      ),
+    ];
+  }
+
+  void _onActionMenuSelected(dynamic value) {
+    switch(value) {
+      case 'remove_student':
+        _onRemoveStudent();
+        break;
+      default:
+        print(value.toString() + " Not Implemented");
+    }
+  }
+
+  Future<void> _onRemoveStudent() {
+    return Future(null);
+  }
+
+  void _activateSearchBar() {
+    setState(() {
+      _searchBarActive = true;
+    });
+  }
+
+  Widget buildAppBar() {
+    if(_searchBarActive) {
+      return AppBar(
+        title: TextField(
+          decoration: const InputDecoration(
+            hintText: 'Search',
+          ),
+          onChanged: (value) {
+            setState(() {
+              _searchText = value.toLowerCase();
+            });
+          },
+          autofocus: true,
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.cancel),
+            tooltip: 'Cancel',
+            onPressed: _deactivateSearchBar,
+          )
+        ],
+      );
+    } else {
+      return AppBar(
+        title: Text(widget.student.name),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.search),
+            tooltip: 'Search',
+            onPressed: _activateSearchBar,
+          ),
+          PopupMenuButton(
+            itemBuilder: _actionMenuBuilder,
+            onSelected: _onActionMenuSelected,
+          ),
+        ],
+      );
+    }
+  }
+
+  void _deactivateSearchBar() {
+    setState(() {
+      _searchBarActive = false;
+    });
+  }
+
   Future<Null> _refresh() async {
     await Future.microtask(() => setState(() {
       _tasks = db.getStudentTaskSnapshots(studentId: widget.student.id);
@@ -70,18 +154,7 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.student.name),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.search),
-            tooltip: 'Search',
-            onPressed: () {
-
-            },
-          ),
-        ],
-      ),
+      appBar: buildAppBar(),
       drawer: AppDrawer(),
       body: SafeArea(
           child: Column(

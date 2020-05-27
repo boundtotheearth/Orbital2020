@@ -21,19 +21,25 @@ class _TeacherGroupsState extends State<TeacherGroups> {
 
   User _user;
   Stream<List<Group>> _groups;
+  String _searchText;
+  bool _searchBarActive;
 
   @override
   void initState() {
     super.initState();
     _user = Provider.of<User>(context, listen: false);
     _groups = db.getTeacherGroupSnapshots(teacherId: _user.id);
+    _searchText = "";
+    _searchBarActive = false;
   }
 
   Widget _buildGroupList(List<Group> groups) {
+    List<Group> filteredGroups = groups.where((group) =>
+        group.name.toLowerCase().startsWith(_searchText)).toList();
     return ListView.builder(
-        itemCount: groups.length,
+        itemCount: filteredGroups.length,
         itemBuilder: (context, index) {
-          Group group = groups[index];
+          Group group = filteredGroups[index];
           return ListTile(
             leading: Icon(Icons.group),
             title: Text(group.name),
@@ -51,21 +57,58 @@ class _TeacherGroupsState extends State<TeacherGroups> {
     }));
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
+  void _activateSearchBar() {
+    setState(() {
+      _searchBarActive = true;
+    });
+  }
+
+  void _deactivateSearchBar() {
+    setState(() {
+      _searchBarActive = false;
+    });
+  }
+
+  Widget buildAppBar() {
+    if(_searchBarActive) {
+      return AppBar(
+        title: TextField(
+          decoration: const InputDecoration(
+            hintText: 'Search',
+          ),
+          onChanged: (value) {
+            setState(() {
+              _searchText = value.toLowerCase();
+            });
+          },
+          autofocus: true,
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.cancel),
+            tooltip: 'Cancel',
+            onPressed: _deactivateSearchBar,
+          )
+        ],
+      );
+    } else {
+      return AppBar(
         title: const Text('Groups'),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.search),
             tooltip: 'Search',
-            onPressed: () {
-
-            },
+            onPressed: _activateSearchBar,
           ),
         ],
-      ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: buildAppBar(),
       drawer: AppDrawer(),
       body: SafeArea(
         child: Scrollbar(

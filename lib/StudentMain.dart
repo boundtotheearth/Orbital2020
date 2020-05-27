@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_unity_widget/flutter_unity_widget.dart';
-import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:provider/provider.dart';
@@ -24,12 +23,16 @@ class _StudentMainState extends State<StudentMain> {
 
   UnityWidgetController _unityWidgetController;
   Stream<Set<TaskWithStatus>> _tasks;
+  String _searchText;
+  bool _searchBarActive;
 
   @override
   void initState() {
     super.initState();
     _user = Provider.of<User>(context, listen: false);
     _tasks = db.getStudentTaskSnapshots(studentId: _user.id);
+    _searchText = "";
+    _searchBarActive = false;
   }
 
   void _incrementCounter(String amount) {
@@ -46,49 +49,85 @@ class _StudentMainState extends State<StudentMain> {
     );
   }
 
-  Widget _buildTaskList(Set<TaskWithStatus> tasks) {
+  void _activateSearchBar() {
+    setState(() {
+      _searchBarActive = true;
+    });
+  }
+
+  void _deactivateSearchBar() {
+    setState(() {
+      _searchBarActive = false;
+    });
+  }
+
+  Widget _buildTaskList(List<TaskWithStatus> tasks) {
+    List<TaskWithStatus> filteredTasks = tasks.where((task) =>
+        task.name.toLowerCase().startsWith(_searchText) ||
+        (task.createdByName?.toLowerCase()?.startsWith(_searchText) ?? false)).toList();
+
     return ListView.builder(
-        itemCount: tasks.length,
+        itemCount: filteredTasks.length,
         itemBuilder: (context, index) {
-          TaskWithStatus task = tasks.elementAt(index);
-          return Dismissible(
-            key: Key(task.id),
-            background: Container(
-              alignment: Alignment.centerLeft,
-              color: Colors.red,
-              child: const Text('Delete', style: TextStyle(color: Colors.white),),
-            ),
-            onDismissed: (direction) {
-              tasks.remove(task);
-              deleteTask(task);
-            },
-            child: ListTile(
-              title: Text(task.name),
-              subtitle: Text(task.createdByName ?? "Null"),
-              trailing: Wrap(
-                children: <Widget>[
-                  Checkbox(
-                    value: task.completed,
-                    onChanged: (value) {
-                      db.updateTaskCompletion(task.id, _user.id, value);
-                    },
-                  ),
-                  Checkbox(
-                    value: task.verified,
-                    onChanged: (value) {
-                      db.updateTaskVerification(task.id, _user.id, value);
-                    },
-                  ),
-                ],
-              ),
+          TaskWithStatus task = filteredTasks[index];
+          return ListTile(
+            title: Text(task.name),
+            subtitle: Text(task.createdByName ?? ""),
+            trailing: Wrap(
+              children: <Widget>[
+                Checkbox(
+                  value: task.completed,
+                  onChanged: (value) {
+                    db.updateTaskCompletion(task.id, _user.id, value);
+                  },
+                ),
+                Checkbox(
+                  value: task.verified,
+                  onChanged: (value) {
+                    db.updateTaskVerification(task.id, _user.id, value);
+                  },
+                ),
+              ],
             ),
           );
         }
     );
   }
 
-  void deleteTask(Task task) {
-    //run db command
+  Widget buildAppBar() {
+    if (_searchBarActive) {
+      return AppBar(
+        title: TextField(
+          decoration: const InputDecoration(
+            hintText: 'Search',
+          ),
+          onChanged: (value) {
+            setState(() {
+              _searchText = value.toLowerCase();
+            });
+          },
+          autofocus: true,
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.cancel),
+            tooltip: 'Cancel',
+            onPressed: _deactivateSearchBar,
+          )
+        ],
+      );
+    } else {
+      return AppBar(
+        title: Text('Welcome ${_user.name}'),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.search),
+            tooltip: 'Search',
+            onPressed: _activateSearchBar,
+          ),
+        ],
+      );
+    }
   }
 
   Future<Null> refresh() async {
@@ -100,18 +139,7 @@ class _StudentMainState extends State<StudentMain> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Welcome ${_user.name}'),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.search),
-            tooltip: 'Search',
-            onPressed: () {
-
-            },
-          ),
-        ],
-      ),
+      appBar: buildAppBar(),
       drawer: AppDrawer(),
       body: SafeArea(
             child: Column(
@@ -173,10 +201,6 @@ class _StudentMainState extends State<StudentMain> {
         tooltip: 'Add',
         onPressed: () {
           _incrementCounter('1');
-//          Navigator.push(
-////              context,
-////              MaterialPageRoute(builder: (context) => StudentAddTask())
-////          );
           Navigator.of(context).pushNamed('student_addTask');
         },
       ),
