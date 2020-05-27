@@ -1,0 +1,56 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class UIController : MonoBehaviour
+{
+    public UIScreen currentScreen;
+    public RewardsController rewardsScreen;
+    public CollectionController collectionScreen;
+    public InventoryController inventoryScreen;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+
+    public void OpenRewardsScreen()
+    {
+        closeScreen();
+
+        rewardsScreen.Open();
+        currentScreen = rewardsScreen;
+    }
+
+    public void OpenCollectionScreen()
+    {
+        closeScreen();
+
+        collectionScreen.Open();
+        currentScreen = collectionScreen;
+    }
+
+    public void OpenInventoryScreen()
+    {
+        closeScreen();
+
+        inventoryScreen.Open();
+        currentScreen = inventoryScreen;
+    }
+
+    public void closeScreen()
+    {
+        if(currentScreen != null)
+        {
+            currentScreen.Close();
+            currentScreen = null;
+        }
+    }
+}
