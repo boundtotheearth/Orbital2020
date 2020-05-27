@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
+import 'package:orbital2020/DataContainers/ScheduledTask.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/StudentWithStatus.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
@@ -13,10 +16,40 @@ class DatabaseController {
     TaskWithStatus t = TaskWithStatus(id: '1', name: 'test');
   }
 
+  //Create new student entry in database upon account creation
   Future<void> initialiseNewStudent(Student student)  {
     return db.collection('students')
             .document(student.id)
             .setData(student.toKeyValuePair());
+  }
+
+  //Student schedules his task
+  Future<void> scheduleTask(String studentId, ScheduledTask task) {
+    return db.collection('students')
+        .document(studentId)
+        .collection("scheduledTasks")
+        .document(task.id)
+        .setData(task.toKeyValuePair());
+  }
+
+  //Student gets all scheduled tasks
+  Stream<List> getScheduledTasksSnapshots(String studentId) {
+    return db.collection("students")
+        .document(studentId)
+        .collection("scheduledTasks")
+        .snapshots()
+        .map((snapshot) => snapshot.documents)
+        .map((documents) => documents.map((document) {
+          return ScheduledTask(
+            id: document.documentID,
+            name: document["name"],
+            scheduledDate: document["scheduledDate"].toDate(),
+            startTime: document["startTime"].toDate(),
+            endTime: document["endTime"].toDate()
+          );
+    })
+    .toList()
+    );
   }
   
   //Method to be called with a student creates and assigns themself a task

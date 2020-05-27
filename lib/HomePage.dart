@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:orbital2020/AddTaskToSchedule.dart';
 import 'package:orbital2020/StudentAddTask.dart';
 import 'package:orbital2020/StudentMain.dart';
 import 'package:orbital2020/TeacherAddGroup.dart';
@@ -11,6 +12,8 @@ import 'package:orbital2020/TeacherGroups.dart';
 import 'package:orbital2020/TeacherStudentView.dart';
 import 'package:orbital2020/TeacherTaskView.dart';
 
+import 'Schedule.dart';
+
 class HomePage extends StatelessWidget {
   final navigatorKey = GlobalKey<NavigatorState>();
   @override
@@ -19,7 +22,7 @@ class HomePage extends StatelessWidget {
       onWillPop: () async => !await navigatorKey.currentState.maybePop(),
       child: Navigator(
         key: navigatorKey,
-        initialRoute: 'teacher_groups',
+        initialRoute: 'student_main',
         onGenerateRoute: (RouteSettings settings) {
           WidgetBuilder builder;
           switch (settings.name) {
@@ -28,6 +31,12 @@ class HomePage extends StatelessWidget {
               break;
             case 'student_addTask':
               builder = (_) => StudentAddTask();
+              break;
+            case 'schedule':
+              builder = (_) => Schedule();
+              break;
+            case 'addSchedule':
+              builder = (_) => AddTaskToSchedule(scheduledDate: settings.arguments);
               break;
             case 'teacher_groups':
               builder = (_) => TeacherGroups();
