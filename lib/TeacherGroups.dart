@@ -135,8 +135,7 @@ class _TeacherGroupsState extends State<TeacherGroups> {
         child: const Icon(Icons.add),
         tooltip: 'Add Group',
         onPressed: () {
-          //Navigator.of(context).pushNamed('teacher_addGroup');
-          db.test();
+          Navigator.of(context).pushNamed('teacher_addGroup');
         },
       ),
     );
