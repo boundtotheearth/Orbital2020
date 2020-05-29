@@ -61,15 +61,15 @@ class _StudentMainState extends State<StudentMain> {
     });
   }
 
-  Widget _buildTaskList(List<TaskWithStatus> tasks) {
-    List<TaskWithStatus> filteredTasks = tasks.where((task) =>
+  Widget _buildTaskList(Set<TaskWithStatus> tasks) {
+    Set<TaskWithStatus> filteredTasks = tasks.where((task) =>
         task.name.toLowerCase().startsWith(_searchText) ||
-        (task.createdByName?.toLowerCase()?.startsWith(_searchText) ?? false)).toList();
+        (task.createdByName?.toLowerCase()?.startsWith(_searchText) ?? false)).toSet();
 
     return ListView.builder(
         itemCount: filteredTasks.length,
         itemBuilder: (context, index) {
-          TaskWithStatus task = filteredTasks[index];
+          TaskWithStatus task = filteredTasks.elementAt(index);
           return ListTile(
             title: Text(task.name),
             subtitle: Text(task.createdByName ?? ""),
