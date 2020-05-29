@@ -119,8 +119,8 @@ class _LoginPageState extends State<LoginPage> {
           Icon(Icons.school, size: 150.0),
           Text("Garden of Focus",
             style: TextStyle(color: Colors.white, fontSize: 30.0),),
-          Text("Student's Edition",
-              style: TextStyle(color: Colors.white, fontSize: 8.0)),
+          //Text("Student's Edition",
+              //style: TextStyle(color: Colors.white, fontSize: 8.0)),
         ]
     );
   }
@@ -171,29 +171,42 @@ class _LoginPageState extends State<LoginPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
-              new Text("I am a:"),
+              new Padding(
+                padding: EdgeInsets.only(top: 10),
+                child: new Text("I am a:",
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
               new Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  new Radio(
-                    value: AccountType.student,
-                    groupValue: _accountType,
-                    onChanged: (value) {
-                      setState(() {
-                        _accountType = value;
-                      });
-                    },
+                  Expanded(
+                    child: new RadioListTile(
+                      title: new Text("Student", style: TextStyle(fontSize: 16)),
+                      value: AccountType.student,
+                      groupValue: _accountType,
+                      onChanged: (value) {
+                        setState(() {
+                          _accountType = value;
+                        });
+                      },
+                    ),
                   ),
-                  new Text("Student"),
-                  new Radio(
-                    value: AccountType.teacher,
-                    groupValue: _accountType,
-                    onChanged: (value) {
-                      setState(() {
-                        _accountType = value;
-                      });
-                    },
+                  Expanded(
+                    child: new RadioListTile(
+                      title: new Text("Teacher", style: TextStyle(fontSize: 16)),
+                      value: AccountType.teacher,
+                      groupValue: _accountType,
+                      onChanged: (value) {
+                        setState(() {
+                          _accountType = value;
+                        });
+                      },
+                    ),
                   ),
-                  new Text("Teacher"),
                 ],
               ),
               new TextFormField(
