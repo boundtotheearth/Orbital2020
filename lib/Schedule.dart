@@ -2,12 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:orbital2020/DataContainers/ScheduledTask.dart';
-import 'package:orbital2020/DataContainers/Task.dart';
+import 'package:orbital2020/DataContainers/ScheduleDetails.dart';
+import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
-
 import 'AppDrawer.dart';
 import 'DataContainers/User.dart';
 
@@ -61,7 +60,7 @@ class _ScheduleState extends State<Schedule> {
 
   Widget _buildCalendar() {
     return StreamBuilder<List>(
-      stream: db.getScheduledTasksSnapshots(_user.id),
+      stream: db.getScheduleDetailsSnapshots(_user.id),
       builder: (context, snapshot) {
         print("here");
         if (snapshot.hasData) {
@@ -100,17 +99,29 @@ class _ScheduleState extends State<Schedule> {
       return ListView.builder(
         itemCount: tasks.length,
         itemBuilder: (context, index) {
-          ScheduledTask task = tasks[index];
-          return ListTile(
-            leading: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text("From ${formatTime.format(task.startTime)} to ${formatTime.format(task.endTime)}"),
-              ],
-            ),
-            title: Text(task.name),
-            onTap: () {}
+          ScheduleDetails task = tasks[index];
+          return StreamBuilder<TaskWithStatus>(
+            stream: db.getStudentTask(_user.id, task.taskId),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                print("rebuild");
+                return ListTile(
+                    leading: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text("From ${formatTime.format(task
+                            .startTime)} to ${formatTime.format(task
+                            .endTime)}"),
+                      ],
+                    ),
+                    title: Text(snapshot.data.name), //task.name),
+                    onTap: () {}
 
+                );
+              } else {
+                return CircularProgressIndicator();
+              }
+            },
           );
         },
       );

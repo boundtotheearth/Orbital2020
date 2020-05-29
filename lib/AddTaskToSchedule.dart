@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:intl/intl.dart';
-import 'package:orbital2020/DataContainers/ScheduledTask.dart';
+import 'package:orbital2020/DataContainers/ScheduleDetails.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:provider/provider.dart';
@@ -69,10 +69,10 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
     if (_formKey.currentState.validate()) {
       print("Form is valid");
       _formKey.currentState.save();
-      print("TaskId: ${_selectedTask.split(":")[0]}, taskName: ${_selectedTask.split(":")[1]}, date: $_scheduledDate, start: $_startTime, end: $_endTime");
-      ScheduledTask task = ScheduledTask(
-          id: _selectedTask.split(":")[0],
-          name: _selectedTask.split(":")[1],
+      print("TaskId: $_selectedTask, date: $_scheduledDate, start: $_startTime, end: $_endTime");
+      ScheduleDetails task = ScheduleDetails(
+          taskId: _selectedTask,
+//          name: _selectedTask.split(":")[1],
           scheduledDate: _scheduledDate,
           startTime: _scheduledDate.add(Duration(hours: _startTime.hour, minutes: _startTime.minute)),
           endTime: _scheduledDate.add(Duration(hours: _endTime.hour, minutes: _endTime.minute)));
@@ -100,7 +100,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
                     DropdownMenuItem(
                       child: Text(t.name),
                       //temp solution
-                      value: "${t.id}:${t.name}",
+                      value: "${t.id}",
 
                     )
                   );

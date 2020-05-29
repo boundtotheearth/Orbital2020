@@ -1,32 +1,24 @@
-
-class ScheduledTask {
-
-  String id;
-  String name;
+class ScheduleDetails {
+  String taskId;
   DateTime scheduledDate;
   DateTime startTime;
   DateTime endTime;
 
-  ScheduledTask({
-    String id,
-    String name,
+  ScheduleDetails({
+    String taskId,
     DateTime scheduledDate,
     DateTime startTime,
     DateTime endTime,
-  }) :
-        this.id = id,
-        this.name = name,
+  }) :  this.taskId = taskId,
         this.scheduledDate = scheduledDate,
         this.startTime = startTime,
         this.endTime = endTime;
 
   Map<String, dynamic> toKeyValuePair() {
     Map<String, dynamic> map = Map();
-    map["name"] = this.name;
     map["scheduledDate"] = this.scheduledDate;
     map["startTime"] = this.startTime;
     map["endTime"] = this.endTime;
     return map;
   }
-
 }

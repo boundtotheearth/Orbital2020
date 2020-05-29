@@ -1,9 +1,8 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
-import 'package:orbital2020/DataContainers/ScheduledTask.dart';
+import 'package:orbital2020/DataContainers/ScheduleDetails.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/StudentWithStatus.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
@@ -24,25 +23,93 @@ class DatabaseController {
   }
 
   //Student schedules his task
-  Future<void> scheduleTask(String studentId, ScheduledTask task) {
+  Future<void> scheduleTask(String studentId, ScheduleDetails task) {
     return db.collection('students')
         .document(studentId)
         .collection("scheduledTasks")
-        .document(task.id)
+        .document(task.taskId)
         .setData(task.toKeyValuePair());
   }
 
   //Student gets all scheduled tasks
-  Stream<List> getScheduledTasksSnapshots(String studentId) {
+//  Stream<List> getScheduledTasksSnapshots(String studentId) {
+//    return db.collection("students")
+//        .document(studentId)
+//        .collection("scheduledTasks")
+//        .snapshots()
+//        .map((snapshot) => snapshot.documents)
+//        .map((documents) => documents.map((document) {
+//          return ScheduledTask(
+//            id: document.documentID,
+//            name: document["name"],
+//            scheduledDate: document["scheduledDate"].toDate(),
+//            startTime: document["startTime"].toDate(),
+//            endTime: document["endTime"].toDate()
+//          );
+//    })
+//    .toList()
+//    );
+//  }
+  
+  Stream<TaskWithStatus> getStudentTask(String studentId, String taskId) {
+    Stream<TaskWithStatus> t = db.collection("students")
+        .document(studentId)
+        .collection("tasks")
+        .document(taskId)
+        .snapshots()
+        .map((document) => TaskWithStatus(
+          id: document.documentID,
+          name: document['name'],
+          dueDate: document['dueDate'].toDate(),
+          createdByName: document['createdByName'],
+          createdById: document['createdById'],
+          completed: document['completed'],
+          verified: document['verified'])
+        );
+    print(t);
+    return t;
+  }
+
+  Stream<Task> getTask(String taskId) {
+    return db.collection("tasks")
+        .document(taskId)
+        .snapshots()
+        .map((document) => Task(
+          id: document.documentID,
+          name: document['name'],
+          description: document["description"],
+          dueDate: document["dueDate"].toDate(),
+    ));
+  }
+  
+//  Stream<List<ScheduledTask>> getScheduledTasksSnapshots(String studentId) {
+//    print("test1");
+//    return Rx.combineLatest2(
+//        getStudentTaskSnapshots(studentId: studentId),
+//        getScheduleDetailsSnapshots(studentId),
+//            (Set<TaskWithStatus> tasks, List<ScheduleDetails> schedules) {
+//          return schedules.map((schedule) {
+//            final TaskWithStatus taskWithStatus = tasks.firstWhere((task) => task.id == schedule.taskId, orElse: () => null);
+//            print("test3");
+//            return ScheduledTask(
+//              task: taskWithStatus,
+//              scheduledDate: schedule.scheduledDate,
+//              startTime: schedule.startTime,
+//              endTime: schedule.endTime
+//            );
+//          }).toList();
+//            });
+//  }
+
+  Stream<List<ScheduleDetails>> getScheduleDetailsSnapshots(String studentId) {
     return db.collection("students")
         .document(studentId)
         .collection("scheduledTasks")
         .snapshots()
         .map((snapshot) => snapshot.documents)
         .map((documents) => documents.map((document) {
-          return ScheduledTask(
-            id: document.documentID,
-            name: document["name"],
+          return ScheduleDetails(
+            taskId: document.documentID,
             scheduledDate: document["scheduledDate"].toDate(),
             startTime: document["startTime"].toDate(),
             endTime: document["endTime"].toDate()
@@ -199,6 +266,7 @@ class DatabaseController {
           }).toSet();
         }
     );
+    print(tasks);
     return tasks;
   }
 

@@ -4,8 +4,9 @@ import 'package:flutter_unity_widget/flutter_unity_widget.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:provider/provider.dart';
-
+import 'dart:async';
 import 'AppDrawer.dart';
+import 'DataContainers/Task.dart';
 import 'DataContainers/User.dart';
 
 
@@ -61,34 +62,45 @@ class _StudentMainState extends State<StudentMain> {
     });
   }
 
-  Widget _buildTaskList(List<TaskWithStatus> tasks) {
+  Widget _buildTaskList(Set<TaskWithStatus> tasks) {
     List<TaskWithStatus> filteredTasks = tasks.where((task) =>
         task.name.toLowerCase().startsWith(_searchText) ||
         (task.createdByName?.toLowerCase()?.startsWith(_searchText) ?? false)).toList();
+    print(filteredTasks[0]);
 
     return ListView.builder(
         itemCount: filteredTasks.length,
         itemBuilder: (context, index) {
           TaskWithStatus task = filteredTasks[index];
-          return ListTile(
-            title: Text(task.name),
-            subtitle: Text(task.createdByName ?? ""),
-            trailing: Wrap(
-              children: <Widget>[
-                Checkbox(
-                  value: task.completed,
-                  onChanged: (value) {
-                    db.updateTaskCompletion(task.id, _user.id, value);
-                  },
-                ),
-                Checkbox(
-                  value: task.verified,
-                  onChanged: (value) {
-                    db.updateTaskVerification(task.id, _user.id, value);
-                  },
-                ),
-              ],
-            ),
+          print(task.id);
+          return StreamBuilder<Task>(
+            stream: db.getTask(task.id),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return ListTile(
+                  title: Text(snapshot.data.name),
+                  subtitle: Text(snapshot.data.createdByName ?? ""),
+                  trailing: Wrap(
+                    children: <Widget>[
+                      Checkbox(
+                        value: task.completed,
+                        onChanged: (value) {
+                          db.updateTaskCompletion(task.id, _user.id, value);
+                        },
+                      ),
+                      Checkbox(
+                        value: task.verified,
+                        onChanged: (value) {
+                          db.updateTaskVerification(task.id, _user.id, value);
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              } else {
+                return CircularProgressIndicator();
+              }
+            },
           );
         }
     );
@@ -176,10 +188,11 @@ class _StudentMainState extends State<StudentMain> {
                   child: Scrollbar(
                     child: RefreshIndicator(
                       onRefresh: refresh,
-                      child: StreamBuilder(
+                      child: StreamBuilder<Set<TaskWithStatus>>(
                         stream: _tasks,
                         builder: (context, snapshot) {
                           if(snapshot.hasData) {
+                            print(snapshot.data);
                             if(snapshot.data.length > 0) {
                               return _buildTaskList(snapshot.data);
                             } else {

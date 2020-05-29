@@ -11,14 +11,20 @@ class Task {
   List<String> tags;
 
   Task({
-    this.id,
-    this.name,
-    this.description,
-    this.createdByName,
-    this.createdById,
-    this.dueDate,
-    this.tags,
-  });
+    String id,
+    String name,
+    String description,
+    String createdByName,
+    String createdById,
+    DateTime dueDate,
+    List<String> tags,
+  }) : this.id = id,
+        this.name = name,
+        this.description = description,
+        this.createdByName = createdByName,
+        this.createdById = createdById,
+        this.dueDate = dueDate,
+        this.tags = tags;
 
   Map<String, dynamic> toKeyValuePair() {
     Map<String, dynamic> map = Map();
@@ -58,9 +64,9 @@ class Task {
     return id.hashCode;
   }
 
-  @override
-  String toString() {
-    // TODO: implement toString
-    return id;
-  }
+//  @override
+//  String toString() {
+//    // TODO: implement toString
+//    return id;
+//  }
 }
