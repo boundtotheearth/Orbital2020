@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:orbital2020/AuthProvider.dart';
+import 'package:orbital2020/Teacher.dart';
 import 'Auth.dart';
 import 'DataContainers/Student.dart';
 import 'DatabaseController.dart';
@@ -17,11 +18,17 @@ enum DisplayType {
   register
 }
 
+enum AccountType {
+  student,
+  teacher
+}
+
 class _LoginPageState extends State<LoginPage> {
 
   String _name;
   String _email;
   String _password;
+  AccountType _accountType = AccountType.student;
   DisplayType _displayType = DisplayType.login;
 
   final DatabaseController db = DatabaseController();
@@ -64,9 +71,15 @@ class _LoginPageState extends State<LoginPage> {
               barrierDismissible: false
           );
         } else {
-          Student newStudent = new Student(id: userId, name: _name);
-          db.initialiseNewStudent(newStudent);
-          print("New Account created: $userId");
+          if(_accountType == AccountType.student) {
+            Student newStudent = new Student(id: userId, name: _name);
+            db.initialiseNewStudent(newStudent);
+            print("New Student Account created: $userId");
+          } else if(_accountType == AccountType.teacher) {
+            Teacher newTeacher = new Teacher(id: userId, name: _name);
+            db.initialiseNewTeacher(newTeacher);
+            print("New Teacher Account created: $userId");
+          }
         }
       }
     }
@@ -158,6 +171,31 @@ class _LoginPageState extends State<LoginPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
+              new Text("I am a:"),
+              new Row(
+                children: <Widget>[
+                  new Radio(
+                    value: AccountType.student,
+                    groupValue: _accountType,
+                    onChanged: (value) {
+                      setState(() {
+                        _accountType = value;
+                      });
+                    },
+                  ),
+                  new Text("Student"),
+                  new Radio(
+                    value: AccountType.teacher,
+                    groupValue: _accountType,
+                    onChanged: (value) {
+                      setState(() {
+                        _accountType = value;
+                      });
+                    },
+                  ),
+                  new Text("Teacher"),
+                ],
+              ),
               new TextFormField(
                 decoration: const InputDecoration(
                   icon: Icon(Icons.person),
