@@ -1,19 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
+import 'package:orbital2020/DataContainers/StudentWithStatus.dart';
 
 //View shown when teacher is assigning a task to a student
-class TaskStatusTile extends StatefulWidget {
-  final TaskWithStatus task;
+class StudentStatusTile extends StatefulWidget {
+  final StudentWithStatus student;
   final bool isStudent;
   final Function(bool) updateComplete;
   final Function(bool) updateVerify;
   final VoidCallback onFinish;
 
-  TaskStatusTile({
+  StudentStatusTile({
     Key key,
-    @required this.task,
+    @required this.student,
     @required this.isStudent,
     this.updateComplete,
     this.updateVerify,
@@ -22,21 +21,21 @@ class TaskStatusTile extends StatefulWidget {
 
 
   @override
-  _TaskStatusTileState createState() => _TaskStatusTileState();
+  _StudentStatusTileState createState() => _StudentStatusTileState();
 }
 
-class _TaskStatusTileState extends State<TaskStatusTile> {
+class _StudentStatusTileState extends State<StudentStatusTile> {
   Widget buildTrailing() {
     if(widget.isStudent) {
       //On Student account
-      if(!widget.task.completed) {
+      if(!widget.student.completed) {
         //Not conpleted
         return RaisedButton(
           child: const Text('Complete'),
           onPressed: () => widget.updateComplete(true),
         );
       } else {
-        if(widget.task.verified) {
+        if(widget.student.verified) {
           //Completed, verified
           return RaisedButton(
             child: const Text('Claim Reward'),
@@ -52,11 +51,11 @@ class _TaskStatusTileState extends State<TaskStatusTile> {
       }
     } else {
       //On Teacher Account
-      if(!widget.task.completed) {
+      if(!widget.student.completed) {
         //Not conpleted
         return Text('Not completed');
       } else {
-        if(widget.task.verified) {
+        if(widget.student.verified) {
           //Completed, verified
           return RaisedButton(
             child: const Text('Undo Verify'),
@@ -84,8 +83,7 @@ class _TaskStatusTileState extends State<TaskStatusTile> {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-        title: Text(widget.task.name),
-        subtitle: Text(widget.task.dueDate != null ? ("Due: " + DateFormat('dd/MM/y').format(widget.task.dueDate)) : ""),
+        title: Text(widget.student.name),
         trailing: buildTrailing()
     );
   }

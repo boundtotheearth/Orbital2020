@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
@@ -171,15 +170,6 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
       body: SafeArea(
           child: Column(
             children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Text("Task"),
-                  ),
-                  Text("Completed"),
-                  Text("Verified")
-                ],
-              ),
               Expanded(
                 child: Scrollbar(
                   child: RefreshIndicator(

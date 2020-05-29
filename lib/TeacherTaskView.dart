@@ -4,7 +4,10 @@ import 'package:intl/intl.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/StudentWithStatus.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
+import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
+import 'package:orbital2020/StudentStatusTile.dart';
+import 'package:provider/provider.dart';
 
 import 'AppDrawer.dart';
 
@@ -22,6 +25,7 @@ class TeacherTaskView extends StatefulWidget {
 class _TeacherTaskViewState extends State<TeacherTaskView> {
   final DatabaseController db = DatabaseController();
 
+  User _user;
   Stream<List<StudentWithStatus>> _students;
   String _searchText;
   bool _searchBarActive;
@@ -29,6 +33,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
   @override
   void initState() {
     super.initState();
+    _user = Provider.of<User>(context, listen: false);
     _students = db.getTaskCompletionSnapshots(widget.task.id);
     _searchText = '';
     _searchBarActive = false;
@@ -42,25 +47,36 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
         itemCount: filteredStudents.length,
         itemBuilder: (context, index) {
           StudentWithStatus student = filteredStudents[index];
-          return ListTile(
-            title: Text(student.name),
-            trailing: Wrap(
-              children: <Widget>[
-                Checkbox(
-                  value: student.completed,
-                  onChanged: (value) {
-                    db.updateTaskCompletion(widget.task.id, student.id, value);
-                  },
-                ),
-                Checkbox(
-                  value: student.verified,
-                  onChanged: (value) {
-                    db.updateTaskVerification(widget.task.id, student.id, value);
-                  },
-                ),
-              ],
-            ),
+          return StudentStatusTile(
+            student: student,
+            isStudent: _user.accountType == 'student',
+            updateComplete: (value) {
+              db.updateTaskCompletion(widget.task.id, student.id, value);
+            },
+            updateVerify: (value) {
+              db.updateTaskVerification(widget.task.id, student.id, value);
+            },
+            onFinish: () {},
           );
+//          return ListTile(
+//            title: Text(student.name),
+//            trailing: Wrap(
+//              children: <Widget>[
+//                Checkbox(
+//                  value: student.completed,
+//                  onChanged: (value) {
+//                    db.updateTaskCompletion(widget.task.id, student.id, value);
+//                  },
+//                ),
+//                Checkbox(
+//                  value: student.verified,
+//                  onChanged: (value) {
+//                    db.updateTaskVerification(widget.task.id, student.id, value);
+//                  },
+//                ),
+//              ],
+//            ),
+//          );
         }
     );
   }
@@ -206,15 +222,6 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
               Wrap(
                 spacing: 8.0,
                 children: getTagChips(),
-              ),
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Text("Student"),
-                  ),
-                  Text("Completed"),
-                  Text("Verified")
-                ],
               ),
               Expanded(
                 child: Scrollbar(
