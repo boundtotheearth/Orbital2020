@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_unity_widget/flutter_unity_widget.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
+import 'package:orbital2020/TaskStatusTile.dart';
 import 'package:provider/provider.dart';
 
 import 'AppDrawer.dart';
@@ -70,26 +71,35 @@ class _StudentMainState extends State<StudentMain> {
         itemCount: filteredTasks.length,
         itemBuilder: (context, index) {
           TaskWithStatus task = filteredTasks.elementAt(index);
-          return ListTile(
-            title: Text(task.name),
-            subtitle: Text(task.createdByName ?? ""),
-            trailing: Wrap(
-              children: <Widget>[
-                Checkbox(
-                  value: task.completed,
-                  onChanged: (value) {
-                    db.updateTaskCompletion(task.id, _user.id, value);
-                  },
-                ),
-                Checkbox(
-                  value: task.verified,
-                  onChanged: (value) {
-                    db.updateTaskVerification(task.id, _user.id, value);
-                  },
-                ),
-              ],
-            ),
+          return TaskStatusTile(
+            task: task,
+            isStudent: _user.accountType == 'student',
+            updateComplete: (value) {
+              db.updateTaskCompletion(task.id, _user.id, value);
+            },
+            updateVerify: (value) {},
+            onFinish: () {},
           );
+//          return ListTile(
+//            title: Text(task.name),
+//            subtitle: Text(task.createdByName ?? ""),
+//            trailing: Wrap(
+//              children: <Widget>[
+//                Checkbox(
+//                  value: task.completed,
+//                  onChanged: (value) {
+//                    db.updateTaskCompletion(task.id, _user.id, value);
+//                  },
+//                ),
+//                Checkbox(
+//                  value: task.verified,
+//                  onChanged: (value) {
+//                    db.updateTaskVerification(task.id, _user.id, value);
+//                  },
+//                ),
+//              ],
+//            ),
+//          );
         }
     );
   }
@@ -200,7 +210,7 @@ class _StudentMainState extends State<StudentMain> {
         child: const Icon(Icons.add),
         tooltip: 'Add',
         onPressed: () {
-          _incrementCounter('1');
+          //_incrementCounter('1');
           Navigator.of(context).pushNamed('student_addTask');
         },
       ),

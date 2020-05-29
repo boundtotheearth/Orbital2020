@@ -12,12 +12,12 @@ class Task {
 
   Task({
     this.id,
-    this.name,
-    this.description,
-    this.createdByName,
+    this.name = '',
+    this.description = '',
+    this.createdByName = '',
     this.createdById,
     this.dueDate,
-    this.tags,
+    this.tags = const [],
   });
 
   Map<String, dynamic> toKeyValuePair() {
