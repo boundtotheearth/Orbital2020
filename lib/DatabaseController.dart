@@ -8,19 +8,60 @@ import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/StudentWithStatus.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
+import 'package:orbital2020/Teacher.dart';
 
 class DatabaseController {
   final db = Firestore.instance;
 
   void test() async {
-    TaskWithStatus t = TaskWithStatus(id: '1', name: 'test');
+    Future<void> a = db.collection('students').getDocuments().then((query) {
+      List<DocumentSnapshot> documents = query.documents;
+      for(DocumentSnapshot document in documents) {
+        db.collection('accountTypes')
+            .document(document.documentID)
+            .setData({'type': 'student'});
+      }
+    });
+    Future<void> b = db.collection('teachers').getDocuments().then((query) {
+      List<DocumentSnapshot> documents = query.documents;
+      for(DocumentSnapshot document in documents) {
+        db.collection('accountTypes')
+            .document(document.documentID)
+            .setData({'type': 'teacher'});
+      }
+    });
+
+    Future.wait([a, b]).then((value) => print("Done"));
+  }
+
+  //Get the type of the account, student or teacher
+  Future<String> getAccountType({String userId}) {
+    return db.collection('accountTypes')
+        .document(userId)
+        .get()
+        .then((value) => value['type'] ?? 'student');
   }
 
   //Create new student entry in database upon account creation
   Future<void> initialiseNewStudent(Student student)  {
-    return db.collection('students')
+    Future<void> studentFuture = db.collection('students')
             .document(student.id)
             .setData(student.toKeyValuePair());
+    Future<void> typeFuture = db.collection('accountTypes')
+            .document(student.id)
+            .setData({'type': 'student'});
+    return Future.wait([studentFuture, typeFuture]);
+  }
+
+  //Create new teacher entry in database upon account creation
+  Future<void> initialiseNewTeacher(Teacher teacher)  {
+    Future<void> teacherFuture = db.collection('teachers')
+        .document(teacher.id)
+        .setData(teacher.toKeyValuePair());
+    Future<void> typeFuture = db.collection('accountTypes')
+        .document(teacher.id)
+        .setData({'type': 'teacher'});
+    return Future.wait([teacherFuture, typeFuture]);
   }
 
   //Student schedules his task
