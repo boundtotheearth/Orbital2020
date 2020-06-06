@@ -21,26 +21,29 @@ public class UIController : MonoBehaviour
         
     }
 
-    public void OpenRewardsScreen()
+    public void OpenRewardsScreen(List<SeedPack> seedPacks)
     {
         closeScreen();
 
+        rewardsScreen.initialize(seedPacks);
         rewardsScreen.Open();
         currentScreen = rewardsScreen;
     }
 
-    public void OpenCollectionScreen()
+    public void OpenCollectionScreen(List<CollectionItem> collection)
     {
         closeScreen();
 
+        collectionScreen.initialize(collection);
         collectionScreen.Open();
         currentScreen = collectionScreen;
     }
 
-    public void OpenInventoryScreen()
+    public void OpenInventoryScreen(List<InventoryItem> inventory)
     {
         closeScreen();
 
+        inventoryScreen.initialize(inventory);
         inventoryScreen.Open();
         currentScreen = inventoryScreen;
     }

@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Plant : MonoBehaviour
+public class PlantData : Object
 {
     public string plantName;
-    public int rarity;
+    public string description;
+    public PlantRarity rarity;
     public Sprite iconSprite;
     public Sprite portraitSprite;
     public Sprite gameSprite;

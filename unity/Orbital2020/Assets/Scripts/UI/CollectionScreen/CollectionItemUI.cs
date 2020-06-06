@@ -3,30 +3,25 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class InventoryPlant : Plant
+public class CollectionItemUI : MonoBehaviour
 {
-    public InventoryController inventoryController;
+    public CollectionController collectionController;
     public GameObject selectionBar;
     public Text nameText;
     public Image icon;
 
-    public int plantCount;
     public bool isSelected = false;
+    public PlantData plantData;
 
-    // Start is called before the first frame update
-    void Start()
+    public void initialize(CollectionItem collectionItem)
     {
-        inventoryController = transform.GetComponentInParent<InventoryController>();
+        gameObject.SetActive(true);
+        collectionController = transform.GetComponentInParent<CollectionController>();
+        this.plantData = collectionItem;
 
-        nameText.text = plantName;
-        icon.sprite = iconSprite;
+        nameText.text = collectionItem.plantName;
+        icon.sprite = collectionItem.iconSprite;
         selectionBar.SetActive(false);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     public void Select()
@@ -34,7 +29,6 @@ public class InventoryPlant : Plant
         if(!isSelected)
         {
             selectionBar.SetActive(true);
-            inventoryController.onSelectPlant(this);
             isSelected = true;
         }
     }
@@ -43,5 +37,10 @@ public class InventoryPlant : Plant
     {
         selectionBar.SetActive(false);
         isSelected = false;
+    }
+
+    public void reset()
+    {
+        gameObject.SetActive(false);
     }
 }

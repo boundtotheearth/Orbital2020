@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GamePlant : Plant
+public class GamePlant : PlantData
 {
     public bool isWatered;
     public int growthStage;
