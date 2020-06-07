@@ -22,7 +22,7 @@ class HomePage extends StatelessWidget {
       onWillPop: () async => !await navigatorKey.currentState.maybePop(),
       child: Navigator(
         key: navigatorKey,
-        initialRoute: 'student_main',
+        initialRoute: 'teacher_groups',//'student_main',
         onGenerateRoute: (RouteSettings settings) {
           WidgetBuilder builder;
           switch (settings.name) {

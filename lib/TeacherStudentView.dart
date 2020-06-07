@@ -9,6 +9,8 @@ import 'package:orbital2020/DatabaseController.dart';
 import 'package:provider/provider.dart';
 
 import 'AppDrawer.dart';
+import 'DataContainers/Task.dart';
+import 'DataContainers/TaskStatus.dart';
 
 
 class TeacherStudentView extends StatefulWidget {
@@ -25,7 +27,9 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
   final DatabaseController db = DatabaseController();
 
   User _user;
-  Stream<Set<TaskWithStatus>> _tasks;
+//  Stream<Set<TaskWithStatus>> _tasks;
+  Stream<Set<TaskStatus>> _tasks;
+//  Stream<Set<String>> _tasks;
   String _searchText;
   bool _searchBarActive;
 
@@ -33,38 +37,56 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
   void initState() {
     super.initState();
     _user = Provider.of<User>(context, listen: false);
-    _tasks = db.getStudentTaskSnapshots(studentId: widget.student.id);
+    _tasks = db.getStudentTaskDetailsSnapshots(studentId: widget.student.id);
     _searchText = '';
     _searchBarActive = false;
   }
 
-  Widget _buildTaskList(Set<TaskWithStatus> tasks) {
-    List<TaskWithStatus> filteredTasks = tasks.where((task) =>
-        task.name.toLowerCase().startsWith(_searchText)).toList();
+  bool filtered(Task task) {
+    return task.name.toLowerCase().startsWith(_searchText);
+  }
+
+  Widget _buildTaskList(List<TaskStatus> tasks) {
+//    List<TaskWithStatus> filteredTasks = tasks.where((task) =>
+//        task.name.toLowerCase().startsWith(_searchText)).toList();
 
     return ListView.builder(
-        itemCount: filteredTasks.length,
+        itemCount: tasks.length,
         itemBuilder: (context, index) {
-          TaskWithStatus task = filteredTasks.elementAt(index);
-          return ListTile(
-            title: Text(task.name),
-            subtitle: Text(task.dueDate != null ? ("Due: " + DateFormat('dd/MM/y').format(task.dueDate)) : ""),
-            trailing: task.createdById == _user.id ? Wrap(
-              children: <Widget>[
-                Checkbox(
-                  value: task.completed,
-                  onChanged: (value) {
-                    db.updateTaskCompletion(task.id, widget.student.id, value);
-                  },
-                ),
-                Checkbox(
-                  value: task.verified,
-                  onChanged: (value) {
-                    db.updateTaskVerification(task.id, widget.student.id, value);
-                  },
-                ),
-              ],
-            ) : Text('Task not created by you!')
+          TaskStatus task = tasks[index];
+          return StreamBuilder<Task>(
+            stream: db.getTask(task.id),
+            builder: (context, snapshot) {
+              if (snapshot.hasData && filtered(snapshot.data)) {
+                return ListTile(
+                    title: Text(snapshot.data.name),
+                    subtitle: Text(snapshot.data.dueDate != null ? ("Due: " +
+                        DateFormat('dd/MM/y').format(snapshot.data.dueDate)) : ""),
+                    trailing: snapshot.data.createdById == _user.id ? Wrap(
+                      children: <Widget>[
+                        Checkbox(
+                          value: task.completed,
+                          onChanged: (value) {
+                            db.updateTaskCompletion(task.id, widget.student.id,
+                                value);
+                          },
+                        ),
+                        Checkbox(
+                          value: task.verified,
+                          onChanged: (value) {
+                            db.updateTaskVerification(task.id,
+                                widget.student.id, value);
+                          },
+                        ),
+                      ],
+                    ) : Text('Task not created by you!')
+                );
+              } else if (snapshot.hasData) {
+                return Container(width: 0.0, height: 0.0,);
+              } else {
+                return CircularProgressIndicator();
+              }
+            }
           );
         }
     );
@@ -147,7 +169,7 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
 
   Future<Null> _refresh() async {
     await Future.microtask(() => setState(() {
-      _tasks = db.getStudentTaskSnapshots(studentId: widget.student.id);
+      _tasks = db.getStudentTaskDetailsSnapshots(studentId: widget.student.id);
     }));
   }
 
@@ -177,7 +199,7 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
                         builder: (context, snapshot) {
                           if(snapshot.hasData) {
                             if(snapshot.data.length > 0) {
-                              return _buildTaskList(snapshot.data);
+                              return _buildTaskList(snapshot.data.toList());
                             } else {
                               return Text('No tasks assigned!');
                             }

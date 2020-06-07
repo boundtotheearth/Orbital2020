@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/StudentWithStatus.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
+import 'package:orbital2020/DataContainers/TaskStatus.dart';
 import 'package:orbital2020/DatabaseController.dart';
 
 import 'AppDrawer.dart';
@@ -22,52 +23,106 @@ class TeacherTaskView extends StatefulWidget {
 class _TeacherTaskViewState extends State<TeacherTaskView> {
   final DatabaseController db = DatabaseController();
 
-  Stream<List<StudentWithStatus>> _students;
+//  Stream<List<StudentWithStatus>> _students;
+  Stream<List<String>> _studentIds;
   String _searchText;
   bool _searchBarActive;
 
   @override
   void initState() {
     super.initState();
-    _students = db.getTaskCompletionSnapshots(widget.task.id);
+//    _students = db.getTaskCompletionSnapshots(widget.task.id);
+    _studentIds = db.getStudentsWithTask(widget.task.id);
     _searchText = '';
     _searchBarActive = false;
   }
 
-  Widget _buildStudentList(List<StudentWithStatus> students) {
-    List<StudentWithStatus> filteredStudents = students.where((student) =>
-        student.name.toLowerCase().startsWith(_searchText)).toList();
+//  Widget _buildStudentList(List<StudentWithStatus> students) {
+//    List<StudentWithStatus> filteredStudents = students.where((student) =>
+//        student.name.toLowerCase().startsWith(_searchText)).toList();
+//
+//    return ListView.builder(
+//        itemCount: filteredStudents.length,
+//        itemBuilder: (context, index) {
+//          StudentWithStatus student = filteredStudents[index];
+//          return ListTile(
+//            title: Text(student.name),
+//            trailing: Wrap(
+//              children: <Widget>[
+//                Checkbox(
+//                  value: student.completed,
+//                  onChanged: (value) {
+//                    db.updateTaskCompletion(widget.task.id, student.id, value);
+//                  },
+//                ),
+//                Checkbox(
+//                  value: student.verified,
+//                  onChanged: (value) {
+//                    db.updateTaskVerification(widget.task.id, student.id, value);
+//                  },
+//                ),
+//              ],
+//            ),
+//          );
+//        }
+//    );
+//  }
+
+  bool filtered(String studentName) {
+    return studentName.toLowerCase().startsWith(_searchText);
+  }
+
+
+
+
+  Widget _buildStudentList(List<String> studentIds) {
 
     return ListView.builder(
-        itemCount: filteredStudents.length,
+        itemCount: studentIds.length,
         itemBuilder: (context, index) {
-          StudentWithStatus student = filteredStudents[index];
-          return ListTile(
-            title: Text(student.name),
-            trailing: Wrap(
-              children: <Widget>[
-                Checkbox(
-                  value: student.completed,
-                  onChanged: (value) {
-                    db.updateTaskCompletion(widget.task.id, student.id, value);
-                  },
-                ),
-                Checkbox(
-                  value: student.verified,
-                  onChanged: (value) {
-                    db.updateTaskVerification(widget.task.id, student.id, value);
-                  },
-                ),
-              ],
-            ),
-          );
-        }
-    );
+          String studentId = studentIds[index];
+          //get task status stream for that student
+          return StreamBuilder<TaskStatus>(
+            stream: db.getStudentNameTaskStatus(studentId, widget.task.id),//db.getStudentTaskDetailsSnapshots(studentId: studentId),
+            builder: (context, snapshot) {
+              if (snapshot.hasData && filtered(snapshot.data.name)) {
+                return ListTile(
+                  title: Text(snapshot.data.name),
+                  trailing: Wrap(
+                    children: <Widget>[
+                      Checkbox(
+                        value: snapshot.data.completed,
+                        onChanged: (value) {
+                          db.updateTaskCompletion(
+                              widget.task.id, studentId,
+                              value);
+                        },
+                      ),
+                      Checkbox(
+                        value: snapshot.data.verified,
+                        onChanged: (value) {
+                          db.updateTaskVerification(
+                              widget.task.id, studentId,
+                              value);
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              } else if (snapshot.hasData) {
+                return Container(width: 0.0, height: 0.0);
+              } else {
+                return CircularProgressIndicator();
+              }
+            });
+
+        });
   }
 
   Future<Null> _refresh() async {
     await Future.microtask(() => setState(() {
-      _students = db.getTaskCompletionSnapshots(widget.task.id);
+//      _students = db.getTaskCompletionSnapshots(widget.task.id);
+      _studentIds = db.getStudentsWithTask(widget.task.id);
     }));
   }
 
@@ -221,7 +276,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
                   child: RefreshIndicator(
                       onRefresh: _refresh,
                       child: StreamBuilder(
-                        stream: _students,
+                        stream: _studentIds,//_students,
                         builder: (context, snapshot) {
                           if(snapshot.hasData) {
                             if(snapshot.data.length > 0) {

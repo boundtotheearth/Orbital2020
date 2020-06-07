@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'dart:async';
 import 'AppDrawer.dart';
 import 'DataContainers/Task.dart';
+import 'DataContainers/TaskStatus.dart';
 import 'DataContainers/User.dart';
 
 
@@ -23,7 +24,7 @@ class _StudentMainState extends State<StudentMain> {
 
 
   UnityWidgetController _unityWidgetController;
-  Stream<Set<TaskWithStatus>> _tasks;
+  Stream<Set<TaskStatus>> _tasks;
   String _searchText;
   bool _searchBarActive;
 
@@ -31,7 +32,7 @@ class _StudentMainState extends State<StudentMain> {
   void initState() {
     super.initState();
     _user = Provider.of<User>(context, listen: false);
-    _tasks = db.getStudentTaskSnapshots(studentId: _user.id);
+    _tasks = db.getStudentTaskDetailsSnapshots(studentId: _user.id);
     _searchText = "";
     _searchBarActive = false;
   }
@@ -62,21 +63,25 @@ class _StudentMainState extends State<StudentMain> {
     });
   }
 
-  Widget _buildTaskList(Set<TaskWithStatus> tasks) {
-    List<TaskWithStatus> filteredTasks = tasks.where((task) =>
-        task.name.toLowerCase().startsWith(_searchText) ||
-        (task.createdByName?.toLowerCase()?.startsWith(_searchText) ?? false)).toList();
-    print(filteredTasks[0]);
+  bool filteredTask(Task task) {
+    return task.name.toLowerCase().startsWith(_searchText) ||
+        (task.createdByName?.toLowerCase()?.startsWith(_searchText) ?? false);
+  }
+
+  Widget _buildTaskList(Set<TaskStatus> tasks) {
+    List<TaskStatus> taskList = tasks.toList();
+//    List<TaskStatus> filteredTasks = tasks.where((task) =>
+//        task.name.toLowerCase().startsWith(_searchText) ||
+//        (task.createdByName?.toLowerCase()?.startsWith(_searchText) ?? false)).toList();
 
     return ListView.builder(
-        itemCount: filteredTasks.length,
+        itemCount: taskList.length,
         itemBuilder: (context, index) {
-          TaskWithStatus task = filteredTasks[index];
-          print(task.id);
+          TaskStatus task = taskList[index];
           return StreamBuilder<Task>(
             stream: db.getTask(task.id),
             builder: (context, snapshot) {
-              if (snapshot.hasData) {
+              if (snapshot.hasData && filteredTask(snapshot.data)) {
                 return ListTile(
                   title: Text(snapshot.data.name),
                   subtitle: Text(snapshot.data.createdByName ?? ""),
@@ -97,6 +102,8 @@ class _StudentMainState extends State<StudentMain> {
                     ],
                   ),
                 );
+              } else if (snapshot.hasData) {
+                return Container(width: 0.0, height: 0.0,);
               } else {
                 return CircularProgressIndicator();
               }
@@ -144,7 +151,7 @@ class _StudentMainState extends State<StudentMain> {
 
   Future<Null> refresh() async {
     await Future.microtask(() => setState(() {
-      _tasks = db.getStudentTaskSnapshots(studentId: _user.id);
+      _tasks = db.getStudentTaskDetailsSnapshots(studentId: _user.id);
     }));
   }
 
@@ -188,7 +195,7 @@ class _StudentMainState extends State<StudentMain> {
                   child: Scrollbar(
                     child: RefreshIndicator(
                       onRefresh: refresh,
-                      child: StreamBuilder<Set<TaskWithStatus>>(
+                      child: StreamBuilder<Set<TaskStatus>>(
                         stream: _tasks,
                         builder: (context, snapshot) {
                           if(snapshot.hasData) {

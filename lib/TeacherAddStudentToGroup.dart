@@ -61,16 +61,42 @@ class _TeacherAddStudentToGroupState extends State<TeacherAddStudentToGroup> {
     });
   }
 
+//  Widget buildSuggestions() {
+//    return StreamBuilder(
+//      stream: _allStudents,
+//      builder: (context, snapshot) {
+//        if(snapshot.hasData) {
+//          List<Student> allStudents = snapshot.data;
+//          List<Student> suggestions = allStudents.where((element) =>
+//              element.name.startsWith(_searchText)
+//                  && !widget.group.students.contains(element)
+//                  && !_studentsToAdd.contains(element)).toList();
+//          return ListView.builder(
+//              itemCount: suggestions.length,
+//              itemBuilder: (context, index) {
+//                Student student = suggestions[index];
+//                return ListTile(
+//                  title: Text(student.name),
+//                  onTap: () {
+//                    addStudent(student);
+//                  },
+//                );
+//              }
+//          );
+//        } else {
+//          return CircularProgressIndicator();
+//        }
+//      },
+//    );
+//  }
+
   Widget buildSuggestions() {
     return StreamBuilder(
-      stream: _allStudents,
+      stream: db.getStudentsNotInGroup(_user.id, widget.group.id),
       builder: (context, snapshot) {
         if(snapshot.hasData) {
-          List<Student> allStudents = snapshot.data;
-          List<Student> suggestions = allStudents.where((element) =>
-              element.name.startsWith(_searchText)
-                  && !widget.group.students.contains(element)
-                  && !_studentsToAdd.contains(element)).toList();
+          List<Student> suggestions = snapshot.data.where((element) =>
+          element.name.startsWith(_searchText) && !_studentsToAdd.contains(element)).toList();
           return ListView.builder(
               itemCount: suggestions.length,
               itemBuilder: (context, index) {

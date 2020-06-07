@@ -72,7 +72,6 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
       print("TaskId: $_selectedTask, date: $_scheduledDate, start: $_startTime, end: $_endTime");
       ScheduleDetails task = ScheduleDetails(
           taskId: _selectedTask,
-//          name: _selectedTask.split(":")[1],
           scheduledDate: _scheduledDate,
           startTime: _scheduledDate.add(Duration(hours: _startTime.hour, minutes: _startTime.minute)),
           endTime: _scheduledDate.add(Duration(hours: _endTime.hour, minutes: _endTime.minute)));
@@ -89,7 +88,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
       child: ListView(
         children: <Widget>[
           StreamBuilder(
-            stream: db.getStudentTaskSnapshots(studentId: _user.id),
+            stream: db.getStudentTaskDetailsSnapshots(studentId: _user.id),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return CircularProgressIndicator();
