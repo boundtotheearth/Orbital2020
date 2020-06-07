@@ -4,8 +4,13 @@ using UnityEngine;
 
 public class InventoryItem : PlantData
 {
-    public InventoryItem(string name)
+    public InventoryItem(PlantData plantData)
     {
-        this.plantName = name;
+        this.plantName = plantData.plantName;
+        this.description = plantData.description;
+        this.rarity = plantData.rarity;
+        this.iconSprite = plantData.iconSprite;
+        this.portraitSprite = plantData.portraitSprite;
+        this.gameSprite = plantData.gameSprite;
     }
 }

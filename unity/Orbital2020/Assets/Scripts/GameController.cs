@@ -7,7 +7,7 @@ public class GameController : MonoBehaviour
     public PlantData selectedPlant;
     public GameObject plantableField;
     public bool planting = false;
-    public GameObject testPlantPrefab;
+    public GameObject gamePlantPrefab;
     public UIController uiController;
     public Grid grid;
     public Vector2 fieldSize;
@@ -42,16 +42,12 @@ public class GameController : MonoBehaviour
         }
 
         //Mock Inventory
-        for (int i = 0; i < 10; i++)
-        {
-            inventory.Add(new InventoryItem("Plant " + i.ToString()));
-        }
+        inventory.Add(new InventoryItem(PlantFactory.Instance().TestPlant1()));
+        inventory.Add(new InventoryItem(PlantFactory.Instance().TestPlant2()));
 
         //Mock Collection
-        for (int i = 0; i < 10; i++)
-        {
-            collection.Add(new CollectionItem("Plant " + i.ToString()));
-        }
+        collection.Add(new CollectionItem(PlantFactory.Instance().TestPlant1()));
+        collection.Add(new CollectionItem(PlantFactory.Instance().TestPlant2()));
     }
 
     // Update is called once per frame
@@ -62,9 +58,13 @@ public class GameController : MonoBehaviour
 
     public void OnTileClick(PlantableTile tile)
     {
-        if (planting)
+        if (planting && selectedPlant.Equals(null))
         {
-            Instantiate(testPlantPrefab, tile.transform.position, Quaternion.identity);
+            Debug.Log("here");
+            GameObject newPlant = Instantiate(gamePlantPrefab, tile.transform.position, Quaternion.identity, transform);
+            GamePlant plantScript = newPlant.GetComponent<GamePlant>();
+            plantScript.initialize(selectedPlant);
+
             tile.isOccupied = true;
             endPlant();
         }

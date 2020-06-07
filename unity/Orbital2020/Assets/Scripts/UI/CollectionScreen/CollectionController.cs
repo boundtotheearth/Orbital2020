@@ -8,9 +8,14 @@ public class CollectionController : MonoBehaviour, UIScreen
     public GameController gameController;
     public UIController uiController;
     public GameObject uiObject;
+    public GameObject plantDetailsObject;
 
     public CollectionItemUI selectedPlant;
+
     public Image portraitImage;
+    public Text nameText;
+    public Text descriptionText;
+
     public CollectionItemUI[] collectionItemUIs;
 
     public void initialize(List<CollectionItem> collectionItems)
@@ -35,6 +40,9 @@ public class CollectionController : MonoBehaviour, UIScreen
         plant.Select();
         selectedPlant = plant;
         portraitImage.sprite = selectedPlant.plantData.portraitSprite;
+        nameText.text = selectedPlant.plantData.plantName;
+        descriptionText.text = selectedPlant.plantData.description;
+        OpenPlantDetails();
     }
 
     public void Open()
@@ -49,6 +57,17 @@ public class CollectionController : MonoBehaviour, UIScreen
             ui.reset();
         }
 
+        ClosePlantDetails();
         uiObject.SetActive(false);
+    }
+
+    public void OpenPlantDetails()
+    {
+        plantDetailsObject.SetActive(true);
+    }
+
+    public void ClosePlantDetails()
+    {
+        plantDetailsObject.SetActive(false);
     }
 }

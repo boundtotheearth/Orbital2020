@@ -1509,6 +1509,8 @@ MonoBehaviour:
   uiObject: {fileID: 6128964684470039370}
   selectedPlant: {fileID: 0}
   portraitImage: {fileID: 6128964682846034868}
+  nameText: {fileID: 6128964683756887361}
+  descriptionText: {fileID: 6128964684135023778}
   inventoryItemUIPrefab: {fileID: 3573646944246576968, guid: ef8ebab67bcbc46028344ec6f12cbd85,
     type: 3}
   inventoryArea: {fileID: 6128964684188821037}

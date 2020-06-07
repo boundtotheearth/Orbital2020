@@ -668,6 +668,8 @@ MonoBehaviour:
   uiObject: {fileID: 7334808012915620054}
   selectedPlant: {fileID: 0}
   portraitImage: {fileID: 7334808012890050091}
+  nameText: {fileID: 7334808012614312069}
+  descriptionText: {fileID: 7334808013583422559}
   collectionItemUIs: []
 --- !u!1 &7334808012921897905
 GameObject:
@@ -846,8 +848,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 33.297}
-  m_SizeDelta: {x: 621.27686, y: 415.18787}
+  m_AnchoredPosition: {x: 0.00018311, y: 33.297}
+  m_SizeDelta: {x: 621.2788, y: 415.18787}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7334808013782283785
 CanvasRenderer:
@@ -876,8 +878,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 16929d984cca548dfb98d05f9c681cb8, type: 3}
-  m_Type: 0
+  m_Sprite: {fileID: 8443564585017499109, guid: 139d17bbaae254b2685efd021ccb97f6,
+    type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4

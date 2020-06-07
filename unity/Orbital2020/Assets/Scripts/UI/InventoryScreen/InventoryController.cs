@@ -10,7 +10,11 @@ public class InventoryController : MonoBehaviour, UIScreen
     public GameObject uiObject;
 
     public InventoryItemUI selectedPlant;
+
     public Image portraitImage;
+    public Text nameText;
+    public Text descriptionText;
+
     public GameObject inventoryItemUIPrefab;
     public GameObject inventoryArea;
     public List<InventoryItemUI> inventoryItemUIs;
@@ -19,10 +23,11 @@ public class InventoryController : MonoBehaviour, UIScreen
     {
         uiController = GetComponentInParent<UIController>();
 
-        //inventoryItemUIs = GetComponentsInChildren<InventoryItemUI>(true);
+        inventoryItemUIs = new List<InventoryItemUI>(GetComponentsInChildren<InventoryItemUI>(true));
 
-        //Insantiate ui elements
-        foreach(InventoryItem item in inventoryItems)
+        //Insantiate ui elements if there isn't enough
+        int missing = inventoryItems.Count - inventoryItemUIs.Count;
+        for(int i = 0; i < missing; i++)
         {
             GameObject ui = Instantiate(inventoryItemUIPrefab, inventoryArea.transform);
             //Set onclick event
@@ -37,6 +42,12 @@ public class InventoryController : MonoBehaviour, UIScreen
             InventoryItemUI ui = inventoryItemUIs[i];
             InventoryItem item = inventoryItems[i];
             ui.initialize(item);
+        }
+
+        //Set first item as default selected
+        if(inventoryItemUIs.Count > 0)
+        {
+            onSelectPlant(inventoryItemUIs[0]);
         }
     }
 
@@ -59,6 +70,8 @@ public class InventoryController : MonoBehaviour, UIScreen
         plant.Select();
         selectedPlant = plant;
         portraitImage.sprite = selectedPlant.plantData.portraitSprite;
+        nameText.text = selectedPlant.plantData.plantName;
+        descriptionText.text = selectedPlant.plantData.description;
     }
 
     public void StartPlant()

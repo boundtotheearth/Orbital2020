@@ -4,8 +4,13 @@ using UnityEngine;
 
 public class CollectionItem : PlantData
 {
-    public CollectionItem(string name)
+    public CollectionItem(PlantData plantData)
     {
-        this.plantName = name;
+        this.plantName = plantData.plantName;
+        this.description = plantData.description;
+        this.rarity = plantData.rarity;
+        this.iconSprite = plantData.iconSprite;
+        this.portraitSprite = plantData.portraitSprite;
+        this.gameSprite = plantData.gameSprite;
     }
 }

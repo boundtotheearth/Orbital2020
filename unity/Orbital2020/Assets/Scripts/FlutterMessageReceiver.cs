@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class FlutterMessageReceiver : MonoBehaviour
 {
-    public Counter counter;
     public GameController gameController;
 
     // Start is called before the first frame update
@@ -18,11 +17,6 @@ public class FlutterMessageReceiver : MonoBehaviour
     void Update()
     {
         
-    }
-
-    public void Increment(string amount)
-    {
-        counter.Increment(int.Parse(amount));
     }
 
     public void giveReward(string amount)
