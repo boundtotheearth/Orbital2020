@@ -29,8 +29,8 @@ class _TeacherAssignTaskState extends State<TeacherAssignTask> {
 
 //  Stream<Set<Task>> _allTasks;
 //  Stream<Set<TaskStatus>> _alreadyAssigned;
-  Stream<Set<String>> _allTasks;
-  Stream<Set<String>> _alreadyAssigned;
+//  Stream<Set<String>> _allTasks;
+//  Stream<Set<String>> _alreadyAssigned;
   Set<Task> _tasks;
   String _searchText;
 
@@ -41,14 +41,14 @@ class _TeacherAssignTaskState extends State<TeacherAssignTask> {
     _user = Provider.of<User>(context, listen: false);
 //    _allTasks = db.getGroupTaskSnapshots(teacherId: _user.id, groupId: widget.group.id);
 //    _alreadyAssigned = db.getStudentTaskDetailsSnapshots(studentId: widget.student.id);
-    _allTasks = db.getGroupTaskSnapshots(teacherId: _user.id, groupId: widget.group.id);
-    _alreadyAssigned = db.getStudentTaskDetailsSnapshots(studentId: widget.student.id).map((tasks) {
-      Set<String> set = Set();
-      for(TaskStatus task in tasks) {
-        set.add(task.id);
-      }
-      return set;
-    });
+//    _allTasks = db.getGroupTaskSnapshots(teacherId: _user.id, groupId: widget.group.id);
+//    _alreadyAssigned = db.getStudentTaskDetailsSnapshots(studentId: widget.student.id).map((tasks) {
+//      Set<String> set = Set();
+//      for(TaskStatus task in tasks) {
+//        set.add(task.id);
+//      }
+//      return set;
+//    });
     _tasks = Set();
     _searchText = "";
   }
@@ -78,27 +78,27 @@ class _TeacherAssignTaskState extends State<TeacherAssignTask> {
     });
   }
 
-  bool filtered(Task task, Set<String> alreadyAssigned) {
-    return task.name.startsWith(_searchText)
-        && !alreadyAssigned.contains(task.id)
-        && !_tasks.contains(task);
+  bool filtered(Task task) {
+    return task.name.startsWith(_searchText) && !_tasks.contains(task);
   }
 
   Widget buildSuggestions() {
     return StreamBuilder(
-      stream: _allTasks,
-      builder: (context, allTasksSnapshot) =>
-        StreamBuilder(
-          stream: _alreadyAssigned,
-          builder: (context, alreadyAssignedSnapshot) {
-            if (allTasksSnapshot.hasData && alreadyAssignedSnapshot.hasData) {
-//              Set<Task> allTasks = allTasksSnapshot.data;
-//              Set<Task> alreadyAssigned = alreadyAssignedSnapshot.data;
-              List<String> allTasks = allTasksSnapshot.data.toList();
-              Set<String> alreadyAssigned = alreadyAssignedSnapshot.data;
-              print("len here" + alreadyAssigned.length.toString());
-              print(allTasks.toString());
-              print(alreadyAssigned.toString());
+      stream: db.getUnassignedTasks(_user.id, widget.group.id, widget.student.id), //_allTasks,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+//      builder: (context, allTasksSnapshot) =>
+//        StreamBuilder(
+//          stream: _alreadyAssigned,
+//          builder: (context, alreadyAssignedSnapshot) {
+//            if (allTasksSnapshot.hasData && alreadyAssignedSnapshot.hasData) {
+////              Set<Task> allTasks = allTasksSnapshot.data;
+////              Set<Task> alreadyAssigned = alreadyAssignedSnapshot.data;
+//              List<String> allTasks = allTasksSnapshot.data.toList();
+//              Set<String> alreadyAssigned = alreadyAssignedSnapshot.data;
+//              print("len here" + alreadyAssigned.length.toString());
+//              print(allTasks.toString());
+//              print(alreadyAssigned.toString());
 
 //              for(Task task in allTasks) {
 //                if(alreadyAssigned.contains(task)) {
@@ -125,13 +125,13 @@ class _TeacherAssignTaskState extends State<TeacherAssignTask> {
 //                  }
 //              );
               return ListView.builder(
-                  itemCount: allTasks.length,
+                  itemCount: snapshot.data.length,
                   itemBuilder: (context, index) {
-                    String taskId = allTasks[index];
+                    String taskId = snapshot.data.elementAt(index);
                     return StreamBuilder<Task>(
                       stream: db.getTask(taskId),
                       builder: (context, snapshot) {
-                        if (snapshot.hasData && filtered(snapshot.data, alreadyAssigned)) {
+                        if (snapshot.hasData && filtered(snapshot.data)) {
                           return ListTile(
                             title: Text(snapshot.data.name),
                             onTap: () {
@@ -151,8 +151,7 @@ class _TeacherAssignTaskState extends State<TeacherAssignTask> {
               return CircularProgressIndicator();
             }
           }
-        ),
-    );
+        );
   }
 
   Future<void> submitAssignment() {

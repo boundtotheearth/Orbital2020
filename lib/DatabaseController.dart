@@ -380,6 +380,16 @@ class DatabaseController {
     return tasks;
   }
 
+  //get group tasks that are unassigned to a particular student
+  Stream<Set<String>> getUnassignedTasks(String teacherId, String groupId, String studentId) {
+    return Rx.combineLatest2(getGroupTaskSnapshots(teacherId: teacherId, groupId: groupId),
+        getStudentTaskDetailsSnapshots(studentId: studentId),
+            (Set<String> allTasks, Set<TaskStatus> assignedTasks) {
+              allTasks.removeAll(assignedTasks.map((task) => task.id));
+              return allTasks;
+            });
+  }
+
   //Get a stream of snapshots containing the students in a group.
 //  Stream<Set<Student>> getGroupStudentSnapshots({String teacherId, String groupId}) {
 //    Stream<Set<Student>> students = db.collection('teachers')
