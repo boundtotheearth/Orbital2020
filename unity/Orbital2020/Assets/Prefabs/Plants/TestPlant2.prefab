@@ -46,6 +46,10 @@ MonoBehaviour:
   plantName: Test Plant 2
   description: Plant for testing (2)
   rarity: 1
-  iconSprite: {fileID: 21300000, guid: 3f91eeb04c26f4944851bc22a96d295c, type: 3}
+  iconSprite: {fileID: -8584776294191440814, guid: 41f9866fd12534959893f72bbc62ef87,
+    type: 3}
   portraitSprite: {fileID: 21300000, guid: 7f68dd0e5f0334f668a93e5fe33140c7, type: 3}
-  gameSprite: {fileID: 21300000, guid: 7f68dd0e5f0334f668a93e5fe33140c7, type: 3}
+  gameSprites:
+  - {fileID: 8275932478496203471, guid: 41f9866fd12534959893f72bbc62ef87, type: 3}
+  - {fileID: 6283908498951504376, guid: 41f9866fd12534959893f72bbc62ef87, type: 3}
+  - {fileID: -8584776294191440814, guid: 41f9866fd12534959893f72bbc62ef87, type: 3}

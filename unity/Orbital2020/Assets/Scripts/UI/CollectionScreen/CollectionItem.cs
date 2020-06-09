@@ -11,6 +11,6 @@ public class CollectionItem : PlantData
         this.rarity = plantData.rarity;
         this.iconSprite = plantData.iconSprite;
         this.portraitSprite = plantData.portraitSprite;
-        this.gameSprite = plantData.gameSprite;
+        this.gameSprites = plantData.gameSprites;
     }
 }

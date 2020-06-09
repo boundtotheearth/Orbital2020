@@ -1,22 +1,43 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class GamePlant : MonoBehaviour
+public class GamePlant : MonoBehaviour, IPointerClickHandler
 {
     public SpriteRenderer spriteRenderer;
 
     public PlantData plantData;
     public bool isWatered;
-    public int growthStage;
 
     public void initialize(PlantData plantData)
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         this.plantData = plantData;
 
-        spriteRenderer.sprite = plantData.gameSprite;
+        UpdateSprite();
         isWatered = false;
-        growthStage = 0;
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        Grow();
+        Debug.Log("Here1");
+    }
+
+    void Grow()
+    {
+        plantData.growthStage++;
+        if(plantData.growthStage > 2)
+        {
+            plantData.growthStage = 0;
+        }
+        UpdateSprite();
+        Debug.Log("Here2");
+    }
+
+    void UpdateSprite()
+    {
+        spriteRenderer.sprite = plantData.gameSprites[plantData.growthStage];
     }
 }

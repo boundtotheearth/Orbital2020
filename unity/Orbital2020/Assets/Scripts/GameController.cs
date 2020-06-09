@@ -60,7 +60,6 @@ public class GameController : MonoBehaviour
     {
         if (planting && selectedPlant.Equals(null))
         {
-            Debug.Log("here");
             GameObject newPlant = Instantiate(gamePlantPrefab, tile.transform.position, Quaternion.identity, transform);
             GamePlant plantScript = newPlant.GetComponent<GamePlant>();
             plantScript.initialize(selectedPlant);

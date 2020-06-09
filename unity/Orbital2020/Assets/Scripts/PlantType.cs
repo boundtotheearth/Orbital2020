@@ -9,5 +9,5 @@ public class PlantType : MonoBehaviour
     public PlantRarity rarity;
     public Sprite iconSprite;
     public Sprite portraitSprite;
-    public Sprite gameSprite;
+    public Sprite[] gameSprites;
 }

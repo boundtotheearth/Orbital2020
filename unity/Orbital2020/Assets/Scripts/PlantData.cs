@@ -7,9 +7,10 @@ public class PlantData : Object
     public string plantName;
     public string description;
     public PlantRarity rarity;
+    public int growthStage;
     public Sprite iconSprite;
     public Sprite portraitSprite;
-    public Sprite gameSprite;
+    public Sprite[] gameSprites;
 
     public PlantData()
     {
@@ -19,16 +20,18 @@ public class PlantData : Object
     public PlantData(string plantName,
         string description,
         PlantRarity rarity,
+        int growthStage,
         Sprite iconSprite,
         Sprite portraitSprite,
-        Sprite gameSprite)
+        Sprite[] gameSprites)
     {
         this.plantName = plantName;
         this.description = description;
         this.rarity = rarity;
+        this.growthStage = growthStage;
         this.iconSprite = iconSprite;
         this.portraitSprite = portraitSprite;
-        this.gameSprite = gameSprite;
+        this.gameSprites = gameSprites;
     }
 
     public PlantData(PlantType type)
@@ -36,9 +39,10 @@ public class PlantData : Object
         this.plantName = type.plantName;
         this.description = type.description;
         this.rarity = type.rarity;
+        this.growthStage = 0;
         this.iconSprite = type.iconSprite;
         this.portraitSprite = type.portraitSprite;
-        this.gameSprite = type.gameSprite;
+        this.gameSprites = type.gameSprites;
     }
 
     public override string ToString()

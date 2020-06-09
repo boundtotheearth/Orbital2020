@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &813739173093676210
 RectTransform:
   m_ObjectHideFlags: 0
@@ -140,11 +140,11 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 30
+    m_Font: {fileID: 12800000, guid: 18dd5c0c08001430fa326fd18ee2339d, type: 3}
+    m_FontSize: 24
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 8
+    m_MinSize: 2
     m_MaxSize: 65
     m_Alignment: 3
     m_AlignByGeometry: 0
@@ -188,7 +188,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -113.74, y: 0.000012547}
-  m_SizeDelta: {x: 38.489655, y: 38.489655}
+  m_SizeDelta: {x: 33.32196, y: 33.32196}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2318224217354286587
 CanvasRenderer:
@@ -239,7 +239,7 @@ GameObject:
   - component: {fileID: 7657630525820440783}
   - component: {fileID: 1621045825941619783}
   m_Layer: 5
-  m_Name: InventoryItem
+  m_Name: InventoryItemUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

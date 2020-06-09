@@ -11,9 +11,9 @@ public class InventoryController : MonoBehaviour, UIScreen
 
     public InventoryItemUI selectedPlant;
 
-    public Image portraitImage;
     public Text nameText;
     public Text descriptionText;
+    public Text rarityText;
 
     public GameObject inventoryItemUIPrefab;
     public GameObject inventoryArea;
@@ -69,9 +69,9 @@ public class InventoryController : MonoBehaviour, UIScreen
         }
         plant.Select();
         selectedPlant = plant;
-        portraitImage.sprite = selectedPlant.plantData.portraitSprite;
         nameText.text = selectedPlant.plantData.plantName;
         descriptionText.text = selectedPlant.plantData.description;
+        rarityText.text = selectedPlant.plantData.rarity.ToString();
     }
 
     public void StartPlant()
