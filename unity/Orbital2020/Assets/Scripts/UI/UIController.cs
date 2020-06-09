@@ -4,21 +4,16 @@ using UnityEngine;
 
 public class UIController : MonoBehaviour
 {
+    public GameController gameController;
+
     public UIScreen currentScreen;
     public RewardsController rewardsScreen;
     public CollectionController collectionScreen;
     public InventoryController inventoryScreen;
 
-    // Start is called before the first frame update
-    void Start()
+    public void ToggleMoveDelete()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        gameController.toggleMoveDelete();
     }
 
     public void OpenRewardsScreen(List<SeedPack> seedPacks)

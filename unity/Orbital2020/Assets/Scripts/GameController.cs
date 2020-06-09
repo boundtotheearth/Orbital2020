@@ -6,7 +6,7 @@ public class GameController : MonoBehaviour
 {
     public PlantData selectedPlant;
     public GameObject plantableField;
-    public bool planting = false;
+    
     public GameObject gamePlantPrefab;
     public UIController uiController;
     public Grid grid;
@@ -17,6 +17,9 @@ public class GameController : MonoBehaviour
 
     [SerializeField]
     public List<CollectionItem> collection;
+
+    public bool planting = false;
+    public bool moveDeleting = false;
 
     List<PlantableTile> plantableTiles = new List<PlantableTile>();
 
@@ -60,17 +63,29 @@ public class GameController : MonoBehaviour
     {
         if (planting && selectedPlant.Equals(null))
         {
-            GameObject newPlant = Instantiate(gamePlantPrefab, tile.transform.position, Quaternion.identity, transform);
-            GamePlant plantScript = newPlant.GetComponent<GamePlant>();
-            plantScript.initialize(selectedPlant);
+            addPlant(tile);
 
             tile.isOccupied = true;
             endPlant();
         }
     }
 
+    public void addPlant(PlantableTile tile)
+    {
+        GameObject newPlant = Instantiate(gamePlantPrefab, tile.transform.position, Quaternion.identity, transform);
+        GamePlant plantScript = newPlant.GetComponent<GamePlant>();
+        plantScript.initialize(selectedPlant);
+        plantScript.setDeleteCallback(() => removePlant(tile));
+        tile.plant = plantScript;
+    }
+
     public void startPlant(PlantData plantData)
     {
+        if (moveDeleting)
+        {
+            Debug.Log("Tried to start plant while in another mode");
+        }
+
         planting = true;
         selectedPlant = plantData;
         foreach(PlantableTile tile in plantableTiles)
@@ -86,6 +101,57 @@ public class GameController : MonoBehaviour
         foreach (PlantableTile tile in plantableTiles)
         {
             tile.stopDisplayAvailability();
+        }
+    }
+
+    public void toggleMoveDelete()
+    {
+        if (moveDeleting)
+        {
+            endMoveDelete();
+        }
+        else
+        {
+            startMoveDelete();
+        }
+    }
+
+    public void startMoveDelete()
+    {
+        if (planting)
+        {
+            Debug.Log("Tried to start move/delete while in another mode");
+        }
+
+        bool isEmpty = true;
+        foreach(PlantableTile tile in plantableTiles)
+        {
+            if (tile.plant)
+            {
+                isEmpty = false;
+                tile.plant.startMoveDelete();
+            }
+        }
+
+        if(!isEmpty)
+        {
+            moveDeleting = true;
+        }
+        else
+        {
+            Debug.Log("No Plants, nothing to move/delete");
+        }
+    }
+
+    public void endMoveDelete()
+    {
+        moveDeleting = false;
+        foreach (PlantableTile tile in plantableTiles)
+        {
+            if (tile.plant)
+            {
+                tile.plant.endMoveDelete();
+            }
         }
     }
 
@@ -118,5 +184,11 @@ public class GameController : MonoBehaviour
     public void showInventory()
     {
         uiController.OpenInventoryScreen(inventory);
+    }
+
+    public void removePlant(PlantableTile tile)
+    {
+        tile.clear();
+        endMoveDelete();
     }
 }

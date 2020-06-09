@@ -10,6 +10,7 @@ public class PlantableTile : MonoBehaviour, IPointerClickHandler
     public GameObject occupiedSprite;
     public GameObject availableSprite;
     public GameObject normalSprite;
+    public GamePlant plant;
 
     SpriteRenderer spriteRenderer;
 
@@ -31,11 +32,6 @@ public class PlantableTile : MonoBehaviour, IPointerClickHandler
         gameController.OnTileClick(this);
     }
 
-    public void addPlant(GamePlant plant)
-    {
-        Debug.Log("Planting");
-    }
-
     public void displayAvailability()
     {
         normalSprite.SetActive(false);
@@ -54,5 +50,11 @@ public class PlantableTile : MonoBehaviour, IPointerClickHandler
         normalSprite.SetActive(true);
         availableSprite.SetActive(false);
         occupiedSprite.SetActive(false);
+    }
+
+    public void clear()
+    {
+        isOccupied = false;
+        plant = null;
     }
 }

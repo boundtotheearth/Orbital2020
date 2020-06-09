@@ -3,12 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class GamePlant : MonoBehaviour, IPointerClickHandler
+public class GamePlant : MonoBehaviour, IPointerClickHandler, IDragHandler, IEndDragHandler
 {
+    public delegate void OnDeleteCallback();
+
     public SpriteRenderer spriteRenderer;
 
     public PlantData plantData;
     public bool isWatered;
+    public GameObject movingSprite;
+    public OnDeleteCallback deleteCallback;
+    public bool moveDeleting;
 
     public void initialize(PlantData plantData)
     {
@@ -21,8 +26,25 @@ public class GamePlant : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        Grow();
-        Debug.Log("Here1");
+        if (!eventData.dragging && !moveDeleting)
+        {
+            Grow();
+        }
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        Vector2 screenPosition = eventData.position;
+        Vector3 worldPosition = Camera.main.ScreenToWorldPoint(screenPosition);
+        worldPosition.z = 0;
+
+        transform.position = worldPosition;
+        //Debug.Log(worldPosition);
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+
     }
 
     void Grow()
@@ -33,11 +55,33 @@ public class GamePlant : MonoBehaviour, IPointerClickHandler
             plantData.growthStage = 0;
         }
         UpdateSprite();
-        Debug.Log("Here2");
     }
 
     void UpdateSprite()
     {
         spriteRenderer.sprite = plantData.gameSprites[plantData.growthStage];
+    }
+
+    public void startMoveDelete()
+    {
+        moveDeleting = true;
+        movingSprite.SetActive(true);
+    }
+
+    public void endMoveDelete()
+    {
+        moveDeleting = false;
+        movingSprite.SetActive(false);
+    }
+
+    public void setDeleteCallback(OnDeleteCallback callback)
+    {
+        this.deleteCallback = callback;
+    }
+
+    public void deletePlant()
+    {
+        deleteCallback();
+        Destroy(gameObject);
     }
 }
