@@ -52,6 +52,13 @@ public class PlantableTile : MonoBehaviour, IPointerClickHandler
         occupiedSprite.SetActive(false);
     }
 
+    public void setPlant(GamePlant plant)
+    {
+        clear();
+        this.plant = plant;
+        isOccupied = true;
+    }
+
     public void clear()
     {
         isOccupied = false;

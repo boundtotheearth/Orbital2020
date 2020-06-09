@@ -14,11 +14,15 @@ public class GamePlant : MonoBehaviour, IPointerClickHandler, IDragHandler, IEnd
     public GameObject movingSprite;
     public OnDeleteCallback deleteCallback;
     public bool moveDeleting;
+    public Vector3 originalPosition;
+    public PlantableTile tile;
 
-    public void initialize(PlantData plantData)
+    public void initialize(PlantData plantData, PlantableTile tile)
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         this.plantData = plantData;
+        this.originalPosition = transform.position;
+        this.tile = tile;
 
         UpdateSprite();
         isWatered = false;
@@ -34,17 +38,52 @@ public class GamePlant : MonoBehaviour, IPointerClickHandler, IDragHandler, IEnd
 
     public void OnDrag(PointerEventData eventData)
     {
-        Vector2 screenPosition = eventData.position;
-        Vector3 worldPosition = Camera.main.ScreenToWorldPoint(screenPosition);
-        worldPosition.z = 0;
+        if (moveDeleting)
+        {
+            Vector2 screenPosition = eventData.position;
+            Vector3 worldPosition = Camera.main.ScreenToWorldPoint(screenPosition);
+            worldPosition.z = 0;
 
-        transform.position = worldPosition;
-        //Debug.Log(worldPosition);
+            transform.position = worldPosition;
+            //Debug.Log(worldPosition);
+
+            gameObject.layer = LayerMask.NameToLayer("Dragging");
+        }
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        //this works because the plant being dragged is put in a "dragging" layer,
+        //which is ignored by the raycasting camera
+        GameObject destinationObject = eventData.pointerCurrentRaycast.gameObject;
+        if (destinationObject)
+        {
+            GamePlant plant = destinationObject.GetComponent<GamePlant>();
+            if (plant)
+            {
+                //Dragged to plant
+                PlantableTile temp = this.tile;
+                movePlant(plant.tile, false);
+                plant.movePlant(temp, false);
 
+                tile.setPlant(plant);
+
+                plant.tile.setPlant(this);
+            }
+
+            PlantableTile newTile = destinationObject.GetComponent<PlantableTile>();
+            if (newTile)
+            {
+                //Dragged to empty tile
+                this.tile.clear();
+                movePlant(newTile);
+                newTile.setPlant(this);
+            }
+        }
+
+        //Nothing to drag to
+        transform.position = originalPosition;
+        gameObject.layer = LayerMask.NameToLayer("Default");
     }
 
     void Grow()
@@ -83,5 +122,18 @@ public class GamePlant : MonoBehaviour, IPointerClickHandler, IDragHandler, IEnd
     {
         deleteCallback();
         Destroy(gameObject);
+    }
+
+    public void movePlant(PlantableTile tile, bool clearOld = true)
+    {
+        transform.position = tile.transform.position;
+        originalPosition = transform.position;
+        transform.parent = tile.transform;
+        if (clearOld)
+        {
+            this.tile.clear();
+        }
+        this.tile = tile;
+        tile.setPlant(this);
     }
 }

@@ -65,32 +65,43 @@ public class GameController : MonoBehaviour
         {
             addPlant(tile);
 
-            tile.isOccupied = true;
             endPlant();
         }
     }
 
     public void addPlant(PlantableTile tile)
     {
-        GameObject newPlant = Instantiate(gamePlantPrefab, tile.transform.position, Quaternion.identity, transform);
+        GameObject newPlant = Instantiate(gamePlantPrefab, tile.transform.position, Quaternion.identity, tile.transform);
         GamePlant plantScript = newPlant.GetComponent<GamePlant>();
-        plantScript.initialize(selectedPlant);
+        plantScript.initialize(selectedPlant, tile);
         plantScript.setDeleteCallback(() => removePlant(tile));
-        tile.plant = plantScript;
+        tile.setPlant(plantScript);
     }
 
     public void startPlant(PlantData plantData)
     {
-        if (moveDeleting)
-        {
-            Debug.Log("Tried to start plant while in another mode");
-        }
-
-        planting = true;
-        selectedPlant = plantData;
+        bool isFull = true;
         foreach(PlantableTile tile in plantableTiles)
         {
-            tile.displayAvailability();
+            if (!tile.isOccupied)
+            {
+                isFull = false;
+                tile.displayAvailability();
+            }
+        }
+
+        if (!isFull)
+        {
+            if (moveDeleting)
+            {
+                endMoveDelete();
+            }
+            planting = true;
+            selectedPlant = plantData;
+        }
+        else
+        {
+            Debug.Log("Field is full!");
         }
     }
 
@@ -118,11 +129,6 @@ public class GameController : MonoBehaviour
 
     public void startMoveDelete()
     {
-        if (planting)
-        {
-            Debug.Log("Tried to start move/delete while in another mode");
-        }
-
         bool isEmpty = true;
         foreach(PlantableTile tile in plantableTiles)
         {
@@ -135,6 +141,10 @@ public class GameController : MonoBehaviour
 
         if(!isEmpty)
         {
+            if (planting)
+            {
+                endPlant();
+            }
             moveDeleting = true;
         }
         else
