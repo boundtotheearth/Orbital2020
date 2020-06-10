@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
-    public PlantData selectedPlant;
+    public InventoryItem selectedPlant;
     public GameObject plantableField;
     
     public GameObject gamePlantPrefab;
@@ -13,10 +13,8 @@ public class GameController : MonoBehaviour
     public Vector2 fieldSize;
     public GameObject tilePrefab;
 
-    public List<InventoryItem> inventory;
-
-    [SerializeField]
-    public List<CollectionItem> collection;
+    public List<InventoryItem> inventory = new List<InventoryItem>();
+    public HashSet<CollectionItem> collection = new HashSet<CollectionItem>();
 
     public bool planting = false;
     public bool moveDeleting = false;
@@ -45,18 +43,18 @@ public class GameController : MonoBehaviour
         }
 
         //Mock Inventory
-        inventory.Add(new InventoryItem(PlantFactory.Instance().TestPlant1()));
-        inventory.Add(new InventoryItem(PlantFactory.Instance().TestPlant2()));
+        inventory.Add(new InventoryItem("testplant1"));
+        inventory.Add(new InventoryItem("testplant2"));
 
         //Mock Collection
-        collection.Add(new CollectionItem(PlantFactory.Instance().TestPlant1()));
-        collection.Add(new CollectionItem(PlantFactory.Instance().TestPlant2()));
+        collection.Add(new CollectionItem("testplant1"));
+        collection.Add(new CollectionItem("testplant2"));
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        
     }
 
     public void OnTileClick(PlantableTile tile)
@@ -78,7 +76,7 @@ public class GameController : MonoBehaviour
         tile.setPlant(plantScript);
     }
 
-    public void startPlant(PlantData plantData)
+    public void startPlant(InventoryItem plantData)
     {
         bool isFull = true;
         foreach(PlantableTile tile in plantableTiles)
@@ -171,19 +169,23 @@ public class GameController : MonoBehaviour
         List<SeedPack> seedPacks = new List<SeedPack>();
         for(int i = 0; i < amount; i++)
         {
-            seedPacks.Add(generateSeedPack());
+            seedPacks.Add(new SeedPack("testplant1"));
         }
 
         //Activate UI
         uiController.OpenRewardsScreen(seedPacks);
 
         //Edit Collections
-        //Edit inventory
-    }
+        foreach(SeedPack pack in seedPacks)
+        {
+            collection.Add(new CollectionItem(pack.plantType));
+        }
 
-    SeedPack generateSeedPack()
-    {
-        return new SeedPack("Test Pack", PlantRarity.rare);
+        //Edit inventory
+        foreach (SeedPack pack in seedPacks)
+        {
+            inventory.Add(new InventoryItem(pack.plantType));
+        }
     }
 
     public void showCollection()

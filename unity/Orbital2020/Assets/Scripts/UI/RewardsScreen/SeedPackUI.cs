@@ -13,13 +13,17 @@ public class SeedPackUI : MonoBehaviour
     public Sprite defaultIcon;
     public Sprite defaultPortrait;
 
-    public void initialize(PlantData plantData)
+    public SeedPack data;
+
+    public void initialize(SeedPack seedPack)
     {
         gameObject.SetActive(true);
-        icon.sprite = plantData.iconSprite ?? defaultIcon;
-        portrait.sprite = plantData.portraitSprite ?? defaultPortrait;
-        plantName.text = plantData.plantName;
-        plantRarity.text = plantData.rarity.ToString();
+        this.data = seedPack;
+
+        icon.sprite = PlantFactory.Instance().GetIconSprite(data.plantType);
+        portrait.sprite = PlantFactory.Instance().GetPortraitSprite(data.plantType);
+        plantName.text = PlantFactory.Instance().GetName(data.plantType);
+        plantRarity.text = PlantFactory.Instance().GetRarity(data.plantType).ToString();
     }
 
     public void reset()

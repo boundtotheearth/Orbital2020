@@ -25,7 +25,7 @@ public class UIController : MonoBehaviour
         currentScreen = rewardsScreen;
     }
 
-    public void OpenCollectionScreen(List<CollectionItem> collection)
+    public void OpenCollectionScreen(HashSet<CollectionItem> collection)
     {
         closeScreen();
 
@@ -47,7 +47,7 @@ public class UIController : MonoBehaviour
     {
         if(currentScreen != null)
         {
-            currentScreen.Close();
+            //currentScreen.Close();
             currentScreen = null;
         }
     }

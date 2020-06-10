@@ -8,21 +8,26 @@ public class GamePlant : MonoBehaviour, IPointerClickHandler, IDragHandler, IEnd
     public delegate void OnDeleteCallback();
 
     public SpriteRenderer spriteRenderer;
-
-    public PlantData plantData;
-    public bool isWatered;
     public GameObject movingSprite;
     public OnDeleteCallback deleteCallback;
+
+
+
+    public InventoryItem data;
+    public bool isWatered;
     public bool moveDeleting;
     public Vector3 originalPosition;
     public PlantableTile tile;
+    public int growthStage;
 
-    public void initialize(PlantData plantData, PlantableTile tile)
+    public void initialize(InventoryItem plant, PlantableTile tile)
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
-        this.plantData = plantData;
+        this.data = plant;
         this.originalPosition = transform.position;
         this.tile = tile;
+        this.growthStage = 0;
+        this.isWatered = false;
 
         UpdateSprite();
         isWatered = false;
@@ -88,17 +93,18 @@ public class GamePlant : MonoBehaviour, IPointerClickHandler, IDragHandler, IEnd
 
     void Grow()
     {
-        plantData.growthStage++;
-        if(plantData.growthStage > 2)
+        growthStage++;
+        if(growthStage > 2)
         {
-            plantData.growthStage = 0;
+            growthStage = 0;
         }
         UpdateSprite();
     }
 
     void UpdateSprite()
     {
-        spriteRenderer.sprite = plantData.gameSprites[plantData.growthStage];
+        spriteRenderer.sprite = PlantFactory.Instance()
+            .GetGameSprites(data.plantType)[growthStage];
     }
 
     public void startMoveDelete()

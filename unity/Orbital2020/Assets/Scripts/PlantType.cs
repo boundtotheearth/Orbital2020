@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlantType : MonoBehaviour
 {
+    public string id;
     public string plantName;
     public string description;
     public PlantRarity rarity;

@@ -14,6 +14,7 @@ public class InventoryController : MonoBehaviour, UIScreen
     public Text nameText;
     public Text descriptionText;
     public Text rarityText;
+    public Text propertyText;
 
     public GameObject inventoryItemUIPrefab;
     public GameObject inventoryArea;
@@ -58,6 +59,12 @@ public class InventoryController : MonoBehaviour, UIScreen
 
     public void Close()
     {
+        foreach(InventoryItemUI ui in inventoryItemUIs)
+        {
+            ui.reset();
+        }
+
+        uiController.closeScreen();
         uiObject.SetActive(false);
     }
 
@@ -69,16 +76,19 @@ public class InventoryController : MonoBehaviour, UIScreen
         }
         plant.Select();
         selectedPlant = plant;
-        nameText.text = selectedPlant.plantData.plantName;
-        descriptionText.text = selectedPlant.plantData.description;
-        rarityText.text = selectedPlant.plantData.rarity.ToString();
+
+        InventoryItem plantData = selectedPlant.data;
+        nameText.text = PlantFactory.Instance().GetName(plantData.plantType);
+        descriptionText.text = PlantFactory.Instance().GetDescription(plantData.plantType);
+        rarityText.text = PlantFactory.Instance().GetRarity(plantData.plantType).ToString();
+        propertyText.text = plantData.property;
     }
 
     public void StartPlant()
     {
         if (selectedPlant)
         {
-            gameController.startPlant(selectedPlant.plantData);
+            gameController.startPlant(selectedPlant.data);
             uiController.closeScreen();
         } else
         {

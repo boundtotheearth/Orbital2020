@@ -10,14 +10,14 @@ public class InventoryItemUI : MonoBehaviour
     public Image icon;
 
     public bool isSelected = false;
-    public PlantData plantData;
+    public InventoryItem data;
 
     public void initialize(InventoryItem inventoryItem)
     {
         gameObject.SetActive(true);
-        plantData = inventoryItem;
-        nameText.text = plantData.plantName;
-        icon.sprite = plantData.iconSprite;
+        data = inventoryItem;
+        nameText.text = PlantFactory.Instance().GetName(data.plantType);
+        icon.sprite = PlantFactory.Instance().GetIconSprite(data.plantType);
         selectionBar.SetActive(false);
     }
 

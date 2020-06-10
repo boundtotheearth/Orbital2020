@@ -18,16 +18,17 @@ public class CollectionController : MonoBehaviour, UIScreen
 
     public CollectionItemUI[] collectionItemUIs;
 
-    public void initialize(List<CollectionItem> collectionItems)
+    public void initialize(HashSet<CollectionItem> collectionItems)
     {
         uiController = GetComponentInParent<UIController>();
         collectionItemUIs = GetComponentsInChildren<CollectionItemUI>(true);
 
-        for(int i = 0; i < collectionItems.Count; i++)
+        int count = 0;
+        foreach(CollectionItem item in collectionItems)
         {
-            CollectionItemUI ui = collectionItemUIs[i];
-            CollectionItem item = collectionItems[i];
+            CollectionItemUI ui = collectionItemUIs[count];
             ui.initialize(item);
+            count++;
         }
     }
 
@@ -39,9 +40,11 @@ public class CollectionController : MonoBehaviour, UIScreen
         }
         plant.Select();
         selectedPlant = plant;
-        portraitImage.sprite = selectedPlant.plantData.portraitSprite;
-        nameText.text = selectedPlant.plantData.plantName;
-        descriptionText.text = selectedPlant.plantData.description;
+
+        CollectionItem plantData = selectedPlant.data;
+        portraitImage.sprite = PlantFactory.Instance().GetPortraitSprite(plantData.plantType);
+        nameText.text = PlantFactory.Instance().GetName(plantData.plantType);
+        descriptionText.text = PlantFactory.Instance().GetDescription(plantData.plantType);
         OpenPlantDetails();
     }
 
@@ -58,6 +61,7 @@ public class CollectionController : MonoBehaviour, UIScreen
         }
 
         ClosePlantDetails();
+        uiController.closeScreen();
         uiObject.SetActive(false);
     }
 

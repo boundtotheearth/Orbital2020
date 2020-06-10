@@ -2,11 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SeedPack : PlantData
+public class SeedPack
 {
-    public SeedPack(string plantName, PlantRarity rarity)
+    public string plantType;
+    public string property;
+
+    public SeedPack(string plantType)
     {
-        this.plantName = plantName;
-        this.rarity = rarity;
+        this.plantType = plantType;
+        this.property = "Default Property";
+    }
+
+    public SeedPack(string plantType, string property)
+    {
+        this.plantType = plantType;
+        this.property = property;
     }
 }

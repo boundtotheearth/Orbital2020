@@ -43,6 +43,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db79b65d516704d71858aea2abd17eed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: testplant2
   plantName: Test Plant 2
   description: Plant for testing (2)
   rarity: 1

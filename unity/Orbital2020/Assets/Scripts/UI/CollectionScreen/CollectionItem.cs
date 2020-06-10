@@ -2,15 +2,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CollectionItem : PlantData
+public class CollectionItem
 {
-    public CollectionItem(PlantData plantData)
+    public string plantType;
+
+    public CollectionItem(string plantType)
     {
-        this.plantName = plantData.plantName;
-        this.description = plantData.description;
-        this.rarity = plantData.rarity;
-        this.iconSprite = plantData.iconSprite;
-        this.portraitSprite = plantData.portraitSprite;
-        this.gameSprites = plantData.gameSprites;
+        this.plantType = plantType;
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is CollectionItem item &&
+               plantType == item.plantType;
+    }
+
+    public override int GetHashCode()
+    {
+        return 803864498 + EqualityComparer<string>.Default.GetHashCode(plantType);
     }
 }

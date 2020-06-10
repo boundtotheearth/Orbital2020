@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlantFactory : MonoBehaviour
 {
-    public static PlantFactory instance;
+    private static PlantFactory instance;
 
     public static PlantFactory Instance()
     {
@@ -16,16 +16,50 @@ public class PlantFactory : MonoBehaviour
         return PlantFactory.instance;
     }
 
-    public PlantType testPlant1;
-    public PlantType testPlant2;
+    public List<PlantType> plantTypes = new List<PlantType>();
+    Dictionary<string, PlantType> plantTypeDict = new Dictionary<string, PlantType>();
 
-    public PlantData TestPlant1()
+    public void Start()
     {
-        return new PlantData(testPlant1);
+        //Construct the reference dictionary
+        foreach(PlantType type in plantTypes)
+        {
+            plantTypeDict.Add(type.id, type);
+        }
     }
 
-    public PlantData TestPlant2()
+    public PlantType GetPlantType(string id)
     {
-        return new PlantData(testPlant2);
+        return plantTypeDict[id];
+    }
+
+    public string GetName(string id)
+    {
+        return plantTypeDict[id].plantName;
+    }
+
+    public string GetDescription(string id)
+    {
+        return plantTypeDict[id].description;
+    }
+
+    public PlantRarity GetRarity(string id)
+    {
+        return plantTypeDict[id].rarity;
+    }
+
+    public Sprite GetIconSprite(string id)
+    {
+        return plantTypeDict[id].iconSprite;
+    }
+
+    public Sprite GetPortraitSprite(string id)
+    {
+        return plantTypeDict[id].portraitSprite;
+    }
+
+    public Sprite[] GetGameSprites(string id)
+    {
+        return plantTypeDict[id].gameSprites;
     }
 }

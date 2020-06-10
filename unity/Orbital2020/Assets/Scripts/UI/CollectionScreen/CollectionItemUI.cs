@@ -11,16 +11,16 @@ public class CollectionItemUI : MonoBehaviour
     public Image icon;
 
     public bool isSelected = false;
-    public PlantData plantData;
+    public CollectionItem data;
 
     public void initialize(CollectionItem collectionItem)
     {
         gameObject.SetActive(true);
         collectionController = transform.GetComponentInParent<CollectionController>();
-        this.plantData = collectionItem;
+        this.data = collectionItem;
 
-        nameText.text = collectionItem.plantName;
-        icon.sprite = collectionItem.iconSprite;
+        nameText.text = PlantFactory.Instance().GetName(data.plantType);
+        icon.sprite = PlantFactory.Instance().GetIconSprite(data.plantType);
         selectionBar.SetActive(false);
     }
 

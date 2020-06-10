@@ -4,11 +4,13 @@ using UnityEngine;
 
 public class RewardsController : MonoBehaviour, UIScreen
 {
+    public UIController uiController;
     public GameObject uiObject;
     public SeedPackUI[] seedPackUIs;
 
     public void initialize(List<SeedPack> seedPacks)
     {
+        uiController = GetComponentInParent<UIController>();
         seedPackUIs = GetComponentsInChildren<SeedPackUI>(true);
         //Initialize individual ui elements with the right data
         for (int i = 0; i < seedPacks.Count; i++)
@@ -31,6 +33,7 @@ public class RewardsController : MonoBehaviour, UIScreen
             ui.reset();
         }
 
+        uiController.closeScreen();
         uiObject.SetActive(false);
     }
 }
