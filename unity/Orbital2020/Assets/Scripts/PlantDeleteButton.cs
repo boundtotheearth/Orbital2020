@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 public class PlantDeleteButton : MonoBehaviour, IPointerClickHandler
 {
-    public GamePlant plant;
+    public GamePlantObject plant;
 
     public void OnPointerClick(PointerEventData eventData)
     {

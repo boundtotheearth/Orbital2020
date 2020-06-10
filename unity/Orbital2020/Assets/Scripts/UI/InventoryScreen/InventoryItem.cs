@@ -19,6 +19,11 @@ public class InventoryItem
         this.property = property;
     }
 
+    public override string ToString()
+    {
+        return string.Join(",", plantType, property);
+    }
+
     public override bool Equals(object obj)
     {
         return obj is InventoryItem item &&

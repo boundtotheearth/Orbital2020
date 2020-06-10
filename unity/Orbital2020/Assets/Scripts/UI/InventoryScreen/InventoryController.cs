@@ -89,7 +89,7 @@ public class InventoryController : MonoBehaviour, UIScreen
         if (selectedPlant)
         {
             gameController.startPlant(selectedPlant.data);
-            uiController.closeScreen();
+            Close();
         } else
         {
             Debug.Log("Please select a plant");

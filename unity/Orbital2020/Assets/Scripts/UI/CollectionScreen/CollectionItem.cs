@@ -11,6 +11,11 @@ public class CollectionItem
         this.plantType = plantType;
     }
 
+    public override string ToString()
+    {
+        return plantType;
+    }
+
     public override bool Equals(object obj)
     {
         return obj is CollectionItem item &&

@@ -10,7 +10,8 @@ public class PlantableTile : MonoBehaviour, IPointerClickHandler
     public GameObject occupiedSprite;
     public GameObject availableSprite;
     public GameObject normalSprite;
-    public GamePlant plant;
+    public GamePlantObject plant;
+    public Vector2Int gridPosition;
 
     SpriteRenderer spriteRenderer;
 
@@ -52,7 +53,7 @@ public class PlantableTile : MonoBehaviour, IPointerClickHandler
         occupiedSprite.SetActive(false);
     }
 
-    public void setPlant(GamePlant plant)
+    public void setPlant(GamePlantObject plant)
     {
         clear();
         this.plant = plant;

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 public class GameController : MonoBehaviour
@@ -10,16 +11,18 @@ public class GameController : MonoBehaviour
     public GameObject gamePlantPrefab;
     public UIController uiController;
     public Grid grid;
-    public Vector2 fieldSize;
+    public Vector2Int fieldSize;
     public GameObject tilePrefab;
 
     public List<InventoryItem> inventory = new List<InventoryItem>();
     public HashSet<CollectionItem> collection = new HashSet<CollectionItem>();
+    public List<GamePlantObject> plants = new List<GamePlantObject>();
 
     public bool planting = false;
     public bool moveDeleting = false;
 
-    List<PlantableTile> plantableTiles = new List<PlantableTile>();
+    //List<PlantableTile> plantableTiles = new List<PlantableTile>();
+    PlantableTile[,] plantableTiles;
 
     // Start is called before the first frame update
     void Start()
@@ -32,13 +35,18 @@ public class GameController : MonoBehaviour
         //}
 
         //Initialize plantable tiles
+        plantableTiles = new PlantableTile[fieldSize.x,fieldSize.y];
         for(int x = 0; x < fieldSize.x; x++)
         {
             for(int y = 0; y < fieldSize.y; y++)
             {
                 GameObject tileObject = Instantiate(tilePrefab, transform);
                 tileObject.transform.position = grid.GetCellCenterWorld(new Vector3Int(x, y, 0));
-                plantableTiles.Add(tileObject.GetComponent<PlantableTile>());
+                tileObject.name = "(" + x.ToString() + ", " + y.ToString() + ")";
+                PlantableTile tileScript = tileObject.GetComponent<PlantableTile>();
+                tileScript.gridPosition = new Vector2Int(x, y);
+                //plantableTiles.Add(tileObject.GetComponent<PlantableTile>());
+                plantableTiles[x,y] = tileScript;
             }
         }
 
@@ -59,7 +67,7 @@ public class GameController : MonoBehaviour
 
     public void OnTileClick(PlantableTile tile)
     {
-        if (planting && selectedPlant.Equals(null))
+        if (planting && !selectedPlant.Equals(null))
         {
             addPlant(tile);
 
@@ -70,10 +78,11 @@ public class GameController : MonoBehaviour
     public void addPlant(PlantableTile tile)
     {
         GameObject newPlant = Instantiate(gamePlantPrefab, tile.transform.position, Quaternion.identity, tile.transform);
-        GamePlant plantScript = newPlant.GetComponent<GamePlant>();
-        plantScript.initialize(selectedPlant, tile);
-        plantScript.setDeleteCallback(() => removePlant(tile));
+        GamePlantObject plantScript = newPlant.GetComponent<GamePlantObject>();
+        plantScript.initialize(new GamePlant(selectedPlant, tile), tile);
+        plantScript.setDeleteCallback(() => removePlant(plantScript));
         tile.setPlant(plantScript);
+        plants.Add(plantScript);
     }
 
     public void startPlant(InventoryItem plantData)
@@ -128,16 +137,13 @@ public class GameController : MonoBehaviour
     public void startMoveDelete()
     {
         bool isEmpty = true;
-        foreach(PlantableTile tile in plantableTiles)
+        foreach(GamePlantObject plant in plants)
         {
-            if (tile.plant)
-            {
-                isEmpty = false;
-                tile.plant.startMoveDelete();
-            }
+            isEmpty = false;
+            plant.startMoveDelete();
         }
 
-        if(!isEmpty)
+        if (!isEmpty)
         {
             if (planting)
             {
@@ -154,12 +160,10 @@ public class GameController : MonoBehaviour
     public void endMoveDelete()
     {
         moveDeleting = false;
-        foreach (PlantableTile tile in plantableTiles)
+
+        foreach (GamePlantObject plant in plants)
         {
-            if (tile.plant)
-            {
-                tile.plant.endMoveDelete();
-            }
+            plant.endMoveDelete();
         }
     }
 
@@ -198,9 +202,36 @@ public class GameController : MonoBehaviour
         uiController.OpenInventoryScreen(inventory);
     }
 
-    public void removePlant(PlantableTile tile)
+    public void removePlant(GamePlantObject plant)
     {
-        tile.clear();
+        plants.Remove(plant);
         endMoveDelete();
+    }
+
+    public void SaveGame()
+    {
+        StringBuilder data = new StringBuilder();
+        foreach(InventoryItem inventoryItem in inventory)
+        {
+            data.Append(inventoryItem.ToString());
+            data.Append(",");
+        }
+
+        foreach(CollectionItem collectionItem in collection)
+        {
+            data.Append(collectionItem.ToString());
+            data.Append(",");
+        }
+
+        foreach (PlantableTile tile in plantableTiles)
+        {
+            if (tile.plant)
+            {
+                data.Append(tile.plant.data.ToString());
+                data.Append(",");
+            }
+        }
+
+        FlutterMessageManager.Instance().sendGameData(data.ToString());
     }
 }
