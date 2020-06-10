@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:orbital2020/AuthProvider.dart';
+import 'package:orbital2020/Teacher.dart';
 import 'Auth.dart';
 import 'DataContainers/Student.dart';
 import 'DatabaseController.dart';
@@ -17,11 +18,17 @@ enum DisplayType {
   register
 }
 
+enum AccountType {
+  student,
+  teacher
+}
+
 class _LoginPageState extends State<LoginPage> {
 
   String _name;
   String _email;
   String _password;
+  AccountType _accountType = AccountType.student;
   DisplayType _displayType = DisplayType.login;
 
   final DatabaseController db = DatabaseController();
@@ -64,9 +71,15 @@ class _LoginPageState extends State<LoginPage> {
               barrierDismissible: false
           );
         } else {
-          Student newStudent = new Student(id: userId, name: _name);
-          db.initialiseNewStudent(newStudent);
-          print("New Account created: $userId");
+          if(_accountType == AccountType.student) {
+            Student newStudent = new Student(id: userId, name: _name);
+            db.initialiseNewStudent(newStudent);
+            print("New Student Account created: $userId");
+          } else if(_accountType == AccountType.teacher) {
+            Teacher newTeacher = new Teacher(id: userId, name: _name);
+            db.initialiseNewTeacher(newTeacher);
+            print("New Teacher Account created: $userId");
+          }
         }
       }
     }
@@ -106,8 +119,8 @@ class _LoginPageState extends State<LoginPage> {
           Icon(Icons.school, size: 150.0),
           Text("Garden of Focus",
             style: TextStyle(color: Colors.white, fontSize: 30.0),),
-          Text("Student's Edition",
-              style: TextStyle(color: Colors.white, fontSize: 8.0)),
+          //Text("Student's Edition",
+              //style: TextStyle(color: Colors.white, fontSize: 8.0)),
         ]
     );
   }
@@ -158,6 +171,44 @@ class _LoginPageState extends State<LoginPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
+              new Padding(
+                padding: EdgeInsets.only(top: 10),
+                child: new Text("I am a:",
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              new Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Expanded(
+                    child: new RadioListTile(
+                      title: new Text("Student", style: TextStyle(fontSize: 16)),
+                      value: AccountType.student,
+                      groupValue: _accountType,
+                      onChanged: (value) {
+                        setState(() {
+                          _accountType = value;
+                        });
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: new RadioListTile(
+                      title: new Text("Teacher", style: TextStyle(fontSize: 16)),
+                      value: AccountType.teacher,
+                      groupValue: _accountType,
+                      onChanged: (value) {
+                        setState(() {
+                          _accountType = value;
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
               new TextFormField(
                 decoration: const InputDecoration(
                   icon: Icon(Icons.person),
