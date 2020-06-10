@@ -27,7 +27,7 @@ public class FlutterMessageManager : MonoBehaviour
     //Sending
     public void sendGameData(string data)
     {
-        //UnityMessageManager.Instance.SendMessageToFlutter(data);
-        Debug.Log("Sending: " + data);
+        UnityMessageManager.Instance.SendMessageToFlutter(data);
+        //Debug.Log("Sending: " + data);
     }
 }

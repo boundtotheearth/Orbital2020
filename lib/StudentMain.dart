@@ -43,9 +43,17 @@ class _StudentMainState extends State<StudentMain> {
     this._unityWidgetController = controller;
   }
 
+  void _onUnityMessage(controller, message) async {
+    print("Saved: " + message);
+    await db.saveGameData(data: message, studentId: _user.id);
+    String fetchedData = await db.fetchGameData(studentId: _user.id);
+    print(fetchedData);
+  }
+
   Future<Widget> _unityWidgetBuilder() async {
     return UnityWidget(
       onUnityViewCreated: _onUnityCreated,
+      onUnityMessage: _onUnityMessage,
     );
   }
 
