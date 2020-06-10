@@ -14,12 +14,10 @@ public class GameController : MonoBehaviour
     public Vector2Int fieldSize;
     public GameObject tilePrefab;
 
-    public List<InventoryItem> inventory = new List<InventoryItem>();
-    public HashSet<CollectionItem> collection = new HashSet<CollectionItem>();
-    public List<GamePlantObject> plants = new List<GamePlantObject>();
-
     public bool planting = false;
     public bool moveDeleting = false;
+
+    public GameData gameData;
 
     //List<PlantableTile> plantableTiles = new List<PlantableTile>();
     PlantableTile[,] plantableTiles;
@@ -50,13 +48,8 @@ public class GameController : MonoBehaviour
             }
         }
 
-        //Mock Inventory
-        inventory.Add(new InventoryItem("testplant1"));
-        inventory.Add(new InventoryItem("testplant2"));
-
-        //Mock Collection
-        collection.Add(new CollectionItem("testplant1"));
-        collection.Add(new CollectionItem("testplant2"));
+        //Mock data
+        gameData = new GameData();
     }
 
     // Update is called once per frame
@@ -80,9 +73,9 @@ public class GameController : MonoBehaviour
         GameObject newPlant = Instantiate(gamePlantPrefab, tile.transform.position, Quaternion.identity, tile.transform);
         GamePlantObject plantScript = newPlant.GetComponent<GamePlantObject>();
         plantScript.initialize(new GamePlant(selectedPlant, tile), tile);
-        plantScript.setDeleteCallback(() => removePlant(plantScript));
+        plantScript.setDeleteCallback(() => removePlant(plantScript.data));
         tile.setPlant(plantScript);
-        plants.Add(plantScript);
+        gameData.plants.Add(plantScript.data);
     }
 
     public void startPlant(InventoryItem plantData)
@@ -137,10 +130,14 @@ public class GameController : MonoBehaviour
     public void startMoveDelete()
     {
         bool isEmpty = true;
-        foreach(GamePlantObject plant in plants)
+
+        foreach (PlantableTile tile in plantableTiles)
         {
-            isEmpty = false;
-            plant.startMoveDelete();
+            if (tile.plant)
+            {
+                isEmpty = false;
+                tile.plant.startMoveDelete();
+            }
         }
 
         if (!isEmpty)
@@ -161,9 +158,12 @@ public class GameController : MonoBehaviour
     {
         moveDeleting = false;
 
-        foreach (GamePlantObject plant in plants)
+        foreach (PlantableTile tile in plantableTiles)
         {
-            plant.endMoveDelete();
+            if (tile.plant)
+            {
+                tile.plant.endMoveDelete();
+            }
         }
     }
 
@@ -182,56 +182,34 @@ public class GameController : MonoBehaviour
         //Edit Collections
         foreach(SeedPack pack in seedPacks)
         {
-            collection.Add(new CollectionItem(pack.plantType));
+            gameData.collection.Add(new CollectionItem(pack.plantType));
         }
 
         //Edit inventory
         foreach (SeedPack pack in seedPacks)
         {
-            inventory.Add(new InventoryItem(pack.plantType));
+            gameData.inventory.Add(new InventoryItem(pack.plantType));
         }
     }
 
     public void showCollection()
     {
-        uiController.OpenCollectionScreen(collection);
+        uiController.OpenCollectionScreen(gameData.collection);
     }
 
     public void showInventory()
     {
-        uiController.OpenInventoryScreen(inventory);
+        uiController.OpenInventoryScreen(gameData.inventory);
     }
 
-    public void removePlant(GamePlantObject plant)
+    public void removePlant(GamePlant plant)
     {
-        plants.Remove(plant);
+        gameData.plants.Remove(plant);
         endMoveDelete();
     }
 
     public void SaveGame()
     {
-        StringBuilder data = new StringBuilder();
-        foreach(InventoryItem inventoryItem in inventory)
-        {
-            data.Append(inventoryItem.ToString());
-            data.Append(",");
-        }
-
-        foreach(CollectionItem collectionItem in collection)
-        {
-            data.Append(collectionItem.ToString());
-            data.Append(",");
-        }
-
-        foreach (PlantableTile tile in plantableTiles)
-        {
-            if (tile.plant)
-            {
-                data.Append(tile.plant.data.ToString());
-                data.Append(",");
-            }
-        }
-
-        FlutterMessageManager.Instance().sendGameData(data.ToString());
+        FlutterMessageManager.Instance().sendGameData(gameData.ToJson());
     }
 }
