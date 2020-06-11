@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
+import 'package:orbital2020/DataContainers/User.dart';
+import 'package:provider/provider.dart';
 
 //View shown when teacher is assigning a task to a student
 class TaskStatusTile extends StatefulWidget {
@@ -26,6 +28,13 @@ class TaskStatusTile extends StatefulWidget {
 }
 
 class _TaskStatusTileState extends State<TaskStatusTile> {
+  User _user;
+
+  @override
+  void initState() {
+    _user = Provider.of<User>(context, listen: false);
+  }
+
   Widget buildTrailing() {
     if(widget.isStudent) {
       //On Student account
@@ -86,7 +95,9 @@ class _TaskStatusTileState extends State<TaskStatusTile> {
     return ListTile(
         title: Text(widget.task.name),
         subtitle: Text(widget.task.dueDate != null ? ("Due: " + DateFormat('dd/MM/y').format(widget.task.dueDate)) : ""),
-        trailing: buildTrailing()
+        trailing: (widget.isStudent || widget.task.createdById == _user.id)
+            ? buildTrailing()
+            : Text("Task Not Created By You!"),
     );
   }
 }
