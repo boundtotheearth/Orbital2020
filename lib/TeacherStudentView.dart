@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
+import 'package:orbital2020/TaskStatusTile.dart';
 import 'package:provider/provider.dart';
 
 import 'AppDrawer.dart';
@@ -46,26 +46,37 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
         itemCount: filteredTasks.length,
         itemBuilder: (context, index) {
           TaskWithStatus task = filteredTasks.elementAt(index);
-          return ListTile(
-            title: Text(task.name),
-            subtitle: Text(task.dueDate != null ? ("Due: " + DateFormat('dd/MM/y').format(task.dueDate)) : ""),
-            trailing: task.createdById == _user.id ? Wrap(
-              children: <Widget>[
-                Checkbox(
-                  value: task.completed,
-                  onChanged: (value) {
-                    db.updateTaskCompletion(task.id, widget.student.id, value);
-                  },
-                ),
-                Checkbox(
-                  value: task.verified,
-                  onChanged: (value) {
-                    db.updateTaskVerification(task.id, widget.student.id, value);
-                  },
-                ),
-              ],
-            ) : Text('Task not created by you!')
+          return TaskStatusTile(
+            task: task,
+            isStudent: _user.accountType == 'student',
+            updateComplete: (value) {
+              db.updateTaskCompletion(task.id, widget.student.id, value);
+            },
+            updateVerify: (value) {
+              db.updateTaskVerification(task.id, widget.student.id, value);
+            },
+            onFinish: () {},
           );
+//          return ListTile(
+//            title: Text(task.name),
+//            subtitle: Text(task.dueDate != null ? ("Due: " + DateFormat('dd/MM/y').format(task.dueDate)) : ""),
+//            trailing: task.createdById == _user.id ? Wrap(
+//              children: <Widget>[
+//                Checkbox(
+//                  value: task.completed,
+//                  onChanged: (value) {
+//                    db.updateTaskCompletion(task.id, widget.student.id, value);
+//                  },
+//                ),
+//                Checkbox(
+//                  value: task.verified,
+//                  onChanged: (value) {
+//                    db.updateTaskVerification(task.id, widget.student.id, value);
+//                  },
+//                ),
+//              ],
+//            ) : Text('Task not created by you!')
+//          );
         }
     );
   }
@@ -159,15 +170,6 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
       body: SafeArea(
           child: Column(
             children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Text("Task"),
-                  ),
-                  Text("Completed"),
-                  Text("Verified")
-                ],
-              ),
               Expanded(
                 child: Scrollbar(
                   child: RefreshIndicator(
