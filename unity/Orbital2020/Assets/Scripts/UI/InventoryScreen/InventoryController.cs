@@ -64,7 +64,7 @@ public class InventoryController : MonoBehaviour, UIScreen
             ui.reset();
         }
 
-        uiController.closeScreen();
+        //uiController.closeScreen();
         uiObject.SetActive(false);
     }
 

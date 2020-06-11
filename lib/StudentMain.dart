@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_unity_widget/flutter_unity_widget.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
+import 'package:orbital2020/GameWidget.dart';
 import 'package:provider/provider.dart';
 
 import 'AppDrawer.dart';
@@ -20,8 +20,6 @@ class _StudentMainState extends State<StudentMain> {
   final DatabaseController db = DatabaseController();
   User _user;
 
-
-  UnityWidgetController _unityWidgetController;
   Stream<Set<TaskWithStatus>> _tasks;
   String _searchText;
   bool _searchBarActive;
@@ -33,28 +31,6 @@ class _StudentMainState extends State<StudentMain> {
     _tasks = db.getStudentTaskSnapshots(studentId: _user.id);
     _searchText = "";
     _searchBarActive = false;
-  }
-
-  void _incrementCounter(String amount) {
-    _unityWidgetController.postMessage('FlutterMessageReceiver', 'Increment', amount);
-  }
-
-  void _onUnityCreated(controller) {
-    this._unityWidgetController = controller;
-  }
-
-  void _onUnityMessage(controller, message) async {
-    print("Saved: " + message);
-    await db.saveGameData(data: message, studentId: _user.id);
-    String fetchedData = await db.fetchGameData(studentId: _user.id);
-    print(fetchedData);
-  }
-
-  Future<Widget> _unityWidgetBuilder() async {
-    return UnityWidget(
-      onUnityViewCreated: _onUnityCreated,
-      onUnityMessage: _onUnityMessage,
-    );
   }
 
   void _activateSearchBar() {
@@ -154,16 +130,7 @@ class _StudentMainState extends State<StudentMain> {
               children: <Widget>[
                 AspectRatio(
                   aspectRatio: 3/2,
-                  child: FutureBuilder(
-                    future: _unityWidgetBuilder(),
-                    builder: (context, snapshot) {
-                      if(snapshot.hasData) {
-                        return snapshot.data;
-                      } else {
-                        return Container();
-                      }
-                    },
-                  ),
+                  child: GameWidget(),
                 ),
                 Row(
                   children: <Widget>[
@@ -208,7 +175,6 @@ class _StudentMainState extends State<StudentMain> {
         child: const Icon(Icons.add),
         tooltip: 'Add',
         onPressed: () {
-          _incrementCounter('1');
           Navigator.of(context).pushNamed('student_addTask');
         },
       ),

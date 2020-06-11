@@ -47,7 +47,7 @@ public class UIController : MonoBehaviour
     {
         if(currentScreen != null)
         {
-            //currentScreen.Close();
+            currentScreen.Close();
             currentScreen = null;
         }
     }

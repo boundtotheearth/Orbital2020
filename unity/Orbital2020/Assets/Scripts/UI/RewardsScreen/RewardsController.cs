@@ -33,7 +33,7 @@ public class RewardsController : MonoBehaviour, UIScreen
             ui.reset();
         }
 
-        uiController.closeScreen();
+        //uiController.closeScreen();
         uiObject.SetActive(false);
     }
 }

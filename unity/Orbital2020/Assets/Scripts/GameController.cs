@@ -53,7 +53,7 @@ public class GameController : MonoBehaviour
         //Mock data
         //gameData = new GameData();
 
-        SetGameData(testData);
+        //SetGameData(testData);
     }
 
     // Update is called once per frame
@@ -68,15 +68,14 @@ public class GameController : MonoBehaviour
 
         foreach (GamePlant plant in gameData.plants)
         {
-            Debug.Log(plant);
             PlantableTile tile = plantableTiles[plant.gridX, plant.gridY];
             GameObject newPlant = Instantiate(gamePlantPrefab, tile.transform.position, Quaternion.identity, tile.transform);
             GamePlantObject plantScript = newPlant.GetComponent<GamePlantObject>();
             plantScript.initialize(plant, tile);
-            Debug.Log("fin init");
             plantScript.setDeleteCallback(() => removePlant(plantScript.data));
             tile.setPlant(plantScript);
         }
+
     }
 
     public void OnTileClick(PlantableTile tile)
@@ -192,10 +191,12 @@ public class GameController : MonoBehaviour
     {
         //Generate
         List<SeedPack> seedPacks = new List<SeedPack>();
-        for(int i = 0; i < amount; i++)
-        {
-            seedPacks.Add(new SeedPack("testplant1"));
-        }
+        seedPacks.Add(new SeedPack("testplant1"));
+        seedPacks.Add(new SeedPack("testplant2"));
+        seedPacks.Add(new SeedPack("testplant1"));
+        seedPacks.Add(new SeedPack("testplant2"));
+        seedPacks.Add(new SeedPack("testplant1"));
+
 
         //Activate UI
         uiController.OpenRewardsScreen(seedPacks);

@@ -26,6 +26,7 @@ public class FlutterMessageManager : MonoBehaviour
 
     public void setGameData(string json)
     {
+        Debug.Log("Called");
         gameController.SetGameData(json);
     }
 
@@ -33,6 +34,5 @@ public class FlutterMessageManager : MonoBehaviour
     public void sendGameData(string data)
     {
         UnityMessageManager.Instance.SendMessageToFlutter(data);
-        Debug.Log("Sending: " + data);
     }
 }

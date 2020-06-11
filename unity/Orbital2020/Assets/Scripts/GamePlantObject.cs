@@ -43,7 +43,6 @@ public class GamePlantObject : MonoBehaviour, IPointerClickHandler, IDragHandler
             worldPosition.z = 0;
 
             transform.position = worldPosition;
-            //Debug.Log(worldPosition);
 
             gameObject.layer = LayerMask.NameToLayer("Dragging");
         }

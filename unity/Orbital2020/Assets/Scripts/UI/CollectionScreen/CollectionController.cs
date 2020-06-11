@@ -61,7 +61,7 @@ public class CollectionController : MonoBehaviour, UIScreen
         }
 
         ClosePlantDetails();
-        uiController.closeScreen();
+        //uiController.closeScreen();
         uiObject.SetActive(false);
     }
 

@@ -24,6 +24,11 @@ public class GameData
 
     public static GameData From(string json)
     {
+        if(string.IsNullOrEmpty(json))
+        {
+            return new GameData();
+        }
+
         return JsonUtility.FromJson<GameData>(json);
     }
 
