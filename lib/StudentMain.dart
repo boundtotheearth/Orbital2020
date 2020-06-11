@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_unity_widget/flutter_unity_widget.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
+import 'package:orbital2020/TaskStatusTile.dart';
 import 'package:provider/provider.dart';
 
 import 'AppDrawer.dart';
@@ -61,35 +62,44 @@ class _StudentMainState extends State<StudentMain> {
     });
   }
 
-  Widget _buildTaskList(List<TaskWithStatus> tasks) {
-    List<TaskWithStatus> filteredTasks = tasks.where((task) =>
+  Widget _buildTaskList(Set<TaskWithStatus> tasks) {
+    Set<TaskWithStatus> filteredTasks = tasks.where((task) =>
         task.name.toLowerCase().startsWith(_searchText) ||
-        (task.createdByName?.toLowerCase()?.startsWith(_searchText) ?? false)).toList();
+        (task.createdByName?.toLowerCase()?.startsWith(_searchText) ?? false)).toSet();
 
     return ListView.builder(
         itemCount: filteredTasks.length,
         itemBuilder: (context, index) {
-          TaskWithStatus task = filteredTasks[index];
-          return ListTile(
-            title: Text(task.name),
-            subtitle: Text(task.createdByName ?? ""),
-            trailing: Wrap(
-              children: <Widget>[
-                Checkbox(
-                  value: task.completed,
-                  onChanged: (value) {
-                    db.updateTaskCompletion(task.id, _user.id, value);
-                  },
-                ),
-                Checkbox(
-                  value: task.verified,
-                  onChanged: (value) {
-                    db.updateTaskVerification(task.id, _user.id, value);
-                  },
-                ),
-              ],
-            ),
+          TaskWithStatus task = filteredTasks.elementAt(index);
+          return TaskStatusTile(
+            task: task,
+            isStudent: _user.accountType == 'student',
+            updateComplete: (value) {
+              db.updateTaskCompletion(task.id, _user.id, value);
+            },
+            updateVerify: (value) {},
+            onFinish: () {},
           );
+//          return ListTile(
+//            title: Text(task.name),
+//            subtitle: Text(task.createdByName ?? ""),
+//            trailing: Wrap(
+//              children: <Widget>[
+//                Checkbox(
+//                  value: task.completed,
+//                  onChanged: (value) {
+//                    db.updateTaskCompletion(task.id, _user.id, value);
+//                  },
+//                ),
+//                Checkbox(
+//                  value: task.verified,
+//                  onChanged: (value) {
+//                    db.updateTaskVerification(task.id, _user.id, value);
+//                  },
+//                ),
+//              ],
+//            ),
+//          );
         }
     );
   }
@@ -200,7 +210,7 @@ class _StudentMainState extends State<StudentMain> {
         child: const Icon(Icons.add),
         tooltip: 'Add',
         onPressed: () {
-          _incrementCounter('1');
+          //_incrementCounter('1');
           Navigator.of(context).pushNamed('student_addTask');
         },
       ),
