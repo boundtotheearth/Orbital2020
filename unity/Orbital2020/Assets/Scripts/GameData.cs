@@ -1,12 +1,14 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
+[Serializable]
 public class GameData
 {
     public List<InventoryItem> inventory = new List<InventoryItem>();
-    public HashSet<CollectionItem> collection = new HashSet<CollectionItem>();
+    public List<CollectionItem> collection = new List<CollectionItem>();
     public List<GamePlant> plants = new List<GamePlant>();
 
     public GameData()
@@ -20,46 +22,13 @@ public class GameData
         collection.Add(new CollectionItem("testplant2"));
     }
 
-    public GameData(string json)
+    public static GameData From(string json)
     {
-        //Load game data from json
+        return JsonUtility.FromJson<GameData>(json);
     }
 
     public string ToJson()
     {
-        StringBuilder data = new StringBuilder();
-
-        data.Append("{");
-
-        data.Append("\"Inventory\":[");
-        foreach (InventoryItem inventoryItem in inventory)
-        {
-            data.Append(JsonUtility.ToJson(inventoryItem));
-            data.Append(",");
-        }
-        data.Remove(data.Length - 1, 1);
-        data.Append("],");
-
-        data.Append("\"Collection\":[");
-        foreach (CollectionItem collectionItem in collection)
-        {
-            data.Append(JsonUtility.ToJson(collectionItem));
-            data.Append(",");
-        }
-        data.Remove(data.Length - 1, 1);
-        data.Append("],");
-
-        data.Append("\"Plants\":[");
-        foreach (GamePlant plant in plants)
-        {
-            data.Append(JsonUtility.ToJson(plant));
-            data.Append(",");
-        }
-        data.Remove(data.Length - 1, 1);
-        data.Append("]");
-
-        data.Append("}");
-
-        return data.ToString();
+        return JsonUtility.ToJson(this);
     }
 }

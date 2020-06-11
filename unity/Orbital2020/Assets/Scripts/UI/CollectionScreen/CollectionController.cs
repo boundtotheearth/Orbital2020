@@ -18,7 +18,7 @@ public class CollectionController : MonoBehaviour, UIScreen
 
     public CollectionItemUI[] collectionItemUIs;
 
-    public void initialize(HashSet<CollectionItem> collectionItems)
+    public void initialize(List<CollectionItem> collectionItems)
     {
         uiController = GetComponentInParent<UIController>();
         collectionItemUIs = GetComponentsInChildren<CollectionItemUI>(true);

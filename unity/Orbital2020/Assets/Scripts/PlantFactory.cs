@@ -19,7 +19,7 @@ public class PlantFactory : MonoBehaviour
     public List<PlantType> plantTypes = new List<PlantType>();
     Dictionary<string, PlantType> plantTypeDict = new Dictionary<string, PlantType>();
 
-    public void Start()
+    public void Awake()
     {
         //Construct the reference dictionary
         foreach(PlantType type in plantTypes)

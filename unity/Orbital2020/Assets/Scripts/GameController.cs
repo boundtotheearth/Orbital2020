@@ -19,6 +19,8 @@ public class GameController : MonoBehaviour
 
     public GameData gameData;
 
+    public string testData;
+
     //List<PlantableTile> plantableTiles = new List<PlantableTile>();
     PlantableTile[,] plantableTiles;
 
@@ -49,13 +51,32 @@ public class GameController : MonoBehaviour
         }
 
         //Mock data
-        gameData = new GameData();
+        //gameData = new GameData();
+
+        SetGameData(testData);
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    public void SetGameData(string json)
+    {
+        this.gameData = GameData.From(json);
+
+        foreach (GamePlant plant in gameData.plants)
+        {
+            Debug.Log(plant);
+            PlantableTile tile = plantableTiles[plant.gridX, plant.gridY];
+            GameObject newPlant = Instantiate(gamePlantPrefab, tile.transform.position, Quaternion.identity, tile.transform);
+            GamePlantObject plantScript = newPlant.GetComponent<GamePlantObject>();
+            plantScript.initialize(plant, tile);
+            Debug.Log("fin init");
+            plantScript.setDeleteCallback(() => removePlant(plantScript.data));
+            tile.setPlant(plantScript);
+        }
     }
 
     public void OnTileClick(PlantableTile tile)
@@ -182,7 +203,11 @@ public class GameController : MonoBehaviour
         //Edit Collections
         foreach(SeedPack pack in seedPacks)
         {
-            gameData.collection.Add(new CollectionItem(pack.plantType));
+            CollectionItem newItem = new CollectionItem(pack.plantType);
+            if (!gameData.collection.Contains(newItem))
+            {
+                gameData.collection.Add(newItem);
+            }
         }
 
         //Edit inventory

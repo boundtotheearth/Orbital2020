@@ -126,7 +126,8 @@ public class GamePlantObject : MonoBehaviour, IPointerClickHandler, IDragHandler
     {
         transform.position = tile.transform.position;
         originalPosition = tile.transform.position;
-        data.gridPosition = tile.gridPosition;
+        data.gridX = tile.gridPosition.x;
+        data.gridY = tile.gridPosition.y;
         transform.parent = tile.transform;
         if (clearOld)
         {

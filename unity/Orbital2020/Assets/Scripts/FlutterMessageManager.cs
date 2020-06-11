@@ -24,10 +24,15 @@ public class FlutterMessageManager : MonoBehaviour
         gameController.obtainSeedPack(int.Parse(amount));
     }
 
+    public void setGameData(string json)
+    {
+        gameController.SetGameData(json);
+    }
+
     //Sending
     public void sendGameData(string data)
     {
         UnityMessageManager.Instance.SendMessageToFlutter(data);
-        //Debug.Log("Sending: " + data);
+        Debug.Log("Sending: " + data);
     }
 }
