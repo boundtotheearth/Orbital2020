@@ -32,6 +32,7 @@ class _TaskStatusTileState extends State<TaskStatusTile> {
 
   @override
   void initState() {
+    super.initState();
     _user = Provider.of<User>(context, listen: false);
   }
 
