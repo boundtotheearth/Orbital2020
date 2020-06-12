@@ -7,9 +7,9 @@ class TaskWithStatus extends Task{
 
   TaskWithStatus({
     String id,
-    String name,
-    String description,
-    String createdByName,
+    String name = '',
+    String description = '',
+    String createdByName = '',
     String createdById,
     DateTime dueDate,
     List<String> tags = const [],

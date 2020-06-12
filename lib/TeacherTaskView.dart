@@ -5,7 +5,10 @@ import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/StudentWithStatus.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/DataContainers/TaskStatus.dart';
+import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
+import 'package:orbital2020/StudentStatusTile.dart';
+import 'package:provider/provider.dart';
 
 import 'AppDrawer.dart';
 
@@ -23,16 +26,18 @@ class TeacherTaskView extends StatefulWidget {
 class _TeacherTaskViewState extends State<TeacherTaskView> {
   final DatabaseController db = DatabaseController();
 
+
 //  Stream<List<StudentWithStatus>> _students;
   Stream<List<String>> _studentIds;
+  User _user;
   String _searchText;
   bool _searchBarActive;
 
   @override
   void initState() {
     super.initState();
-//    _students = db.getTaskCompletionSnapshots(widget.task.id);
     _studentIds = db.getStudentsWithTask(widget.task.id);
+    _user = Provider.of<User>(context, listen: false);
     _searchText = '';
     _searchBarActive = false;
   }
@@ -72,9 +77,6 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
     return studentName.toLowerCase().startsWith(_searchText);
   }
 
-
-
-
   Widget _buildStudentList(List<String> studentIds) {
 
     return ListView.builder(
@@ -82,32 +84,20 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
         itemBuilder: (context, index) {
           String studentId = studentIds[index];
           //get task status stream for that student
-          return StreamBuilder<TaskStatus>(
-            stream: db.getStudentNameTaskStatus(studentId, widget.task.id),//db.getStudentTaskDetailsSnapshots(studentId: studentId),
+          return StreamBuilder<StudentWithStatus>(
+            stream: db.getStudentNameTaskStatus(studentId, widget.task.id),
             builder: (context, snapshot) {
               if (snapshot.hasData && filtered(snapshot.data.name)) {
-                return ListTile(
-                  title: Text(snapshot.data.name),
-                  trailing: Wrap(
-                    children: <Widget>[
-                      Checkbox(
-                        value: snapshot.data.completed,
-                        onChanged: (value) {
-                          db.updateTaskCompletion(
-                              widget.task.id, studentId,
-                              value);
-                        },
-                      ),
-                      Checkbox(
-                        value: snapshot.data.verified,
-                        onChanged: (value) {
-                          db.updateTaskVerification(
-                              widget.task.id, studentId,
-                              value);
-                        },
-                      ),
-                    ],
-                  ),
+                return StudentStatusTile(
+                student: snapshot.data,
+                isStudent: _user.accountType == 'student',
+                updateComplete: (value) {
+                  db.updateTaskCompletion(widget.task.id, snapshot.data.id, value);
+                },
+                updateVerify: (value) {
+                  db.updateTaskVerification(widget.task.id, snapshot.data.id, value);
+                },
+                onFinish: () {},
                 );
               } else if (snapshot.hasData) {
                 return Container(width: 0.0, height: 0.0);
@@ -261,15 +251,6 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
               Wrap(
                 spacing: 8.0,
                 children: getTagChips(),
-              ),
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Text("Student"),
-                  ),
-                  Text("Completed"),
-                  Text("Verified")
-                ],
               ),
               Expanded(
                 child: Scrollbar(

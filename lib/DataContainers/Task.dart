@@ -11,20 +11,14 @@ class Task {
   List<String> tags;
 
   Task({
-    String id,
-    String name,
-    String description,
-    String createdByName,
-    String createdById,
-    DateTime dueDate,
-    List<String> tags,
-  }) : this.id = id,
-        this.name = name,
-        this.description = description,
-        this.createdByName = createdByName,
-        this.createdById = createdById,
-        this.dueDate = dueDate,
-        this.tags = tags;
+    this.id,
+    this.name = '',
+    this.description = '',
+    this.createdByName = '',
+    this.createdById,
+    this.dueDate,
+    this.tags = const [],
+  });
 
   Map<String, dynamic> toKeyValuePair() {
     Map<String, dynamic> map = Map();

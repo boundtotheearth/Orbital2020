@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
+import 'package:orbital2020/TaskStatusTile.dart';
 import 'package:provider/provider.dart';
 
 import 'AppDrawer.dart';
@@ -58,28 +58,16 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
             stream: db.getTask(task.id),
             builder: (context, snapshot) {
               if (snapshot.hasData && filtered(snapshot.data)) {
-                return ListTile(
-                    title: Text(snapshot.data.name),
-                    subtitle: Text(snapshot.data.dueDate != null ? ("Due: " +
-                        DateFormat('dd/MM/y').format(snapshot.data.dueDate)) : ""),
-                    trailing: snapshot.data.createdById == _user.id ? Wrap(
-                      children: <Widget>[
-                        Checkbox(
-                          value: task.completed,
-                          onChanged: (value) {
-                            db.updateTaskCompletion(task.id, widget.student.id,
-                                value);
-                          },
-                        ),
-                        Checkbox(
-                          value: task.verified,
-                          onChanged: (value) {
-                            db.updateTaskVerification(task.id,
-                                widget.student.id, value);
-                          },
-                        ),
-                      ],
-                    ) : Text('Task not created by you!')
+                return TaskStatusTile(
+                    task: snapshot.data.addStatus(task.completed, task.verified),
+                    isStudent: _user.accountType == 'student',
+                    updateComplete: (value) {
+                      db.updateTaskCompletion(task.id, widget.student.id, value);
+                    },
+                    updateVerify: (value) {
+                      db.updateTaskVerification(task.id, widget.student.id, value);
+                    },
+                    onFinish: () {},
                 );
               } else if (snapshot.hasData) {
                 return Container(width: 0.0, height: 0.0,);
@@ -181,15 +169,6 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
       body: SafeArea(
           child: Column(
             children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Text("Task"),
-                  ),
-                  Text("Completed"),
-                  Text("Verified")
-                ],
-              ),
               Expanded(
                 child: Scrollbar(
                   child: RefreshIndicator(

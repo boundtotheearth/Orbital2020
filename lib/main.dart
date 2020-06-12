@@ -93,6 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     context,
                     MaterialPageRoute(builder: (context) => RootPage()),
                   );
+//                AuthProvider.of(context).auth.signOut();
                 },
                 child: const Text('Root Page'),
               ),
