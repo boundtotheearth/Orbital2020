@@ -6,10 +6,12 @@ using UnityEngine.EventSystems;
 public class GamePlantObject : MonoBehaviour, IPointerClickHandler, IDragHandler, IEndDragHandler
 {
     public delegate void OnDeleteCallback();
+    public delegate void OnMoveCallback();
 
     public SpriteRenderer spriteRenderer;
     public GameObject movingSprite;
     public OnDeleteCallback deleteCallback;
+    public OnMoveCallback moveCallback;
 
     public GamePlant data;
     public bool moveDeleting;
@@ -75,9 +77,9 @@ public class GamePlantObject : MonoBehaviour, IPointerClickHandler, IDragHandler
                 }
             }
 
-            //Nothing to drag to
             transform.position = originalPosition;
             gameObject.layer = LayerMask.NameToLayer("Default");
+            moveCallback();
         }
     }
 
@@ -112,6 +114,11 @@ public class GamePlantObject : MonoBehaviour, IPointerClickHandler, IDragHandler
     public void setDeleteCallback(OnDeleteCallback callback)
     {
         this.deleteCallback = callback;
+    }
+
+    public void setMoveCallback(OnMoveCallback callback)
+    {
+        this.moveCallback = callback;
     }
 
     public void deletePlant()

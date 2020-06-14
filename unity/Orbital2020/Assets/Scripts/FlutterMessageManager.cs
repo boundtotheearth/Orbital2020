@@ -26,7 +26,6 @@ public class FlutterMessageManager : MonoBehaviour
 
     public void setGameData(string json)
     {
-        Debug.Log("Called");
         gameController.SetGameData(json);
     }
 

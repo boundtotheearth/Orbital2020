@@ -50,9 +50,7 @@ public class GameController : MonoBehaviour
             }
         }
 
-        //Mock data
-        //gameData = new GameData();
-
+        //Uncomment for testing only
         //SetGameData(testData);
     }
 
@@ -72,7 +70,8 @@ public class GameController : MonoBehaviour
             GameObject newPlant = Instantiate(gamePlantPrefab, tile.transform.position, Quaternion.identity, tile.transform);
             GamePlantObject plantScript = newPlant.GetComponent<GamePlantObject>();
             plantScript.initialize(plant, tile);
-            plantScript.setDeleteCallback(() => removePlant(plantScript.data));
+            plantScript.setDeleteCallback(() => onRemovePlant(plantScript.data));
+            plantScript.setMoveCallback(() => onMovePlant(plantScript.data));
             tile.setPlant(plantScript);
         }
 
@@ -93,9 +92,14 @@ public class GameController : MonoBehaviour
         GameObject newPlant = Instantiate(gamePlantPrefab, tile.transform.position, Quaternion.identity, tile.transform);
         GamePlantObject plantScript = newPlant.GetComponent<GamePlantObject>();
         plantScript.initialize(new GamePlant(selectedPlant, tile), tile);
-        plantScript.setDeleteCallback(() => removePlant(plantScript.data));
+        plantScript.setDeleteCallback(() => onRemovePlant(plantScript.data));
+        plantScript.setMoveCallback(() => onMovePlant(plantScript.data));
         tile.setPlant(plantScript);
         gameData.plants.Add(plantScript.data);
+        gameData.inventory.Remove(selectedPlant);
+        selectedPlant = null;
+
+        SaveGame();
     }
 
     public void startPlant(InventoryItem plantData)
@@ -228,14 +232,21 @@ public class GameController : MonoBehaviour
         uiController.OpenInventoryScreen(gameData.inventory);
     }
 
-    public void removePlant(GamePlant plant)
+    public void onRemovePlant(GamePlant plant)
     {
         gameData.plants.Remove(plant);
         endMoveDelete();
+        SaveGame();
+    }
+
+    public void onMovePlant(GamePlant plant)
+    {
+        SaveGame();
     }
 
     public void SaveGame()
     {
-        FlutterMessageManager.Instance().sendGameData(gameData.ToJson());
+        string data = gameData.ToJson();
+        FlutterMessageManager.Instance().sendGameData(data);
     }
 }
