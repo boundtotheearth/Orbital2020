@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:orbital2020/CloudStorageController.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/User.dart';
@@ -22,6 +23,7 @@ class TeacherAddGroup extends StatefulWidget {
 
 class _TeacherAddGroupState extends State<TeacherAddGroup> {
   final DatabaseController db = DatabaseController();
+  final CloudStorageController storage = CloudStorageController();
 
   User _user;
 
@@ -94,8 +96,11 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
   }
 
   Future<void> submitGroup() {
-    Group newGroup = Group(name: _groupName, students: _students);
-    return db.teacherCreateGroup(teacherId: _user.id, group: newGroup);
+    return storage.uploadGroupImage(image: _groupImage, name: _groupName)
+        .then((imageUrl) {
+          Group newGroup = Group(name: _groupName, students: _students, imageUrl: imageUrl);
+          db.teacherCreateGroup(teacherId: _user.id, group: newGroup);
+        });
   }
 
   Future<File> selectImage() {
@@ -122,12 +127,15 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
                 children: <Widget>[
                   InkWell(
                     onTap: selectImage,
-                    child: CircleAvatar(
-                      backgroundImage: _groupImage != null
-                          ? FileImage(_groupImage)
-                          : AssetImage('assets/images/defaultIcon.png'),
-                      radius: 30,
-                    ),
+                    child: _groupImage != null ?
+                        CircleAvatar(
+                          backgroundImage: FileImage(_groupImage),
+                          radius: 30,
+                        ) :
+                        CircleAvatar(
+                          child: const Text("G"),
+                          radius: 30,
+                        )
                   ),
                   Expanded(
                     child: TextField(

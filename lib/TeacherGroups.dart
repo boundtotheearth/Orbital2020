@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:orbital2020/CloudStorageController.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
@@ -18,6 +19,7 @@ class TeacherGroups extends StatefulWidget {
 
 class _TeacherGroupsState extends State<TeacherGroups> {
   final DatabaseController db = DatabaseController();
+  final CloudStorageController storage = CloudStorageController();
 
   User _user;
   Stream<List<Group>> _groups;
@@ -41,7 +43,15 @@ class _TeacherGroupsState extends State<TeacherGroups> {
         itemBuilder: (context, index) {
           Group group = filteredGroups[index];
           return ListTile(
-            leading: Icon(Icons.group),
+            leading: group.imageUrl != null ?
+              CircleAvatar(
+                backgroundImage: NetworkImage(group.imageUrl),
+                radius: 25,
+              ) :
+              CircleAvatar(
+                child: const Text("G"),
+                radius: 25,
+              ),
             title: Text(group.name),
             onTap: () {
               Navigator.of(context).pushNamed('teacher_groupView', arguments: group);
