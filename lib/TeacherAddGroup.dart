@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/User.dart';
@@ -26,6 +29,7 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
   Set<Student> _students;
   String _groupName;
   String _searchText;
+  File _groupImage;
 
 
   @override
@@ -94,6 +98,17 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
     return db.teacherCreateGroup(teacherId: _user.id, group: newGroup);
   }
 
+  Future<File> selectImage() {
+    return ImagePicker().getImage(source: ImageSource.gallery)
+        .then((pickedFile) {
+          File file = File(pickedFile.path);
+          setState(() {
+            _groupImage = file;
+          });
+          return file;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,16 +118,30 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
       body: SafeArea(
           child: Column(
             children: <Widget>[
-              TextField(
-                decoration: const InputDecoration(
-                  icon: Icon(Icons.group),
-                  labelText: 'Group Name',
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    _groupName = value;
-                  });
-                },
+              Row(
+                children: <Widget>[
+                  InkWell(
+                    onTap: selectImage,
+                    child: CircleAvatar(
+                      backgroundImage: _groupImage != null
+                          ? FileImage(_groupImage)
+                          : AssetImage('assets/images/defaultIcon.png'),
+                      radius: 30,
+                    ),
+                  ),
+                  Expanded(
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        labelText: 'Group Name',
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _groupName = value;
+                        });
+                      },
+                    ),
+                  )
+                ],
               ),
               TextField(
                 decoration: const InputDecoration(
