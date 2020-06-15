@@ -125,9 +125,11 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
             children: <Widget>[
               Row(
                 children: <Widget>[
-                  InkWell(
-                    onTap: selectImage,
-                    child: _groupImage != null ?
+                  Padding(
+                    padding: EdgeInsets.only(right: 10),
+                    child: InkWell(
+                        onTap: selectImage,
+                        child: _groupImage != null ?
                         CircleAvatar(
                           backgroundImage: FileImage(_groupImage),
                           radius: 30,
@@ -136,6 +138,7 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
                           child: const Text("G"),
                           radius: 30,
                         )
+                    ),
                   ),
                   Expanded(
                     child: TextField(
@@ -170,14 +173,22 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
             ],
           )
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.check),
-        tooltip: 'Add New Group',
-        onPressed: () {
-          submitGroup()
-              .then((value) => Navigator.pop(context));
+      floatingActionButton: Builder(
+        builder: (BuildContext context) {
+          return FloatingActionButton(
+            child: Icon(Icons.check),
+            tooltip: 'Add New Group',
+            onPressed: () {
+              Scaffold
+                  .of(context)
+                  .showSnackBar(SnackBar(content: Text('Processing Data')));
+
+              submitGroup()
+                  .then((value) => Navigator.pop(context));
+            },
+          );
         },
-      ),
+      )
     );
   }
 }
