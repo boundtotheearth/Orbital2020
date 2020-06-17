@@ -1,0 +1,368 @@
+fileFormatVersion: 2
+guid: dca23ff94e8f547c8876e65349b49fc9
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -4241128599866396386
+    second: _sheet_dividers_0
+  - first:
+      213: 7265112526373070713
+    second: _sheet_dividers_1
+  - first:
+      213: 7692492592783613051
+    second: _sheet_dividers_2
+  - first:
+      213: 6581121766101087461
+    second: _sheet_dividers_3
+  - first:
+      213: 7094261443329884074
+    second: _sheet_dividers_4
+  - first:
+      213: 4557922499275232975
+    second: _sheet_dividers_5
+  - first:
+      213: -968288307417095038
+    second: _sheet_dividers_6
+  - first:
+      213: 1722246643729352380
+    second: _sheet_dividers_7
+  - first:
+      213: -1648057053536659939
+    second: _sheet_dividers_8
+  - first:
+      213: -3187418090511795678
+    second: _sheet_dividers_9
+  - first:
+      213: -1162053926959727784
+    second: _sheet_dividers_10
+  - first:
+      213: -6258425556465050100
+    second: _sheet_dividers_11
+  - first:
+      213: 5983928122742603586
+    second: _sheet_dividers_12
+  - first:
+      213: -3764846688045141381
+    second: _sheet_dividers_13
+  - first:
+      213: -8013764730492163721
+    second: _sheet_dividers_14
+  - first:
+      213: -8690908188005433935
+    second: _sheet_dividers_15
+  - first:
+      213: 1960068103479019875
+    second: _sheet_dividers_16
+  - first:
+      213: 7551164951890191090
+    second: _sheet_dividers_17
+  - first:
+      213: -2952587669322345312
+    second: _sheet_dividers_18
+  - first:
+      213: -6387800614593066864
+    second: _sheet_dividers_19
+  - first:
+      213: 6619577476222275188
+    second: _sheet_dividers_20
+  - first:
+      213: 855244284928494965
+    second: _sheet_dividers_21
+  - first:
+      213: 1574830026358364526
+    second: _sheet_dividers_22
+  - first:
+      213: -1126441243907456940
+    second: _sheet_dividers_23
+  - first:
+      213: 3545867655438455267
+    second: _sheet_dividers_24
+  - first:
+      213: -2110737776834418626
+    second: _sheet_dividers_25
+  - first:
+      213: -793991943007359633
+    second: _sheet_dividers_26
+  - first:
+      213: 4557530218183489370
+    second: _sheet_dividers_27
+  - first:
+      213: 2735721396498876818
+    second: _sheet_dividers_28
+  - first:
+      213: -75771818600181766
+    second: _sheet_dividers_29
+  - first:
+      213: -1207756779743075836
+    second: _sheet_dividers_30
+  - first:
+      213: 1230664472236005450
+    second: _sheet_dividers_31
+  - first:
+      213: -6924676701604516105
+    second: _sheet_dividers_32
+  - first:
+      213: -2213293936253543887
+    second: _sheet_dividers_33
+  - first:
+      213: 3971802161097105890
+    second: _sheet_dividers_34
+  - first:
+      213: 3894621989714017110
+    second: _sheet_dividers_35
+  - first:
+      213: -8006973771011201087
+    second: _sheet_dividers_36
+  - first:
+      213: -2273454383232778817
+    second: _sheet_dividers_37
+  - first:
+      213: -330419362118761584
+    second: _sheet_dividers_38
+  - first:
+      213: -866857564329928231
+    second: _sheet_dividers_39
+  - first:
+      213: -5502653732814281032
+    second: _sheet_dividers_40
+  - first:
+      213: -538885096630450136
+    second: _sheet_dividers_41
+  - first:
+      213: -8529619044172948994
+    second: _sheet_dividers_42
+  - first:
+      213: -189338698911485119
+    second: _sheet_dividers_43
+  - first:
+      213: -5506435501408669906
+    second: _sheet_dividers_44
+  - first:
+      213: -215200274391151924
+    second: _sheet_dividers_45
+  - first:
+      213: -718837200594037400
+    second: _sheet_dividers_46
+  - first:
+      213: -498556359423543442
+    second: _sheet_dividers_47
+  externalObjects: {}
+  serializedVersion: 11
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: -1
+    mipBias: -100
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 16
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  applyGammaDecoding: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: iPhone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: _sheet_dividers_0
+      rect:
+        serializedVersion: 2
+        x: 12
+        y: 59
+        width: 17
+        height: 2
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e11b636420c7425c0800000000000000
+      internalID: -4241128599866396386
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: _sheet_dividers_1
+      rect:
+        serializedVersion: 2
+        x: 12
+        y: 51
+        width: 17
+        height: 2
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 97725bbb95dd2d460800000000000000
+      internalID: 7265112526373070713
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: _sheet_dividers_2
+      rect:
+        serializedVersion: 2
+        x: 12
+        y: 67
+        width: 17
+        height: 1
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b7cd03ea14931ca60800000000000000
+      internalID: 7692492592783613051
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: _sheet_dividers_3
+      rect:
+        serializedVersion: 2
+        x: 12
+        y: 75
+        width: 17
+        height: 2
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5e4fb04c067d45b50800000000000000
+      internalID: 6581121766101087461
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

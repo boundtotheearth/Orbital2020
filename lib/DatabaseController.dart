@@ -354,6 +354,33 @@ class DatabaseController {
     return students;
   }
 
+  //Saving Game Data
+  Future<void> saveGameData({String data, String studentId}) {
+    DocumentReference newDoc = db.collection("students")
+        .document(studentId)
+        .collection("gameData")
+        .document();
+    return newDoc.setData({
+      'data': data,
+      'timestamp': DateTime.now()
+    });
+  }
+
+  //Fetching Game Data
+  Future<String> fetchGameData({String studentId}) {
+    return db.collection('students')
+        .document(studentId)
+        .collection('gameData')
+        .orderBy('timestamp', descending: true)
+        .limit(1)
+        .getDocuments()
+        .then((snapshot) {
+          DocumentSnapshot document = snapshot.documents[0];
+          return document['data'];
+        }
+    );
+  }
+
   Future<Group> _createGroup(String teacherId, Group group) {
     DocumentReference newGroup = db.collection('teachers')
         .document(teacherId)
