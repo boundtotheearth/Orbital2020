@@ -7,6 +7,7 @@ import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/StudentStatusTile.dart';
+import 'package:orbital2020/TaskProgressIndicator.dart';
 import 'package:provider/provider.dart';
 
 import 'AppDrawer.dart';
@@ -212,9 +213,37 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
       body: SafeArea(
           child: Column(
             children: <Widget>[
-              AspectRatio(
-                aspectRatio: 3/2,
-                child: Container(),
+              StreamBuilder(
+                stream: _students,
+                builder: (context, snapshot) {
+                  if(snapshot.hasData){
+                    int completed = 0;
+                    snapshot.data.forEach((StudentWithStatus element) {
+                      if(element.completed) {
+                        completed++;
+                      }
+                    });
+                    int total = snapshot.data.length;
+                    return AspectRatio(
+                      aspectRatio: 3/2,
+                      child: Container(
+                          padding: EdgeInsets.all(10),
+                          child: CustomPaint(
+                            foregroundPainter: TaskProgressIndicator(completed / total),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Text("$completed/$total", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),),
+                                Text("Completed", style: TextStyle(fontSize: 20),)
+                              ],
+                            ),
+                          )
+                      ),
+                    );
+                  } else {
+                    return CircularProgressIndicator();
+                  }
+                },
               ),
               Text(widget.task.description ?? "No Description"),
               Text("Due: " + DateFormat('dd/MM/y').format(widget.task.dueDate)),
