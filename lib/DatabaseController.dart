@@ -326,6 +326,7 @@ class DatabaseController {
           Group g = Group(
             id: document.documentID,
             name: document['name'],
+            imageUrl: document['imageUrl'],
           );
           return g;
         }).toList()
