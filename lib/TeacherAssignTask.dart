@@ -84,74 +84,36 @@ class _TeacherAssignTaskState extends State<TeacherAssignTask> {
 
   Widget buildSuggestions() {
     return StreamBuilder(
-      stream: db.getUnassignedTasks(_user.id, widget.group.id, widget.student.id), //_allTasks,
+      stream: db.getUnassignedTasks(_user.id, widget.group.id, widget.student.id),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-//      builder: (context, allTasksSnapshot) =>
-//        StreamBuilder(
-//          stream: _alreadyAssigned,
-//          builder: (context, alreadyAssignedSnapshot) {
-//            if (allTasksSnapshot.hasData && alreadyAssignedSnapshot.hasData) {
-////              Set<Task> allTasks = allTasksSnapshot.data;
-////              Set<Task> alreadyAssigned = alreadyAssignedSnapshot.data;
-//              List<String> allTasks = allTasksSnapshot.data.toList();
-//              Set<String> alreadyAssigned = alreadyAssignedSnapshot.data;
-//              print("len here" + alreadyAssigned.length.toString());
-//              print(allTasks.toString());
-//              print(alreadyAssigned.toString());
-
-//              for(Task task in allTasks) {
-//                if(alreadyAssigned.contains(task)) {
-//                  print(task.toString());
-//                }
-//              }
-
-//              List<Task> suggestions = allTasks.where((element) =>
-//              element.name.startsWith(_searchText)
-//                  && !alreadyAssigned.contains(element)
-//                  && !_tasks.contains(element)).toList();
-
-
-//              return ListView.builder(
-//                  itemCount: suggestions.length,
-//                  itemBuilder: (context, index) {
-//                    Task task = suggestions[index];
-//                    return ListTile(
-//                      title: Text(task.name),
-//                      onTap: () {
-//                        addTask(task);
-//                      },
-//                    );
-//                  }
-//              );
-              return ListView.builder(
-                  itemCount: snapshot.data.length,
-                  itemBuilder: (context, index) {
-                    String taskId = snapshot.data.elementAt(index);
-                    return StreamBuilder<Task>(
-                      stream: db.getTask(taskId),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData && filtered(snapshot.data)) {
-                          return ListTile(
-                            title: Text(snapshot.data.name),
-                            onTap: () {
-                              addTask(snapshot.data);
-                            },
-                          );
-                        } else if (snapshot.hasData) {
-                          return Container(width: 0.0, height: 0.0,);
-                        } else {
-                          return CircularProgressIndicator();
-                        }
+            return ListView.builder(
+                itemCount: snapshot.data.length,
+                itemBuilder: (context, index) {
+                  String taskId = snapshot.data.elementAt(index);
+                  return StreamBuilder<Task>(
+                    stream: db.getTask(taskId),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && filtered(snapshot.data)) {
+                        return ListTile(
+                          title: Text(snapshot.data.name),
+                          onTap: () {
+                            addTask(snapshot.data);
+                          },
+                        );
+                      } else if (snapshot.hasData) {
+                        return Container(width: 0.0, height: 0.0,);
+                      } else {
+                        return CircularProgressIndicator();
                       }
-                    );
-                  }
-              );
-            } else {
-              return CircularProgressIndicator();
-            }
+                    }
+                  );
+                }
+            );
+          } else {
+            return CircularProgressIndicator();
           }
-        );
+      });
   }
 
   Future<void> submitAssignment() {

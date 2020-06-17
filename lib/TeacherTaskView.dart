@@ -9,7 +9,7 @@ import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/StudentStatusTile.dart';
 import 'package:provider/provider.dart';
-
+import 'package:orbital2020/DataContainers/Student.dart';
 import 'AppDrawer.dart';
 
 
@@ -27,8 +27,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
   final DatabaseController db = DatabaseController();
 
 
-//  Stream<List<StudentWithStatus>> _students;
-  Stream<List<String>> _studentIds;
+  Stream<List<Student>> _students;
   User _user;
   String _searchText;
   bool _searchBarActive;
@@ -36,66 +35,35 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
   @override
   void initState() {
     super.initState();
-    _studentIds = db.getStudentsWithTask(widget.task.id);
+    _students = db.getStudentsWithTask(widget.task.id);
     _user = Provider.of<User>(context, listen: false);
     _searchText = '';
     _searchBarActive = false;
   }
 
-//  Widget _buildStudentList(List<StudentWithStatus> students) {
-//    List<StudentWithStatus> filteredStudents = students.where((student) =>
-//        student.name.toLowerCase().startsWith(_searchText)).toList();
-//
-//    return ListView.builder(
-//        itemCount: filteredStudents.length,
-//        itemBuilder: (context, index) {
-//          StudentWithStatus student = filteredStudents[index];
-//          return ListTile(
-//            title: Text(student.name),
-//            trailing: Wrap(
-//              children: <Widget>[
-//                Checkbox(
-//                  value: student.completed,
-//                  onChanged: (value) {
-//                    db.updateTaskCompletion(widget.task.id, student.id, value);
-//                  },
-//                ),
-//                Checkbox(
-//                  value: student.verified,
-//                  onChanged: (value) {
-//                    db.updateTaskVerification(widget.task.id, student.id, value);
-//                  },
-//                ),
-//              ],
-//            ),
-//          );
-//        }
-//    );
-//  }
-
   bool filtered(String studentName) {
     return studentName.toLowerCase().startsWith(_searchText);
   }
 
-  Widget _buildStudentList(List<String> studentIds) {
+  Widget _buildStudentList(List<Student> students) {
 
     return ListView.builder(
-        itemCount: studentIds.length,
+        itemCount: students.length,
         itemBuilder: (context, index) {
-          String studentId = studentIds[index];
+          Student student = students[index];
           //get task status stream for that student
-          return StreamBuilder<StudentWithStatus>(
-            stream: db.getStudentNameTaskStatus(studentId, widget.task.id),
+          return StreamBuilder<TaskStatus>(
+            stream: db.getStudentTaskStatus(student.id, widget.task.id),
             builder: (context, snapshot) {
-              if (snapshot.hasData && filtered(snapshot.data.name)) {
+              if (snapshot.hasData && filtered(student.name)) {
                 return StudentStatusTile(
-                student: snapshot.data,
+                student: student.addStatus(snapshot.data.completed, snapshot.data.verified),
                 isStudent: _user.accountType == 'student',
                 updateComplete: (value) {
-                  db.updateTaskCompletion(widget.task.id, snapshot.data.id, value);
+                  db.updateTaskCompletion(widget.task.id, student.id, value);
                 },
                 updateVerify: (value) {
-                  db.updateTaskVerification(widget.task.id, snapshot.data.id, value);
+                  db.updateTaskVerification(widget.task.id, student.id, value);
                 },
                 onFinish: () {},
                 );
@@ -111,8 +79,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
 
   Future<Null> _refresh() async {
     await Future.microtask(() => setState(() {
-//      _students = db.getTaskCompletionSnapshots(widget.task.id);
-      _studentIds = db.getStudentsWithTask(widget.task.id);
+      _students = db.getStudentsWithTask(widget.task.id);
     }));
   }
 
@@ -257,7 +224,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
                   child: RefreshIndicator(
                       onRefresh: _refresh,
                       child: StreamBuilder(
-                        stream: _studentIds,//_students,
+                        stream: _students,
                         builder: (context, snapshot) {
                           if(snapshot.hasData) {
                             if(snapshot.data.length > 0) {

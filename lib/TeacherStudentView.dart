@@ -27,9 +27,7 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
   final DatabaseController db = DatabaseController();
 
   User _user;
-//  Stream<Set<TaskWithStatus>> _tasks;
   Stream<Set<TaskStatus>> _tasks;
-//  Stream<Set<String>> _tasks;
   String _searchText;
   bool _searchBarActive;
 
@@ -47,8 +45,6 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
   }
 
   Widget _buildTaskList(List<TaskStatus> tasks) {
-//    List<TaskWithStatus> filteredTasks = tasks.where((task) =>
-//        task.name.toLowerCase().startsWith(_searchText)).toList();
 
     return ListView.builder(
         itemCount: tasks.length,

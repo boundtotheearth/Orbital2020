@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:intl/intl.dart';
@@ -5,9 +7,11 @@ import 'package:orbital2020/DataContainers/ScheduleDetails.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:provider/provider.dart';
-
+import 'DataContainers/Task.dart';
 import 'AppDrawer.dart';
+import 'DataContainers/TaskStatus.dart';
 import 'DataContainers/User.dart';
+import 'package:async/async.dart';
 
 class AddTaskToSchedule extends StatefulWidget {
   AddTaskToSchedule({this.scheduledDate});
@@ -82,6 +86,8 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
     }
   }
 
+
+
   Widget _buildForm() {
     return Form(
       key: _formKey,
@@ -89,39 +95,50 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
         children: <Widget>[
           StreamBuilder(
             stream: db.getStudentTaskDetailsSnapshots(studentId: _user.id),
-            builder: (context, snapshot) {
+            builder: (context, snapshot)  {
               if (!snapshot.hasData) {
                 return CircularProgressIndicator();
               } else {
-                List<DropdownMenuItem> tasks = [];
-                for (TaskWithStatus t in snapshot.data) {
-                  tasks.add(
-                    DropdownMenuItem(
-                      child: Text(t.name),
-                      //temp solution
-                      value: "${t.id}",
 
-                    )
-                  );
+
+                List<Future<DropdownMenuItem>> futures = [];
+                for (TaskStatus t in snapshot.data) {
+                  print("test1");
+                  futures.add(db.getTaskName(t.id).then((name) {
+                    print(name);
+                    return DropdownMenuItem(
+                      child: Text(name),
+                      value: t.id,
+                    );
+                  }));
+
                 }
-                return DropdownButtonFormField(
-                  items: tasks,
-                  onChanged: (selected) {
-                    print(selected);
-                    setState(() {
-                      _selectedTask = selected;
-                    });
-                  },
-                  value: _selectedTask,
-                  hint: Text("Select Task"),
-                  validator: (input) {
-                    if (input == null) {
-                      return "Task cannot be empty";
-                    } else {
-                      return null;
-                    }
-                  },
-                  isExpanded: true,
+//                print(Future.wait(futures));
+                Future<List<DropdownMenuItem>> items = Future.wait(futures);
+                return FutureBuilder<List<DropdownMenuItem>>(
+                  future: items,
+                  builder: (context, snapshot) {
+                    print(snapshot.data);
+                    return DropdownButtonFormField(
+                      items: snapshot.data ?? [],
+                      onChanged: (selected) {
+                        print(selected);
+                        setState(() {
+                          _selectedTask = selected;
+                        });
+                      },
+                      value: _selectedTask,
+                      hint: Text("Select Task"),
+                      validator: (input) {
+                        if (input == null) {
+                          return "Task cannot be empty";
+                        } else {
+                          return null;
+                        }
+                      },
+                      isExpanded: true,
+                    );
+                  }
                 );
               }
             }

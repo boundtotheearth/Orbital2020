@@ -127,26 +127,37 @@ class DatabaseController {
           tags: document["tags"]?.cast<String>() ?? []
     ));
   }
-  
-//  Stream<List<ScheduledTask>> getScheduledTasksSnapshots(String studentId) {
-//    print("test1");
-//    return Rx.combineLatest2(
-//        getStudentTaskSnapshots(studentId: studentId),
-//        getScheduleDetailsSnapshots(studentId),
-//            (Set<TaskWithStatus> tasks, List<ScheduleDetails> schedules) {
-//          return schedules.map((schedule) {
-//            final TaskWithStatus taskWithStatus = tasks.firstWhere((task) => task.id == schedule.taskId, orElse: () => null);
-//            print("test3");
-//            return ScheduledTask(
-//              task: taskWithStatus,
-//              scheduledDate: schedule.scheduledDate,
-//              startTime: schedule.startTime,
-//              endTime: schedule.endTime
-//            );
-//          }).toList();
-//            });
+
+  Future<String> getTaskName(String taskId) async {
+    print(taskId);
+    return db.collection("tasks")
+        .document(taskId)
+        .get()
+        .then((value) { print(value.data["name"]); return value.data["name"];});
+
+  }
+
+//  Stream<List<TaskWithStatus>> getTasks(List<TaskStatus> tasks, String orderField) {
+//    List<String> taskIds = tasks.map((task) => task.id);
+//    return db.collection("tasks")
+//        .where("id", whereIn: taskIds)
+//        .orderBy(orderField)
+//        .snapshots()
+//        .map((snapshot) => snapshot.documents.map(
+//          (document) => TaskWithStatus(id: document.documentID,
+//                          name: document['name'],
+//                          description: document["description"],
+//                          dueDate: document["dueDate"].toDate(),
+//                          createdById: document["createdById"] ?? "",
+//                          createdByName: document["createdByName"] ?? "",
+//                          tags: document["tags"]?.cast<String>() ?? [],
+//                          completed: tasks.firstWhere((task) => task.id == document.documentID).completed,
+//                          verified: tasks.firstWhere((task) => task.id == document.documentID).verified)
+//          ).toList()
+//        );
 //  }
 
+  //Get a list of task schedule details from a student
   Stream<List<ScheduleDetails>> getScheduleDetailsSnapshots(String studentId) {
     return db.collection("students")
         .document(studentId)
@@ -205,8 +216,8 @@ class DatabaseController {
           .collection('students')
           .document(student.id);
 
-      batch.setData(taskDoc, task.addStatus(false, false).toKeyValuePair());
-      batch.setData(stuDoc, student.addStatus(false, false).toKeyValuePair());
+      batch.setData(taskDoc, {"completed" : false, "verified" : false});
+      batch.setData(stuDoc, student.toKeyValuePair());
     }
 
     return batch.commit();
@@ -225,8 +236,10 @@ class DatabaseController {
           .collection('students')
           .document(student.id);
 
-      batch.setData(taskDoc, task.addStatus(false, false).toKeyValuePair());
-      batch.setData(stuDoc, student.addStatus(false, false).toKeyValuePair());
+//      batch.setData(taskDoc, task.addStatus(false, false).toKeyValuePair());
+      batch.setData(taskDoc, {"completed" : false, "verified" : false});
+      //batch.setData(stuDoc, student.addStatus(false, false).toKeyValuePair());
+      batch.setData(stuDoc, student.toKeyValuePair());
     }
 
     return batch.commit();
@@ -237,17 +250,20 @@ class DatabaseController {
   }
 
   Future<void> updateTaskCompletion(String taskId, String studentId, bool completed) {
-    return Future.wait([
-      _updateStudentCompletion(taskId, studentId, completed),
-      _updateTaskCompletion(taskId, studentId, completed)
-    ]);
+//    return Future.wait([
+//      _updateStudentCompletion(taskId, studentId, completed),
+//      _updateTaskCompletion(taskId, studentId, completed)
+//    ]);
+    return _updateTaskCompletion(taskId, studentId, completed);
   }
 
   Future<void> updateTaskVerification(String taskId, String studentId, bool verified) {
-    return Future.wait([
-      _updateStudentVerification(taskId, studentId, verified),
-      _updateTaskVerification(taskId, studentId, verified)
-    ]);
+//    return Future.wait([
+//      _updateStudentVerification(taskId, studentId, verified),
+//      _updateTaskVerification(taskId, studentId, verified)
+//    ]);
+    return  _updateTaskVerification(taskId, studentId, verified);
+
   }
 
   //Get a stream of snapshots containing all students and groups in the system.
@@ -269,24 +285,24 @@ class DatabaseController {
     return students;
   }
 
-  Stream<List<String>> getStudentsInGroup(String teacherId, String groupId) {
-    return db.collection("teachers")
-        .document(teacherId)
-        .collection("groups")
-        .document(groupId)
-        .collection("students")
-        .snapshots()
-        .map((snapshot) {
-          List<DocumentSnapshot> documents = snapshot.documents;
-          return documents.map((document) => document.documentID).toList();
-        });
-  }
+//  Stream<List<String>> getStudentsInGroup(String teacherId, String groupId) {
+//    return db.collection("teachers")
+//        .document(teacherId)
+//        .collection("groups")
+//        .document(groupId)
+//        .collection("students")
+//        .snapshots()
+//        .map((snapshot) {
+//          List<DocumentSnapshot> documents = snapshot.documents;
+//          return documents.map((document) => document.documentID).toList();
+//        });
+//  }
 
   Stream<List<Student>> getStudentsNotInGroup(String teacherId, String groupId) {
     return Rx.combineLatest2(getAllStudentsSnapshots(),
-        getStudentsInGroup(teacherId, groupId),
-            (List<Student> allStudents, List<String> currentStudents) {
-              allStudents.removeWhere((element) => currentStudents.contains(element.id));
+        getGroupStudentSnapshots(teacherId: teacherId, groupId: groupId),
+            (List<Student> allStudents, Set<Student> currentStudents) {
+              allStudents.removeWhere((student) => currentStudents.contains(student));
               return allStudents;
             });
   }
@@ -450,7 +466,8 @@ class DatabaseController {
 //    return students;
 //  }
 
-  Stream<Set<String>> getGroupStudentSnapshots({String teacherId, String groupId}) {
+  //Obtain a set of students in a group
+  Stream<Set<Student>> getGroupStudentSnapshots({String teacherId, String groupId}) {
     return db.collection('teachers')
         .document(teacherId)
         .collection('groups')
@@ -459,7 +476,7 @@ class DatabaseController {
         .snapshots()
         .map((snapshot) => snapshot.documents)
         .map((documents) =>
-        documents.map((document) => document.documentID).toSet()
+        documents.map((document) => Student(id: document.documentID, name: document["name"])).toSet()
         );
   }
 
@@ -504,17 +521,16 @@ class DatabaseController {
 //    return students;
 //  }
 
-  //Get list of student ids that have a certain task
-  Stream<List<String>> getStudentsWithTask(String taskId) {
-    Stream<List<String>> studentIds = db.collection('tasks')
+  //Get list of students that have a certain task
+  Stream<List<Student>> getStudentsWithTask(String taskId) {
+    return db.collection('tasks')
         .document(taskId)
         .collection('students')
         .snapshots()
         .map((snapshot) => snapshot.documents)
         .map((documents) =>
-        documents.map((document) => document.documentID).toList()
+        documents.map((document) => Student(id: document.documentID, name: document["name"])).toList()
     );
-    return studentIds;
   }
 
   //get user name from accountTypes
@@ -526,23 +542,23 @@ class DatabaseController {
   }
 
   //get students from a group that are unassigned a specific task
-  Stream<Set<String>> getStudentsUnassignedTask(String teacherId, String groupId, String taskId) {
+  Stream<Set<Student>> getStudentsUnassignedTask(String teacherId, String groupId, String taskId) {
     return Rx.combineLatest2(getGroupStudentSnapshots(teacherId: teacherId, groupId: groupId),
         getStudentsWithTask(taskId),
-            (Set<String> allStudents, List<String> assginedStudents) {
+            (Set<Student> allStudents, List<Student> assginedStudents) {
               allStudents.removeAll(assginedStudents);
               return allStudents;
             });
   }
 
 
-  Stream<StudentWithStatus> getStudentNameTaskStatus(String studentId, String taskId) {
-    return Rx.combineLatest2(getStudentTaskStatus(studentId, taskId),
-        getUserName(studentId),
-            (TaskStatus status, String name) {
-            return StudentWithStatus(id: studentId, name: name, completed: status.completed, verified: status.verified);
-        });
-  }
+//  Stream<StudentWithStatus> getStudentNameTaskStatus(String studentId, String taskId) {
+//    return Rx.combineLatest2(getStudentTaskStatus(studentId, taskId),
+//        getUserName(studentId),
+//            (TaskStatus status, String name) {
+//            return StudentWithStatus(id: studentId, name: name, completed: status.completed, verified: status.verified);
+//        });
+//  }
 
 
 
@@ -617,36 +633,37 @@ class DatabaseController {
         .document(group.id)
         .collection('tasks')
         .document(task.id)
-        .setData(task.addStatus(false, false).toKeyValuePair());
+        .setData({"id" : task.id});
   }
 
   //Assigns the task with taskID to the student with studentID, duplicating the task data
   Future<void> _assignTaskToStudent(Task task, String taskId, String studentId) {
-    TaskWithStatus taskWithStatus = task.addStatus(false, false);
+    //TaskWithStatus taskWithStatus = task.addStatus(false, false);
     return db.collection('students')
         .document(studentId)
         .collection('tasks')
         .document(taskId)
-        .setData(taskWithStatus.toKeyValuePair());
+        .setData({"completed" : false, "verified" : false});
+        //.setData(taskWithStatus.toKeyValuePair());
   }
 
   //Assigns the student with studentID to the task with taskId, duplicating the student data
   Future<void> _assignStudentToTask(Student student, String studentId, String taskId) {
-    StudentWithStatus studentWithStatus = student.addStatus(false, false);
+    //StudentWithStatus studentWithStatus = student.addStatus(false, false);
     return db.collection('tasks')
         .document(taskId)
         .collection('students')
         .document(studentId)
-        .setData(studentWithStatus.toKeyValuePair());
+        .setData(student.toKeyValuePair());
   }
 
-  Future<void> _updateStudentCompletion(String taskId, String studentId, bool completed) {
-    return db.collection('tasks')
-        .document(taskId)
-        .collection('students')
-        .document(studentId)
-        .updateData({'completed': completed});
-  }
+//  Future<void> _updateStudentCompletion(String taskId, String studentId, bool completed) {
+//    return db.collection('tasks')
+//        .document(taskId)
+//        .collection('students')
+//        .document(studentId)
+//        .updateData({'completed': completed});
+//  }
 
   Future<void> _updateTaskCompletion(String taskId, String studentId, bool completed) {
     return db.collection('students')
@@ -656,13 +673,13 @@ class DatabaseController {
         .updateData({'completed': completed});
   }
 
-  Future<void> _updateStudentVerification(String taskId, String studentId, bool verified) {
-    return db.collection('tasks')
-        .document(taskId)
-        .collection('students')
-        .document(studentId)
-        .updateData({'verified': verified});
-  }
+//  Future<void> _updateStudentVerification(String taskId, String studentId, bool verified) {
+//    return db.collection('tasks')
+//        .document(taskId)
+//        .collection('students')
+//        .document(studentId)
+//        .updateData({'verified': verified});
+//  }
 
   Future<void> _updateTaskVerification(String taskId, String studentId, bool verified) {
     return db.collection('students')
