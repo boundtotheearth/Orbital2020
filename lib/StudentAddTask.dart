@@ -184,13 +184,24 @@ class _AddTaskFormState extends State<AddTaskForm> {
             ),
             TextFormField(
               controller: _tagController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: "Add Tag",
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.check),
+                  onPressed: () {
+                    if(_tagController.text.isNotEmpty) {
+                      addTag(_tagController.text);
+                      _tagController.text = "";
+                    }
+                  },
+                ),
               ),
               //onFieldSubmitted: (text) => addTag(text),
               onChanged: (text) {
                 if(text.contains("\n")) {
-                  addTag(text);
+                  if(!text.startsWith("\n")) {
+                    addTag(text.trim());
+                  }
                   _tagController.text = "";
                 }
               },
