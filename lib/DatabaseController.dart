@@ -94,24 +94,24 @@ class DatabaseController {
 //    );
 //  }
   
-  Stream<TaskWithStatus> getStudentTask(String studentId, String taskId) {
-    Stream<TaskWithStatus> t = db.collection("students")
-        .document(studentId)
-        .collection("tasks")
-        .document(taskId)
-        .snapshots()
-        .map((document) => TaskWithStatus(
-          id: document.documentID,
-          name: document['name'],
-          dueDate: document['dueDate'].toDate(),
-          createdByName: document['createdByName'],
-          createdById: document['createdById'],
-          completed: document['completed'],
-          verified: document['verified'])
-        );
-    print(t);
-    return t;
-  }
+//  Stream<TaskWithStatus> getStudentTask(String studentId, String taskId) {
+//    Stream<TaskWithStatus> t = db.collection("students")
+//        .document(studentId)
+//        .collection("tasks")
+//        .document(taskId)
+//        .snapshots()
+//        .map((document) => TaskWithStatus(
+//          id: document.documentID,
+//          name: document['name'],
+//          dueDate: document['dueDate'].toDate(),
+//          createdByName: document['createdByName'],
+//          createdById: document['createdById'],
+//          completed: document['completed'],
+//          verified: document['verified'])
+//        );
+//    print(t);
+//    return t;
+//  }
 
   Stream<Task> getTask(String taskId) {
     return db.collection("tasks")
@@ -128,12 +128,12 @@ class DatabaseController {
     ));
   }
 
-  Future<String> getTaskName(String taskId) async {
+  Future<String> getTaskName(String taskId) {
     print(taskId);
     return db.collection("tasks")
         .document(taskId)
         .get()
-        .then((value) { print(value.data["name"]); return value.data["name"];});
+        .then((value) => value.data["name"]);
 
   }
 

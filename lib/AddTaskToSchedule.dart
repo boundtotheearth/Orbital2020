@@ -37,6 +37,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
   TimeOfDay _startTime;
   TimeOfDay _endTime;
   DateTime _scheduledDate;
+//  Future<List<DropdownMenuItem>> _items;
 
 
 
@@ -45,6 +46,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
     _user = Provider.of<User>(context, listen: false);
     _scheduledDate = widget.scheduledDate.isBefore(today) ? today : widget.scheduledDate;
     _scheduledDateController = TextEditingController(text: DateFormat("dd/MM/y").format(_scheduledDate));
+//    _items =
     super.initState();
   }
 
@@ -118,26 +120,32 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
                 return FutureBuilder<List<DropdownMenuItem>>(
                   future: items,
                   builder: (context, snapshot) {
-                    print(snapshot.data);
-                    return DropdownButtonFormField(
-                      items: snapshot.data ?? [],
-                      onChanged: (selected) {
-                        print(selected);
-                        setState(() {
-                          _selectedTask = selected;
-                        });
-                      },
-                      value: _selectedTask,
-                      hint: Text("Select Task"),
-                      validator: (input) {
-                        if (input == null) {
-                          return "Task cannot be empty";
-                        } else {
-                          return null;
-                        }
-                      },
-                      isExpanded: true,
-                    );
+                    if (snapshot.connectionState != ConnectionState.done) {
+                      return DropdownButtonFormField(
+                        items: []
+                      );
+                    } else {
+                      print(snapshot.data);
+                      return DropdownButtonFormField(
+                        items: snapshot.data,
+                        onChanged: (selected) {
+                          print(selected);
+                          setState(() {
+                            _selectedTask = selected;
+                          });
+                        },
+                        value: _selectedTask,
+                        hint: Text("Select Task"),
+                        validator: (input) {
+                          if (input == null) {
+                            return "Task cannot be empty";
+                          } else {
+                            return null;
+                          }
+                        },
+                        isExpanded: true,
+                      );
+                    }
                   }
                 );
               }

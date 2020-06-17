@@ -8,6 +8,7 @@ import 'package:orbital2020/DatabaseController.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'AppDrawer.dart';
+import 'DataContainers/Task.dart';
 import 'DataContainers/User.dart';
 
 class Schedule extends StatefulWidget {
@@ -100,8 +101,8 @@ class _ScheduleState extends State<Schedule> {
         itemCount: tasks.length,
         itemBuilder: (context, index) {
           ScheduleDetails task = tasks[index];
-          return StreamBuilder<TaskWithStatus>(
-            stream: db.getStudentTask(_user.id, task.taskId),
+          return StreamBuilder<Task>(
+            stream: db.getTask(task.taskId),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 print("rebuild");
