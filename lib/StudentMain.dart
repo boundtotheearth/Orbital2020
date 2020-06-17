@@ -142,20 +142,14 @@ class _StudentMainState extends State<StudentMain> {
                   aspectRatio: 3/2,
                   child: GameWidget(),
                 ),
-                Row(
-                  children: <Widget>[
-                    Text('Sort By: //Dropdown Here'),
-                    //dropdown menu
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Text("Task"),
-                    ),
-                    Text("Completed"),
-                    Text("Verified")
-                  ],
+                Container(
+                  color: Colors.green,
+                  child: Row(
+                    children: <Widget>[
+                      Text('Sort By: Dropdown Here', style: TextStyle(fontSize: 16),),
+                      //dropdown menu
+                    ],
+                  ),
                 ),
                 Expanded(
                   child: Scrollbar(

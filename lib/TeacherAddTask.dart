@@ -52,7 +52,8 @@ class AddTaskForm extends StatefulWidget {
 
 class _AddTaskFormState extends State<AddTaskForm> {
   final _formKey = GlobalKey<FormState>();
-  final _dueDateController = TextEditingController(text: "None");
+  final _dueDateController = TextEditingController();
+  final _tagController = TextEditingController();
   final db = DatabaseController();
 
   User _user;
@@ -60,7 +61,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
   String _taskName;
   String _taskDescription;
   DateTime _dueDate;
-  List<String> _tags = [];
+  Set<String> _tags = Set<String>();
 
   @override
   void initState() {
@@ -88,7 +89,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
     });
   }
 
-  void addtag(String tag) {
+  void addTag(String tag) {
     setState(() {
       _tags.add(tag);
     });
@@ -104,13 +105,6 @@ class _AddTaskFormState extends State<AddTaskForm> {
         },
       ));
     }
-    tagChips.add(ActionChip(
-      avatar: Icon(Icons.add),
-      onPressed: () {
-        addtag('new tag');
-      },
-      label: Text('Add Tag'),
-    ));
     return tagChips;
   }
 
@@ -128,7 +122,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
         createdByName: _user.name,
         createdById: _user.id,
         dueDate: _dueDate,
-        tags: _tags,
+        tags: _tags.toList(),
       );
 
       db.teacherCreateTask(task: newTask, group: widget.group).then((task) {
@@ -150,6 +144,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
     return Form(
         key: _formKey,
         child: ListView(
+            padding: EdgeInsets.symmetric(horizontal: 5),
             children: <Widget>[
               TextFormField(
                 decoration: const InputDecoration(
@@ -185,9 +180,6 @@ class _AddTaskFormState extends State<AddTaskForm> {
                             if(value != null) {
                               _dueDateController.text =
                                   DateFormat('dd/MM/y').format(value);
-                            } else {
-                              print("here");
-                              _dueDateController.text = "None";
                             }
                           });
                         },
@@ -197,7 +189,32 @@ class _AddTaskFormState extends State<AddTaskForm> {
                   ),
                 ],
               ),
-              Text('Tags:'),
+              TextFormField(
+                controller: _tagController,
+                decoration: InputDecoration(
+                  labelText: "Add Tag",
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.check),
+                    onPressed: () {
+                      if(_tagController.text.isNotEmpty) {
+                        addTag(_tagController.text);
+                        _tagController.text = "";
+                      }
+                    },
+                  ),
+                ),
+                //onFieldSubmitted: (text) => addTag(text),
+                onChanged: (text) {
+                  if(text.contains("\n")) {
+                    if(!text.startsWith("\n")) {
+                      addTag(text.trim());
+                    }
+                    _tagController.text = "";
+                  }
+                },
+                maxLines: 2,
+                minLines: 1,
+              ),
               Wrap(
                 spacing: 8.0,
                 children: getTagChips(),
