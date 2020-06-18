@@ -128,13 +128,11 @@ class DatabaseController {
     ));
   }
 
-  Future<String> getTaskName(String taskId) {
-    print(taskId);
+  Stream<Task> getTaskName(String taskId) {
     return db.collection("tasks")
         .document(taskId)
-        .get()
-        .then((value) => value.data["name"]);
-
+        .snapshots()
+        .map((document) => Task(id: document.documentID, name: document['name']));
   }
 
 //  Stream<List<TaskWithStatus>> getTasks(List<TaskStatus> tasks, String orderField) {
