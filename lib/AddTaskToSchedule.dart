@@ -1,13 +1,19 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:intl/intl.dart';
-import 'package:orbital2020/DataContainers/ScheduledTask.dart';
+import 'package:orbital2020/DataContainers/ScheduleDetails.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:provider/provider.dart';
-
+import 'DataContainers/Task.dart';
 import 'AppDrawer.dart';
+import 'DataContainers/TaskStatus.dart';
 import 'DataContainers/User.dart';
+import 'package:async/async.dart';
+import 'package:rxdart/rxdart.dart';
 
 class AddTaskToSchedule extends StatefulWidget {
   AddTaskToSchedule({this.scheduledDate});
@@ -33,6 +39,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
   TimeOfDay _startTime;
   TimeOfDay _endTime;
   DateTime _scheduledDate;
+  Stream<Set<TaskStatus>> _allTasks;
 
 
 
@@ -41,6 +48,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
     _user = Provider.of<User>(context, listen: false);
     _scheduledDate = widget.scheduledDate.isBefore(today) ? today : widget.scheduledDate;
     _scheduledDateController = TextEditingController(text: DateFormat("dd/MM/y").format(_scheduledDate));
+    _allTasks = db.getStudentTaskDetailsSnapshots(studentId: _user.id);
     super.initState();
   }
 
@@ -69,10 +77,9 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
     if (_formKey.currentState.validate()) {
       print("Form is valid");
       _formKey.currentState.save();
-      print("TaskId: ${_selectedTask.split(":")[0]}, taskName: ${_selectedTask.split(":")[1]}, date: $_scheduledDate, start: $_startTime, end: $_endTime");
-      ScheduledTask task = ScheduledTask(
-          id: _selectedTask.split(":")[0],
-          name: _selectedTask.split(":")[1],
+      print("TaskId: $_selectedTask, date: $_scheduledDate, start: $_startTime, end: $_endTime");
+      ScheduleDetails task = ScheduleDetails(
+          taskId: _selectedTask,
           scheduledDate: _scheduledDate,
           startTime: _scheduledDate.add(Duration(hours: _startTime.hour, minutes: _startTime.minute)),
           endTime: _scheduledDate.add(Duration(hours: _endTime.hour, minutes: _endTime.minute)));
@@ -83,46 +90,51 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
     }
   }
 
+
+
   Widget _buildForm() {
     return Form(
       key: _formKey,
       child: ListView(
         children: <Widget>[
           StreamBuilder(
-            stream: db.getStudentTaskSnapshots(studentId: _user.id),
-            builder: (context, snapshot) {
+            stream: _allTasks,
+            builder: (context, snapshot)  {
               if (!snapshot.hasData) {
                 return CircularProgressIndicator();
               } else {
-                List<DropdownMenuItem> tasks = [];
-                for (TaskWithStatus t in snapshot.data) {
-                  tasks.add(
-                    DropdownMenuItem(
-                      child: Text(t.name),
-                      //temp solution
-                      value: "${t.id}:${t.name}",
-
-                    )
-                  );
+                List<Stream<Task>> streamList = [];
+                for (TaskStatus t in snapshot.data) {
+                  streamList.add(db.getTaskName(t.id));
                 }
-                return DropdownButtonFormField(
-                  items: tasks,
-                  onChanged: (selected) {
-                    print(selected);
-                    setState(() {
-                      _selectedTask = selected;
-                    });
+                 return StreamBuilder<List<Task>>(
+                  stream: CombineLatestStream.list(streamList),
+                  builder: (context, snapshot) {
+                    print(snapshot.data);
+                    return DropdownButtonFormField(
+                      items: snapshot.data?.map((task) => DropdownMenuItem(
+                        child: Text(task.name),
+                        value: task.id,
+                        )
+                      )?.toList(),
+                      onChanged: (selected) {
+                        print(selected);
+                        setState(() {
+                          _selectedTask = selected;
+                        });
+                      },
+                      value: _selectedTask,
+                      hint: Text("Select Task"),
+                      validator: (input) {
+                        if (input == null) {
+                          return "Task cannot be empty";
+                        } else {
+                          return null;
+                        }
+                      },
+                      isExpanded: true,
+                    );
                   },
-                  value: _selectedTask,
-                  hint: Text("Select Task"),
-                  validator: (input) {
-                    if (input == null) {
-                      return "Task cannot be empty";
-                    } else {
-                      return null;
-                    }
-                  },
-                  isExpanded: true,
                 );
               }
             }

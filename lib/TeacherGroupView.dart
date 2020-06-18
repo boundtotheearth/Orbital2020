@@ -24,7 +24,7 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
 
   User _user;
 
-  Stream<Set<Task>> _tasks;
+  Stream<Set<String>> _tasks;
   Stream<Set<Student>> _students;
   TabController _tabController;
   String _searchText;
@@ -49,51 +49,67 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
     );
   }
 
-  Widget _buildTaskList(Set<Task> tasks) {
-    List<Task> filteredTasks = tasks.where((task) =>
-        task.name.toLowerCase().startsWith(_searchText)).toList();
+  bool filtered(String listItem) {
+    return listItem.toLowerCase().startsWith(_searchText);
+  }
+
+  Widget _buildTaskList(Set<String> tasks) {
+  List<String> taskList = tasks.toList();
 
     return ListView.builder(
-        itemCount: filteredTasks.length,
+        itemCount: taskList.length,
         itemBuilder: (context, index) {
-          Task task = filteredTasks[index];
-          return ListTile(
-            title: Text(task.name),
-            subtitle: Text("Due: " + DateFormat('dd/MM/y').format(task.dueDate)),
-            onTap: () {
-              Map<String, dynamic> arguments = {
-                'task': task,
-                'group': widget.group
-              };
-              Navigator.of(context).pushNamed('teacher_taskView', arguments: arguments);
-            },
+          String taskId = taskList[index];
+          return StreamBuilder<Task>(
+            stream: db.getTask(taskId),
+            builder: (context, snapshot) {
+              if (snapshot.hasData && filtered(snapshot.data.name)) {
+                return ListTile(
+                  title: Text(snapshot.data.name),
+                  subtitle: Text("Due: " +
+                      DateFormat('dd/MM/y').format(snapshot.data.dueDate)),
+                  onTap: () {
+                    Map<String, dynamic> arguments = {
+                      'task': snapshot.data,
+                      'group': widget.group
+                    };
+                    Navigator.of(context).pushNamed(
+                        'teacher_taskView', arguments: arguments);
+                  },
+                );
+              } else if (snapshot.hasData) {
+                return Container(width: 0.0, height: 0.0);
+              } else {
+                return CircularProgressIndicator();
+              }
+            }
           );
         }
     );
   }
 
   Widget _buildStudentList(Set<Student> students) {
-    widget.group.students = students;
-
-    Set<Student> filteredStudents = students.where((student) =>
-        student.name.toLowerCase().startsWith(_searchText)).toSet();
 
     return ListView.builder(
-        itemCount: filteredStudents.length,
+        itemCount: students.length,
         itemBuilder: (context, index) {
-          Student student = filteredStudents.elementAt(index);
-          return ListTile(
-            title: Text(student.name),
-            onTap: () {
-              Map<String, dynamic> arguments = {
-                'student': student,
-                'group': widget.group
-              };
-              Navigator.of(context).pushNamed('teacher_studentView', arguments: arguments);
-            },
-          );
-        }
-    );
+          Student student = students.elementAt(index);
+          if (filtered(student.name)) {
+            return ListTile(
+              title: Text(student.name),
+              onTap: () {
+                Map<String, dynamic> arguments = {
+                  'student': student,
+                  'group': widget.group
+                };
+                Navigator.of(context).pushNamed(
+                    'teacher_studentView', arguments: arguments);
+              },
+            );
+          } else {
+            return Container(width: 0.0, height: 0.0,);
+          }
+        });
   }
 
   Widget _buildTasksTabView() {
@@ -122,7 +138,7 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
     return Scrollbar(
       child: RefreshIndicator(
           onRefresh: _refreshStudents,
-          child: StreamBuilder(
+          child: StreamBuilder<Set<Student>>(
             stream: _students,
             builder: (context, snapshot) {
               if(snapshot.hasData) {

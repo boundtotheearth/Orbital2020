@@ -58,9 +58,9 @@ class Task {
     return id.hashCode;
   }
 
-  @override
-  String toString() {
-    // TODO: implement toString
-    return id;
-  }
+//  @override
+//  String toString() {
+//    // TODO: implement toString
+//    return id;
+//  }
 }

@@ -5,8 +5,10 @@ import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:orbital2020/GameWidget.dart';
 import 'package:orbital2020/TaskStatusTile.dart';
 import 'package:provider/provider.dart';
-
+import 'dart:async';
 import 'AppDrawer.dart';
+import 'DataContainers/Task.dart';
+import 'DataContainers/TaskStatus.dart';
 import 'DataContainers/User.dart';
 
 
@@ -20,8 +22,7 @@ class StudentMain extends StatefulWidget {
 class _StudentMainState extends State<StudentMain> {
   final DatabaseController db = DatabaseController();
   User _user;
-
-  Stream<Set<TaskWithStatus>> _tasks;
+  Stream<Set<TaskStatus>> _tasks;
   String _searchText;
   bool _searchBarActive;
 
@@ -29,7 +30,7 @@ class _StudentMainState extends State<StudentMain> {
   void initState() {
     super.initState();
     _user = Provider.of<User>(context, listen: false);
-    _tasks = db.getStudentTaskSnapshots(studentId: _user.id);
+    _tasks = db.getStudentTaskDetailsSnapshots(studentId: _user.id);
     _searchText = "";
     _searchBarActive = false;
   }
@@ -46,46 +47,72 @@ class _StudentMainState extends State<StudentMain> {
     });
   }
 
-  Widget _buildTaskList(Set<TaskWithStatus> tasks) {
-    Set<TaskWithStatus> filteredTasks = tasks.where((task) =>
-        task.name.toLowerCase().startsWith(_searchText) ||
-        (task.createdByName?.toLowerCase()?.startsWith(_searchText) ?? false)).toSet();
+  bool filteredTask(Task task) {
+    return task.name.toLowerCase().startsWith(_searchText) ||
+        (task.createdByName?.toLowerCase()?.startsWith(_searchText) ?? false);
+  }
 
+  Widget _buildTaskList(Set<TaskStatus> tasks) {
+    List<TaskStatus> taskList = tasks.toList();
     return ListView.builder(
-        itemCount: filteredTasks.length,
+        itemCount: taskList.length,
         itemBuilder: (context, index) {
-          TaskWithStatus task = filteredTasks.elementAt(index);
-          return TaskStatusTile(
-            task: task,
-            isStudent: _user.accountType == 'student',
-            updateComplete: (value) {
-              db.updateTaskCompletion(task.id, _user.id, value);
+          TaskStatus task = taskList[index];
+          return StreamBuilder<Task>(
+            stream: db.getTask(task.id),
+            builder: (context, snapshot) {
+              if (snapshot.hasData && filteredTask(snapshot.data)) {
+                return TaskStatusTile(
+                    task: snapshot.data.addStatus(task.completed, task.verified),
+                    isStudent: _user.accountType == 'student',
+                    updateComplete: (value) {
+                      db.updateTaskCompletion(task.id, _user.id, value);
+                    },
+                    updateVerify: (value) {},
+                    onFinish: () {},
+                );
+              } else if (snapshot.hasData) {
+                return Container(width: 0.0, height: 0.0,);
+              } else {
+                return ListTile(
+                  title: CircularProgressIndicator(),
+                );
+              }
             },
-            updateVerify: (value) {},
-            onFinish: () {},
           );
-//          return ListTile(
-//            title: Text(task.name),
-//            subtitle: Text(task.createdByName ?? ""),
-//            trailing: Wrap(
-//              children: <Widget>[
-//                Checkbox(
-//                  value: task.completed,
-//                  onChanged: (value) {
-//                    db.updateTaskCompletion(task.id, _user.id, value);
-//                  },
-//                ),
-//                Checkbox(
-//                  value: task.verified,
-//                  onChanged: (value) {
-//                    db.updateTaskVerification(task.id, _user.id, value);
-//                  },
-//                ),
-//              ],
-//            ),
-//          );
         }
     );
+
+//    return StreamBuilder<List<Task>>(
+//      stream: db.getTasks(taskList, "name"),
+//      builder: (context, snapshot) {
+//        if (snapshot.hasData) {
+//          return ListView.builder(
+//            itemCount: snapshot.data.length,
+//            itemBuilder: (context, index) {
+//              if (filteredTask(snapshot.data[index])) {
+//                return TaskStatusTile(
+//                  task: snapshot.data[index],
+//                  isStudent: _user.accountType == "student",
+//                  updateComplete: (value) {
+//                    db.updateTaskCompletion(
+//                        snapshot.data[index].id, _user.id, value);
+//                  },
+//                  updateVerify: (value) {},
+//                  onFinish: () {},
+//                );
+//              } else {
+//                return Container(width: 0.0, height: 0.0,);
+//              }
+//            },
+//          );
+//        } else {
+//          return CircularProgressIndicator();
+//        }
+//      }
+//    );
+
+
   }
 
   Widget buildAppBar() {
@@ -126,7 +153,7 @@ class _StudentMainState extends State<StudentMain> {
 
   Future<Null> refresh() async {
     await Future.microtask(() => setState(() {
-      _tasks = db.getStudentTaskSnapshots(studentId: _user.id);
+      _tasks = db.getStudentTaskDetailsSnapshots(studentId: _user.id);
     }));
   }
 
@@ -155,10 +182,11 @@ class _StudentMainState extends State<StudentMain> {
                   child: Scrollbar(
                     child: RefreshIndicator(
                       onRefresh: refresh,
-                      child: StreamBuilder(
+                      child: StreamBuilder<Set<TaskStatus>>(
                         stream: _tasks,
                         builder: (context, snapshot) {
                           if(snapshot.hasData) {
+                            print(snapshot.data);
                             if(snapshot.data.length > 0) {
                               return _buildTaskList(snapshot.data);
                             } else {
