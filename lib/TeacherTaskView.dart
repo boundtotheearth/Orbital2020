@@ -247,7 +247,9 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
                             ),
                           );
                         } else {
-                          return CircularProgressIndicator();
+                          return ListTile(
+                            title: CircularProgressIndicator(),
+                          );
                         }
                       }
                     );

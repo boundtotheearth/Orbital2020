@@ -74,7 +74,9 @@ class _StudentMainState extends State<StudentMain> {
               } else if (snapshot.hasData) {
                 return Container(width: 0.0, height: 0.0,);
               } else {
-                return CircularProgressIndicator();
+                return ListTile(
+                  title: CircularProgressIndicator(),
+                );
               }
             },
           );

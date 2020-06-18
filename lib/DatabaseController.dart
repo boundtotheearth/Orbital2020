@@ -121,7 +121,7 @@ class DatabaseController {
           id: document.documentID,
           name: document['name'],
           description: document["description"],
-          dueDate: document["dueDate"].toDate(),
+          dueDate: document["dueDate"]?.toDate(),
           createdById: document["createdById"] ?? "",
           createdByName: document["createdByName"] ?? "",
           tags: document["tags"]?.cast<String>() ?? []
