@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:orbital2020/CloudStorageController.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/User.dart';
@@ -19,6 +23,7 @@ class TeacherAddGroup extends StatefulWidget {
 
 class _TeacherAddGroupState extends State<TeacherAddGroup> {
   final DatabaseController db = DatabaseController();
+  final CloudStorageController storage = CloudStorageController();
 
   User _user;
 
@@ -26,6 +31,7 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
   Set<Student> _students;
   String _groupName;
   String _searchText;
+  File _groupImage;
 
 
   @override
@@ -90,8 +96,22 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
   }
 
   Future<void> submitGroup() {
-    Group newGroup = Group(name: _groupName, students: _students);
-    return db.teacherCreateGroup(teacherId: _user.id, group: newGroup);
+    return storage.uploadGroupImage(image: _groupImage, name: _groupName)
+        .then((imageUrl) {
+          Group newGroup = Group(name: _groupName, students: _students, imageUrl: imageUrl);
+          db.teacherCreateGroup(teacherId: _user.id, group: newGroup);
+        });
+  }
+
+  Future<File> selectImage() {
+    return ImagePicker().getImage(source: ImageSource.gallery)
+        .then((pickedFile) {
+          File file = File(pickedFile.path);
+          setState(() {
+            _groupImage = file;
+          });
+          return file;
+    });
   }
 
   @override
@@ -103,16 +123,36 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
       body: SafeArea(
           child: Column(
             children: <Widget>[
-              TextField(
-                decoration: const InputDecoration(
-                  icon: Icon(Icons.group),
-                  labelText: 'Group Name',
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    _groupName = value;
-                  });
-                },
+              Row(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(right: 10),
+                    child: InkWell(
+                        onTap: selectImage,
+                        child: _groupImage != null ?
+                        CircleAvatar(
+                          backgroundImage: FileImage(_groupImage),
+                          radius: 30,
+                        ) :
+                        CircleAvatar(
+                          child: const Text("G"),
+                          radius: 30,
+                        )
+                    ),
+                  ),
+                  Expanded(
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        labelText: 'Group Name',
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _groupName = value;
+                        });
+                      },
+                    ),
+                  )
+                ],
               ),
               TextField(
                 decoration: const InputDecoration(
@@ -133,14 +173,22 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
             ],
           )
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.check),
-        tooltip: 'Add New Group',
-        onPressed: () {
-          submitGroup()
-              .then((value) => Navigator.pop(context));
+      floatingActionButton: Builder(
+        builder: (BuildContext context) {
+          return FloatingActionButton(
+            child: Icon(Icons.check),
+            tooltip: 'Add New Group',
+            onPressed: () {
+              Scaffold
+                  .of(context)
+                  .showSnackBar(SnackBar(content: Text('Processing Data')));
+
+              submitGroup()
+                  .then((value) => Navigator.pop(context));
+            },
+          );
         },
-      ),
+      )
     );
   }
 }

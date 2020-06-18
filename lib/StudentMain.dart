@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_unity_widget/flutter_unity_widget.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
+import 'package:orbital2020/GameWidget.dart';
 import 'package:orbital2020/TaskStatusTile.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
@@ -22,9 +22,6 @@ class StudentMain extends StatefulWidget {
 class _StudentMainState extends State<StudentMain> {
   final DatabaseController db = DatabaseController();
   User _user;
-
-
-  UnityWidgetController _unityWidgetController;
   Stream<Set<TaskStatus>> _tasks;
   String _searchText;
   bool _searchBarActive;
@@ -36,20 +33,6 @@ class _StudentMainState extends State<StudentMain> {
     _tasks = db.getStudentTaskDetailsSnapshots(studentId: _user.id);
     _searchText = "";
     _searchBarActive = false;
-  }
-
-  void _incrementCounter(String amount) {
-    _unityWidgetController.postMessage('FlutterMessageReceiver', 'Increment', amount);
-  }
-
-  void _onUnityCreated(controller) {
-    this._unityWidgetController = controller;
-  }
-
-  Future<Widget> _unityWidgetBuilder() async {
-    return UnityWidget(
-      onUnityViewCreated: _onUnityCreated,
-    );
   }
 
   void _activateSearchBar() {
@@ -182,31 +165,16 @@ class _StudentMainState extends State<StudentMain> {
               children: <Widget>[
                 AspectRatio(
                   aspectRatio: 3/2,
-                  child: FutureBuilder(
-                    future: _unityWidgetBuilder(),
-                    builder: (context, snapshot) {
-                      if(snapshot.hasData) {
-                        return snapshot.data;
-                      } else {
-                        return Container();
-                      }
-                    },
+                  child: GameWidget(),
+                ),
+                Container(
+                  color: Colors.green,
+                  child: Row(
+                    children: <Widget>[
+                      Text('Sort By: Dropdown Here', style: TextStyle(fontSize: 16),),
+                      //dropdown menu
+                    ],
                   ),
-                ),
-                Row(
-                  children: <Widget>[
-                    Text('Sort By: //Dropdown Here'),
-                    //dropdown menu
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Text("Task"),
-                    ),
-                    Text("Completed"),
-                    Text("Verified")
-                  ],
                 ),
                 Expanded(
                   child: Scrollbar(
@@ -237,7 +205,6 @@ class _StudentMainState extends State<StudentMain> {
         child: const Icon(Icons.add),
         tooltip: 'Add',
         onPressed: () {
-          //_incrementCounter('1');
           Navigator.of(context).pushNamed('student_addTask');
         },
       ),

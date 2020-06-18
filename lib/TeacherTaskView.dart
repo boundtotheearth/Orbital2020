@@ -8,8 +8,10 @@ import 'package:orbital2020/DataContainers/TaskStatus.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/StudentStatusTile.dart';
+import 'package:orbital2020/TaskProgressIndicator.dart';
 import 'package:provider/provider.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
+import 'package:rxdart/rxdart.dart';
 import 'AppDrawer.dart';
 
 
@@ -208,9 +210,51 @@ class _TeacherTaskViewState extends State<TeacherTaskView> {
       body: SafeArea(
           child: Column(
             children: <Widget>[
-              AspectRatio(
-                aspectRatio: 3/2,
-                child: Container(),
+              StreamBuilder(
+                stream: _students,
+                builder: (context, snapshot) {
+                  if(snapshot.hasData){
+                    List<Stream<TaskStatus>> streamList = [];
+                    snapshot.data.forEach((Student student) {
+                      streamList.add(db.getStudentTaskStatus(student.id, widget.task.id));
+                    });
+
+                    return StreamBuilder<List<TaskStatus>>(
+                      stream: CombineLatestStream.list(streamList),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          int total = snapshot.data.length;
+                          int completed = snapshot.data.where((task) => task.completed).length;
+                          return AspectRatio(
+                            aspectRatio: 3 / 2,
+                            child: Container(
+                                padding: EdgeInsets.all(10),
+                                child: CustomPaint(
+                                  foregroundPainter: TaskProgressIndicator(total > 0 ?
+                                      completed / total
+                                      : 0),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Text("$completed/$total",
+                                        style: TextStyle(fontSize: 28,
+                                            fontWeight: FontWeight.bold),),
+                                      Text("Completed",
+                                        style: TextStyle(fontSize: 20),)
+                                    ],
+                                  ),
+                                )
+                            ),
+                          );
+                        } else {
+                          return CircularProgressIndicator();
+                        }
+                      }
+                    );
+                  } else {
+                    return CircularProgressIndicator();
+                  }
+                },
               ),
               Text(widget.task.description ?? "No Description"),
               Text("Due: " + DateFormat('dd/MM/y').format(widget.task.dueDate)),
