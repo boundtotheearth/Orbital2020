@@ -127,6 +127,23 @@ class DatabaseController {
     ));
   }
 
+  Stream<TaskWithStatus> getTaskWithStatus(TaskStatus task) {
+    return db.collection("tasks")
+        .document(task.id)
+        .snapshots()
+        .map((document) => TaskWithStatus(
+        id: document.documentID,
+        name: document['name'],
+        description: document["description"],
+        dueDate: document["dueDate"]?.toDate(),
+        createdById: document["createdById"] ?? "",
+        createdByName: document["createdByName"] ?? "",
+        tags: document["tags"]?.cast<String>() ?? [],
+        completed: task.completed,
+        verified: task.verified
+    ));
+  }
+
   Stream<Task> getTaskName(String taskId) {
     return db.collection("tasks")
         .document(taskId)

@@ -26,4 +26,14 @@ class TaskWithStatus extends Task{
     if(verified != null) map['verified'] = verified;
     return map;
   }
+
+  int getStatus() {
+    if (!completed) {
+      return 0;
+    } else if (!verified) {
+      return 1;
+    } else {
+      return 2;
+    }
+  }
 }
