@@ -570,13 +570,15 @@ class DatabaseController {
   }
 
 
-//  Stream<StudentWithStatus> getStudentNameTaskStatus(String studentId, String taskId) {
-//    return Rx.combineLatest2(getStudentTaskStatus(studentId, taskId),
-//        getUserName(studentId),
-//            (TaskStatus status, String name) {
-//            return StudentWithStatus(id: studentId, name: name, completed: status.completed, verified: status.verified);
-//        });
-//  }
+  Stream<StudentWithStatus> getStudentWithStatus(Student student, String taskId) {
+    return getStudentTaskStatus(student.id, taskId).map(
+            (status) => StudentWithStatus(
+              id: student.id,
+              name: student.name,
+              completed: status.completed,
+              verified: status.verified)
+    );
+  }
 
 
 

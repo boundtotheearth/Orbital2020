@@ -11,6 +11,7 @@ import 'AppDrawer.dart';
 import 'DataContainers/Task.dart';
 import 'DataContainers/TaskStatus.dart';
 import 'DataContainers/User.dart';
+import 'Sort.dart';
 
 
 class StudentMain extends StatefulWidget {
@@ -18,13 +19,6 @@ class StudentMain extends StatefulWidget {
 
   @override
   _StudentMainState createState() => _StudentMainState();
-}
-
-enum Sort {
-  name,
-  dueDate,
-  createdBy,
-  status
 }
 
 class _StudentMainState extends State<StudentMain> {
@@ -176,15 +170,13 @@ class _StudentMainState extends State<StudentMain> {
                 ),
                 Container(
                   color: Colors.green,
-                  child:
-                      //Text('Sort By: ', style: TextStyle(fontSize: 16),),
-                      DropdownButtonFormField(
-                        items: _options,
-                        decoration: InputDecoration(
-                          labelText: "Sort By: "
-                        ),
-                        onChanged: (value) => setState(() => _sortBy = value),
-                        value: _sortBy,
+                  child: DropdownButtonFormField(
+                          items: _options,
+                          decoration: InputDecoration(
+                            labelText: "Sort By: "
+                          ),
+                          onChanged: (value) => setState(() => _sortBy = value),
+                          value: _sortBy,
                       )
                   ),
                 Expanded(
