@@ -247,7 +247,7 @@ class DatabaseController {
     return Future(null);
   }
 
-  Future<void> updateTaskDetails({TaskWithStatus task}) {
+  Future<void> updateTaskDetails({Task task}) {
     return _updateTaskDetails(task);
   }
 
@@ -693,11 +693,10 @@ class DatabaseController {
 //        .updateData({'completed': completed});
 //  }
 
-  Future<void> _updateTaskDetails(TaskWithStatus task) {
-    Task taskDetails = task;
+  Future<void> _updateTaskDetails(Task task) {
     return db.collection('tasks')
         .document(task.id)
-        .updateData(taskDetails.toKeyValuePair());
+        .updateData(task.toKeyValuePair());
   }
 
   Future<void> _updateTaskCompletion(String taskId, String studentId, bool completed) {
