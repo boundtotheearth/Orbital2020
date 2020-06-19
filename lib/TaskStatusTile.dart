@@ -95,7 +95,6 @@ class _TaskStatusTileState extends State<TaskStatusTile> {
   }
 
   List<Chip> getTagChips() {
-    List<Chip> chips = [];
     return widget.task.tags.map((tag) => Chip(
       label: Text(tag),
     )).toList();

@@ -60,12 +60,14 @@ class _StudentMainState extends State<StudentMain> {
   void _deactivateSearchBar() {
     setState(() {
       _searchBarActive = false;
+      _searchText = "";
     });
   }
 
   bool filteredTask(TaskWithStatus task) {
     return task.name.toLowerCase().startsWith(_searchText) ||
-        (task.createdByName?.toLowerCase()?.startsWith(_searchText) ?? false);
+        (task.createdByName?.toLowerCase()?.startsWith(_searchText) ?? false) ||
+        task.tags.where((tag) => tag.toLowerCase().startsWith(_searchText)).length > 0;
   }
 
   List<TaskWithStatus> sortAndFilter(List<TaskWithStatus> originalTasks) {
@@ -123,7 +125,7 @@ class _StudentMainState extends State<StudentMain> {
       return AppBar(
         title: TextField(
           decoration: const InputDecoration(
-            hintText: 'Search',
+            hintText: 'Search by name or tags',
           ),
           onChanged: (value) {
             setState(() {
