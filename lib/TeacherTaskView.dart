@@ -98,6 +98,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
           List<StudentWithStatus> filteredStudents = sortAndFilter(snapshot.data);
           return ListView.builder(
             shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
             itemCount: filteredStudents.length,
             itemBuilder: (context, index) {
               StudentWithStatus student = filteredStudents[index];
@@ -328,33 +329,32 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
                 ),
                 Container(
                     color: Colors.green,
-                    child: DropdownButtonFormField(
-                      items: _options,
-                      decoration: InputDecoration(
-                          labelText: "Sort By: "
-                      ),
-                      onChanged: (value) => setState(() => _sortBy = value),
-                      value: _sortBy,
-                    )
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: DropdownButtonFormField(
+                        items: _options,
+                        decoration: InputDecoration(
+                            labelText: "Sort By: "
+                        ),
+                        onChanged: (value) => setState(() => _sortBy = value),
+                        value: _sortBy,
+                      )
+                  )
                 ),
-                RefreshIndicator(
-                    onRefresh: _refresh,
-                    child: StreamBuilder(
-                        stream: _students,
-                        builder: (context, snapshot) {
-                          if(snapshot.hasData) {
-                            if(snapshot.data.length > 0) {
-                              return _buildStudentList(snapshot.data);
-                            } else {
-                              return Text('No students assigned!');
-                            }
-
-                            } else {
-                              return CircularProgressIndicator();
-                            }
-                          },
-                        )
-                    ),
+                StreamBuilder(
+                  stream: _students,
+                  builder: (context, snapshot) {
+                    if(snapshot.hasData) {
+                      if(snapshot.data.length > 0) {
+                        return _buildStudentList(snapshot.data);
+                      } else {
+                        return Text('No students assigned!');
+                      }
+                    } else {
+                      return CircularProgressIndicator();
+                    }
+                  },
+                )
               ],
             ),
           )

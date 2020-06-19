@@ -93,6 +93,8 @@ class _StudentMainState extends State<StudentMain> {
         if (snapshot.hasData) {
           List<TaskWithStatus> filteredTasks = sortAndFilter(snapshot.data);
           return ListView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
             itemCount: filteredTasks.length,
             itemBuilder: (context, index) {
               TaskWithStatus task = filteredTasks[index];
@@ -162,46 +164,44 @@ class _StudentMainState extends State<StudentMain> {
       appBar: buildAppBar(),
       drawer: AppDrawer(),
       body: SafeArea(
-            child: Column(
-              children: <Widget>[
-                AspectRatio(
-                  aspectRatio: 3/2,
-                  child: GameWidget(),
-                ),
-                Container(
-                  color: Colors.green,
-                  child: DropdownButtonFormField(
-                          items: _options,
-                          decoration: InputDecoration(
-                            labelText: "Sort By: "
+            child: SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  AspectRatio(
+                    aspectRatio: 3/2,
+                    child: GameWidget(),
+                  ),
+                  Container(
+                    color: Colors.green,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: DropdownButtonFormField(
+                              items: _options,
+                              decoration: InputDecoration(
+                                labelText: "Sort By: "
+                              ),
+                              onChanged: (value) => setState(() => _sortBy = value),
+                              value: _sortBy,
                           ),
-                          onChanged: (value) => setState(() => _sortBy = value),
-                          value: _sortBy,
-                      )
+                    )
                   ),
-                Expanded(
-                  child: Scrollbar(
-                    child: RefreshIndicator(
-                      onRefresh: refresh,
-                      child: StreamBuilder<Set<TaskStatus>>(
-                        stream: _tasks,
-                        builder: (context, snapshot) {
-                          if(snapshot.hasData) {
-                            print(snapshot.data);
-                            if(snapshot.data.length > 0) {
-                              return _buildTaskList(snapshot.data);
-                            } else {
-                              return Text('No tasks!');
-                            }
+                  StreamBuilder<Set<TaskStatus>>(
+                      stream: _tasks,
+                      builder: (context, snapshot) {
+                        if(snapshot.hasData) {
+                          print(snapshot.data);
+                          if(snapshot.data.length > 0) {
+                            return _buildTaskList(snapshot.data);
                           } else {
-                            return CircularProgressIndicator();
+                            return Text('No tasks!');
                           }
-                        },
-                      )
-                    ),
-                  ),
-                ),
-              ],
+                        } else {
+                          return CircularProgressIndicator();
+                        }
+                      },
+                    )
+                ],
+              ),
             )
         ),
       floatingActionButton: FloatingActionButton(

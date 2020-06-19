@@ -490,6 +490,7 @@ class DatabaseController {
         .collection('groups')
         .document(groupId)
         .collection('students')
+        .orderBy("name")
         .snapshots()
         .map((snapshot) => snapshot.documents)
         .map((documents) =>
@@ -503,6 +504,7 @@ class DatabaseController {
     Stream<List<Group>> groups = db.collection('teachers')
         .document(teacherId)
         .collection('groups')
+        .orderBy("name")
         .snapshots()
         .map((snapshot) => snapshot.documents)
         .map((documents) =>
