@@ -62,14 +62,18 @@ class _StudentMainState extends State<StudentMain> {
             stream: db.getTask(task.id),
             builder: (context, snapshot) {
               if (snapshot.hasData && filteredTask(snapshot.data)) {
+                TaskWithStatus taskWithStatus = snapshot.data.addStatus(task.completed, task.verified);
                 return TaskStatusTile(
-                    task: snapshot.data.addStatus(task.completed, task.verified),
+                    task: taskWithStatus,
                     isStudent: _user.accountType == 'student',
                     updateComplete: (value) {
                       db.updateTaskCompletion(task.id, _user.id, value);
                     },
                     updateVerify: (value) {},
                     onFinish: () {},
+                    onTap: () {
+                      Navigator.of(context).pushNamed('student_taskView', arguments: taskWithStatus);
+                    },
                 );
               } else if (snapshot.hasData) {
                 return Container(width: 0.0, height: 0.0,);

@@ -4,6 +4,7 @@ import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/StudentAddTask.dart';
 import 'package:orbital2020/StudentMain.dart';
+import 'package:orbital2020/StudentTaskView.dart';
 import 'package:orbital2020/TeacherAddGroup.dart';
 import 'package:orbital2020/TeacherAddStudentToGroup.dart';
 import 'package:orbital2020/TeacherAddTask.dart';
@@ -45,6 +46,9 @@ class HomePage extends StatelessWidget {
                         break;
                       case 'student_addTask':
                         builder = (_) => StudentAddTask();
+                        break;
+                      case 'student_taskView':
+                        builder = (_) => StudentTaskView(task: settings.arguments);
                         break;
                       case 'schedule':
                         builder = (_) => Schedule();
