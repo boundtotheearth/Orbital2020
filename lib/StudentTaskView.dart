@@ -23,17 +23,21 @@ class _StudentTaskViewState extends State<StudentTaskView> {
   final _nameFormKey = GlobalKey<FormState>();
   final _mainFormKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _createdByController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _dueDateController = TextEditingController();
   final _tagController = TextEditingController();
 
   User _user;
+  bool editable;
 
   @override
   void initState() {
     super.initState();
     _user = Provider.of<User>(context, listen: false);
+    editable = _user.id == widget.task.createdById;
     _nameController.text = widget.task.name;
+    _createdByController.text = editable ? "Me" : widget.task.createdByName;
     _descriptionController.text = widget.task.description;
     _dueDateController.text = widget.task.dueDate != null ?
         DateFormat('dd/MM/y').format(widget.task.dueDate) :
@@ -104,20 +108,29 @@ class _StudentTaskViewState extends State<StudentTaskView> {
             style: Theme.of(context).primaryTextTheme.headline6,
             validator: RequiredValidator(errorText: "Name cannot be empty!"),
             onSaved: (value) => widget.task.name = value,
+            enabled: editable,
           ),
         )
 
       ),
       body: SafeArea(
-        child: WillPopScope(
-          onWillPop: () {
-            return submit().then((value) => true);
-          },
-          child: Form(
+        child: Form(
             key: _mainFormKey,
+            onWillPop: () async {
+              return editable ? submit().then((value) => true) : true;
+            },
             child: ListView(
                 padding: EdgeInsets.symmetric(horizontal: 5),
                 children: <Widget>[
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: 'Created By',
+                      border: InputBorder.none,
+                      focusedBorder: UnderlineInputBorder(),
+                    ),
+                    controller: _createdByController,
+                    enabled: false,
+                  ),
                   AspectRatio(
                     aspectRatio: 3/2,
                     child: TextFormField(
@@ -133,6 +146,7 @@ class _StudentTaskViewState extends State<StudentTaskView> {
                       minLines: null,
                       maxLines: null,
                       onSaved: (value) => widget.task.description = value,
+                      enabled: editable,
                     ),
                   ),
                   Row(
@@ -155,6 +169,7 @@ class _StudentTaskViewState extends State<StudentTaskView> {
                             },
                             controller: _dueDateController,
                             validator: DateValidator('dd/MM/y', errorText: 'Invalid date format!'),
+                            enabled: editable,
                           )
                       ),
                     ],
@@ -184,6 +199,7 @@ class _StudentTaskViewState extends State<StudentTaskView> {
                     },
                     maxLines: 2,
                     minLines: 1,
+                    enabled: editable,
                   ),
                   Wrap(
                     spacing: 8.0,
@@ -193,7 +209,6 @@ class _StudentTaskViewState extends State<StudentTaskView> {
             ),
           ),
         )
-      ),
-    );
+      );
   }
 }
