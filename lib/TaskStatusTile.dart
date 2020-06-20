@@ -12,6 +12,7 @@ class TaskStatusTile extends StatefulWidget {
   final Function(bool) updateComplete;
   final Function(bool) updateVerify;
   final VoidCallback onFinish;
+  final VoidCallback onTap;
 
   TaskStatusTile({
     Key key,
@@ -20,6 +21,7 @@ class TaskStatusTile extends StatefulWidget {
     this.updateComplete,
     this.updateVerify,
     this.onFinish,
+    this.onTap,
   }) : super(key: key);
 
 
@@ -94,11 +96,12 @@ class _TaskStatusTileState extends State<TaskStatusTile> {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-        title: Text(widget.task.name),
-        subtitle: Text(widget.task.dueDate != null ? ("Due: " + DateFormat('dd/MM/y').format(widget.task.dueDate)) : ""),
-        trailing: (widget.isStudent || widget.task.createdById == _user.id)
-            ? buildTrailing()
-            : Text("Task Not Created By You!"),
+      title: Text(widget.task.name),
+      subtitle: Text(widget.task.dueDate != null ? ("Due: " + DateFormat('dd/MM/y').format(widget.task.dueDate)) : ""),
+      trailing: (widget.isStudent || widget.task.createdById == _user.id)
+          ? buildTrailing()
+          : Text("Task Not Created By You!"),
+      onTap: widget.onTap,
     );
   }
 }
