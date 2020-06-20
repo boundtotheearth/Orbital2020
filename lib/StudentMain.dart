@@ -100,7 +100,7 @@ class _StudentMainState extends State<StudentMain> {
               TaskWithStatus task = filteredTasks[index];
               return TaskStatusTile(
                 task: task,
-                isStudent: _user.accountType == "student",
+                isStudent: true,//_user.accountType == "student",
                 updateComplete: (value) {
                   db.updateTaskCompletion(task.id, _user.id, value);
                 },

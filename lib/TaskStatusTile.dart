@@ -108,7 +108,7 @@ class _TaskStatusTileState extends State<TaskStatusTile> {
           children: [
             Text(widget.task.dueDate != null ? ("Due: " + DateFormat('dd/MM/y').format(widget.task.dueDate)) : ""),
             Text("By: " + widget.task.createdByName?? ""),
-            Wrap(children: getTagChips(),)
+            Wrap(children: widget.isStudent ? getTagChips() : [])
           ],
           crossAxisAlignment: CrossAxisAlignment.start,
         ),

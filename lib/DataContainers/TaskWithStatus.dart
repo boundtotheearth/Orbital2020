@@ -36,4 +36,16 @@ class TaskWithStatus extends Task{
       return 2;
     }
   }
+
+  int getStatusTeacher(String teacherId) {
+    if (teacherId != createdById) {
+      return 3;
+    } else if (!completed) {
+      return 0;
+    } else if (!verified) {
+      return 1;
+    } else {
+      return 2;
+    }
+  }
 }

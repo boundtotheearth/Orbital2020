@@ -104,7 +104,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
               StudentWithStatus student = filteredStudents[index];
               return StudentStatusTile(
                 student: student,
-                isStudent: _user.accountType == "student",
+                isStudent: false,//_user.accountType == "student",
                 updateComplete: (value) {
                   db.updateTaskCompletion(widget.task.id, student.id, value);
                 },

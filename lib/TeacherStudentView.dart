@@ -7,10 +7,12 @@ import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/TaskStatusTile.dart';
 import 'package:provider/provider.dart';
+import 'package:rxdart/rxdart.dart';
 
 import 'AppDrawer.dart';
 import 'DataContainers/Task.dart';
 import 'DataContainers/TaskStatus.dart';
+import 'Sort.dart';
 
 
 class TeacherStudentView extends StatefulWidget {
@@ -30,6 +32,13 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
   Stream<Set<TaskStatus>> _tasks;
   String _searchText;
   bool _searchBarActive;
+  Sort _sortBy;
+  List<DropdownMenuItem> _options = [
+    DropdownMenuItem(child: Text("Name"), value: Sort.name,),
+    DropdownMenuItem(child: Text("Due Date"), value: Sort.dueDate,),
+    DropdownMenuItem(child: Text("Created By"), value: Sort.createdBy,),
+    DropdownMenuItem(child: Text("Completion Status"), value: Sort.status,),
+  ];
 
   @override
   void initState() {
@@ -38,43 +47,63 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
     _tasks = db.getStudentTaskDetailsSnapshots(studentId: widget.student.id);
     _searchText = '';
     _searchBarActive = false;
+    _sortBy = Sort.status;
   }
 
   bool filtered(Task task) {
     return task.name.toLowerCase().startsWith(_searchText);
   }
 
+  List<TaskWithStatus> sortAndFilter(List<TaskWithStatus> originalTasks) {
+    List<TaskWithStatus> filteredTask = originalTasks.where((task) => filtered(task)).toList();
+    switch (_sortBy) {
+      case Sort.name:
+        filteredTask.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+        return filteredTask;
+      case Sort.dueDate:
+        filteredTask.sort((a, b) => a.dueDate.compareTo(b.dueDate));
+        return filteredTask;
+      case Sort.createdBy:
+        filteredTask.sort((a, b) => a.createdByName.toLowerCase().compareTo(b.createdByName.toLowerCase()));
+        return filteredTask;
+      case Sort.status:
+        filteredTask.sort((a, b) => a.getStatusTeacher(_user.id).compareTo(b.getStatusTeacher(_user.id)));
+        return filteredTask;
+    }
+  }
+
   Widget _buildTaskList(List<TaskStatus> tasks) {
 
-    return ListView.builder(
-        itemCount: tasks.length,
-        itemBuilder: (context, index) {
-          TaskStatus task = tasks[index];
-          return StreamBuilder<Task>(
-            stream: db.getTask(task.id),
-            builder: (context, snapshot) {
-              if (snapshot.hasData && filtered(snapshot.data)) {
-                return TaskStatusTile(
-                    task: snapshot.data.addStatus(task.completed, task.verified),
-                    isStudent: _user.accountType == 'student',
-                    updateComplete: (value) {
-                      db.updateTaskCompletion(task.id, widget.student.id, value);
-                    },
-                    updateVerify: (value) {
-                      db.updateTaskVerification(task.id, widget.student.id, value);
-                    },
-                    onFinish: () {},
-                );
-              } else if (snapshot.hasData) {
-                return Container(width: 0.0, height: 0.0,);
-              } else {
-                return ListTile(
-                  title: CircularProgressIndicator(),
-                );
-              }
-            }
+    List<Stream<TaskWithStatus>> streamList = [];
+    tasks.forEach((status) {
+      streamList.add(db.getTaskWithStatus(status));
+    });
+    return StreamBuilder<List<TaskWithStatus>>(
+      stream: CombineLatestStream.list(streamList),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          List<TaskWithStatus> filteredTasks = sortAndFilter(snapshot.data);
+          return ListView.builder(
+            itemCount: filteredTasks.length,
+            itemBuilder: (context, index) {
+              TaskWithStatus task = filteredTasks[index];
+              return TaskStatusTile(
+                task: task,
+                isStudent: false,//_user.accountType == "student",
+                updateComplete: (value) {
+                  db.updateTaskCompletion(task.id, widget.student.id, value);
+                },
+                updateVerify: (value) {
+                  db.updateTaskVerification(task.id, widget.student.id, value);
+                },
+                onFinish: () {},
+              );
+            },
           );
+        } else {
+          return CircularProgressIndicator();
         }
+      },
     );
   }
 
@@ -150,6 +179,7 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
   void _deactivateSearchBar() {
     setState(() {
       _searchBarActive = false;
+      _searchText = "";
     });
   }
 
@@ -167,27 +197,35 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
       body: SafeArea(
           child: Column(
             children: <Widget>[
-              Expanded(
-                child: Scrollbar(
-                  child: RefreshIndicator(
-                      onRefresh: _refresh,
-                      child: StreamBuilder(
-                        stream: _tasks,
-                        builder: (context, snapshot) {
-                          if(snapshot.hasData) {
-                            if(snapshot.data.length > 0) {
-                              return _buildTaskList(snapshot.data.toList());
-                            } else {
-                              return Text('No tasks assigned!');
-                            }
-                          } else {
-                            return CircularProgressIndicator();
-                          }
-                        },
-                      )
-                  ),
-                ),
+              Container(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: DropdownButtonFormField(
+                      items: _options,
+                      decoration: InputDecoration(
+                          labelText: "Sort By: "
+                      ),
+                      onChanged: (value) => setState(() => _sortBy = value),
+                      value: _sortBy,
+                    ),
+                  )
               ),
+              Expanded(
+                child: StreamBuilder(
+                  stream: _tasks,
+                  builder: (context, snapshot) {
+                    if(snapshot.hasData) {
+                      if(snapshot.data.length > 0) {
+                        return _buildTaskList(snapshot.data.toList());
+                      } else {
+                        return Text('No tasks assigned!');
+                      }
+                    } else {
+                      return CircularProgressIndicator();
+                    }
+                  },
+                ),
+              )
             ],
           )
       ),

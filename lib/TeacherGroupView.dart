@@ -182,50 +182,41 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
           ),
         ),
         Expanded(
-          child: Scrollbar(
-            child: RefreshIndicator(
-                onRefresh: _refreshTasks,
-                child: StreamBuilder(
-                  stream: _tasks,
-                  builder: (context, snapshot) {
-                    if(snapshot.hasData) {
-                      if(snapshot.data.length > 0) {
-                        return _buildTaskList(snapshot.data);
-                      } else {
-                        return Text('No tasks assigned!');
-                      }
-                    } else {
-                      return CircularProgressIndicator();
-                    }
-                  },
-                )
-            ),
+          child: StreamBuilder(
+              stream: _tasks,
+              builder: (context, snapshot) {
+                if(snapshot.hasData) {
+                  if(snapshot.data.length > 0) {
+                    return _buildTaskList(snapshot.data);
+                  } else {
+                    return Text('No tasks assigned!');
+                  }
+                } else {
+                  return CircularProgressIndicator();
+                }
+              },
           ),
-        ),
+        )
       ]
     );
   }
 
   Widget _buildStudentsTabView() {
-    return Scrollbar(
-      child: RefreshIndicator(
-          onRefresh: _refreshStudents,
-          child: StreamBuilder<Set<Student>>(
-            stream: _students,
-            builder: (context, snapshot) {
-              if(snapshot.hasData) {
-                if(snapshot.data.length > 0) {
-                  return _buildStudentList(snapshot.data);
-                } else {
-                  return Text('No students assigned!');
-                }
-              } else {
-                return CircularProgressIndicator();
-              }
-            },
-          )
-      ),
-    );
+     return StreamBuilder<Set<Student>>(
+        stream: _students,
+        builder: (context, snapshot) {
+          if(snapshot.hasData) {
+            if(snapshot.data.length > 0) {
+              return _buildStudentList(snapshot.data);
+            } else {
+              return Text('No students assigned!');
+            }
+          } else {
+            return CircularProgressIndicator();
+          }
+        },
+     );
+
   }
 
   void _activateSearchBar() {
