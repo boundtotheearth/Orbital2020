@@ -96,11 +96,13 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
   }
 
   Future<void> submitGroup() {
-    return storage.uploadGroupImage(image: _groupImage, name: _groupName)
-        .then((imageUrl) {
-          Group newGroup = Group(name: _groupName, students: _students, imageUrl: imageUrl);
-          db.teacherCreateGroup(teacherId: _user.id, group: newGroup);
-        });
+    return _groupImage != null
+        ? storage.uploadGroupImage(image: _groupImage, name: _groupName)
+          .then((imageUrl) {
+            Group newGroup = Group(name: _groupName, students: _students, imageUrl: imageUrl);
+            db.teacherCreateGroup(teacherId: _user.id, group: newGroup);
+          })
+        : db.teacherCreateGroup(teacherId: _user.id, group: Group(name: _groupName, students: _students));
   }
 
   Future<File> selectImage() {

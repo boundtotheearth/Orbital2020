@@ -32,6 +32,7 @@ class TaskStatusTile extends StatefulWidget {
 class _TaskStatusTileState extends State<TaskStatusTile> {
   User _user;
 
+
   @override
   void initState() {
     super.initState();
@@ -93,15 +94,33 @@ class _TaskStatusTileState extends State<TaskStatusTile> {
     }
   }
 
+  List<Chip> getTagChips() {
+    return widget.task.tags.map((tag) => Chip(
+      label: Text(tag),
+    )).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(widget.task.name),
-      subtitle: Text(widget.task.dueDate != null ? ("Due: " + DateFormat('dd/MM/y').format(widget.task.dueDate)) : ""),
-      trailing: (widget.isStudent || widget.task.createdById == _user.id)
-          ? buildTrailing()
-          : Text("Task Not Created By You!"),
-      onTap: widget.onTap,
+        title: Text(widget.task.name),
+        subtitle: Column(
+          children: [
+            widget.task.dueDate != null
+              ? Text("Due: " + DateFormat('dd/MM/y').format(widget.task.dueDate))
+              : Container(width: 0, height: 0,),
+            Text("By: " + widget.task.createdByName?? ""),
+            Wrap(children: widget.isStudent ? getTagChips() : [])
+          ],
+          crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+        trailing: (widget.isStudent || widget.task.createdById == _user.id)
+            ? buildTrailing()
+            : Text("Task Not Created By You!"),
+        isThreeLine: true,
+        onTap: widget.onTap,
     );
   }
+
+
 }

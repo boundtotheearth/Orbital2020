@@ -13,6 +13,8 @@ import 'package:provider/provider.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:rxdart/rxdart.dart';
 import 'AppDrawer.dart';
+import 'DataContainers/StudentWithStatus.dart';
+import 'Sort.dart';
 
 
 class TeacherTaskView extends StatefulWidget {
@@ -25,7 +27,9 @@ class TeacherTaskView extends StatefulWidget {
   _TeacherTaskViewState createState() => _TeacherTaskViewState();
 }
 
+
 class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProviderStateMixin{
+
   final DatabaseController db = DatabaseController();
   final _nameFormKey = GlobalKey<FormState>();
   final _mainFormKey = GlobalKey<FormState>();
@@ -42,6 +46,11 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
   bool _searchBarActive;
   TabController _tabController;
   bool _canSearch;
+  Sort _sortBy;
+  List<DropdownMenuItem> _options = [
+    DropdownMenuItem(child: Text("Name"), value: Sort.name,),
+    DropdownMenuItem(child: Text("Completion Status"), value: Sort.status,),
+  ];
 
   @override
   void initState() {
@@ -58,25 +67,47 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
     _dueDateController.text = widget.task.dueDate != null ?
     DateFormat('dd/MM/y').format(widget.task.dueDate) :
     "";
+    _sortBy = Sort.name;
   }
 
   bool filtered(String studentName) {
     return studentName.toLowerCase().startsWith(_searchText);
   }
 
+  List<StudentWithStatus> sortAndFilter(List<StudentWithStatus> original) {
+    List<StudentWithStatus> filteredStudent = original.where((student) => filtered(student.name)).toList();
+    switch (_sortBy) {
+      case Sort.name:
+        filteredStudent.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+        return filteredStudent;
+      case Sort.status:
+        filteredStudent.sort((a, b) => a.getStatus().compareTo(b.getStatus()));
+        return filteredStudent;
+      default:
+        filteredStudent.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+        return filteredStudent;
+    }
+  }
+
   Widget _buildStudentList(List<Student> students) {
-    return ListView.builder(
-        itemCount: students.length,
-        itemBuilder: (context, index) {
-          Student student = students[index];
-          //get task status stream for that student
-          return StreamBuilder<TaskStatus>(
-            stream: db.getStudentTaskStatus(student.id, widget.task.id),
-            builder: (context, snapshot) {
-              if (snapshot.hasData && filtered(student.name)) {
-                return StudentStatusTile(
-                student: student.addStatus(snapshot.data.completed, snapshot.data.verified),
-                isStudent: _user.accountType == 'student',
+    List<Stream<StudentWithStatus>> streamList = [];
+    students.forEach((student) {
+      streamList.add(db.getStudentWithStatus(student, widget.task.id));
+    });
+    return StreamBuilder(
+      stream: CombineLatestStream.list(streamList),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          List<StudentWithStatus> filteredStudents = sortAndFilter(snapshot.data);
+          return ListView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: filteredStudents.length,
+            itemBuilder: (context, index) {
+              StudentWithStatus student = filteredStudents[index];
+              return StudentStatusTile(
+                student: student,
+                isStudent: false,//_user.accountType == "student",
                 updateComplete: (value) {
                   db.updateTaskCompletion(widget.task.id, student.id, value);
                 },
@@ -84,15 +115,14 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
                   db.updateTaskVerification(widget.task.id, student.id, value);
                 },
                 onFinish: () {},
-                );
-              } else if (snapshot.hasData) {
-                return Container(width: 0.0, height: 0.0);
-              } else {
-                return CircularProgressIndicator();
-              }
-            });
-
-        });
+              );
+            },
+          );
+        } else {
+          return CircularProgressIndicator();
+        }
+      },
+    );
   }
 
   Future<Null> _refresh() async {
@@ -167,6 +197,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
   void _deactivateSearchBar() {
     setState(() {
       _searchBarActive = false;
+      _searchText = "";
     });
   }
 
@@ -238,82 +269,114 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
     });
   }
 
+  Widget buildProgressIndicator(int completed, int total) {
+    return AspectRatio(
+      aspectRatio: 3 / 2,
+      child: Container(
+          padding: EdgeInsets.all(10),
+          child: CustomPaint(
+            foregroundPainter: TaskProgressIndicator(total > 0 ?
+            completed / total
+                : 0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text("$completed/$total",
+                  style: TextStyle(fontSize: 28,
+                      fontWeight: FontWeight.bold),),
+                Text("Completed",
+                  style: TextStyle(fontSize: 20),)
+              ],
+            ),
+          )
+      ),
+    );
+  }
+
+
   Widget buildAssignedTab() {
     return SafeArea(
-        child: Column(
-          children: <Widget>[
-            StreamBuilder(
-              stream: _students,
-              builder: (context, snapshot) {
-                if(snapshot.hasData){
-                  List<Stream<TaskStatus>> streamList = [];
-                  snapshot.data.forEach((Student student) {
-                    streamList.add(db.getStudentTaskStatus(student.id, widget.task.id));
-                  });
+        child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                StreamBuilder(
+                  stream: _students,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      int total= snapshot.data.length;
+                      int completed = total;
+                      if (total > 0) {
+                        List<Stream<TaskStatus>> streamList = [];
+                        snapshot.data.forEach((Student student) {
+                          streamList.add(db.getStudentTaskStatus(
+                              student.id, widget.task.id));
+                        });
 
-                  return StreamBuilder<List<TaskStatus>>(
-                      stream: CombineLatestStream.list(streamList),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          int total = snapshot.data.length;
-                          int completed = snapshot.data.where((task) => task.completed).length;
-                          return AspectRatio(
-                            aspectRatio: 3 / 2,
-                            child: Container(
-                                padding: EdgeInsets.all(10),
-                                child: CustomPaint(
-                                  foregroundPainter: TaskProgressIndicator(total > 0 ?
-                                  completed / total
-                                      : 0),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      Text("$completed/$total",
-                                        style: TextStyle(fontSize: 28,
-                                            fontWeight: FontWeight.bold),),
-                                      Text("Completed",
-                                        style: TextStyle(fontSize: 20),)
-                                    ],
-                                  ),
-                                )
-                            ),
-                          );
-                        } else {
-                          return ListTile(
-                            title: CircularProgressIndicator(),
-                          );
-                        }
+                        return StreamBuilder<List<TaskStatus>>(
+                            stream: CombineLatestStream.list(streamList),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                completed = snapshot.data
+                                    .where((task) => task.completed)
+                                    .length;
+                                return buildProgressIndicator(completed, total);
+                              } else {
+                                return ListTile(
+                                  title: CircularProgressIndicator(),
+                                );
+                              }
+                            }
+                        );
+                      } else {
+                        return buildProgressIndicator(completed, total);
                       }
-                  );
-                } else {
-                  return CircularProgressIndicator();
-                }
-              },
-            ),
-            Expanded(
-              child: Scrollbar(
-                child: RefreshIndicator(
-                    onRefresh: _refresh,
-                    child: StreamBuilder(
-                      stream: _students,
-                      builder: (context, snapshot) {
-                        if(snapshot.hasData) {
-                          if(snapshot.data.length > 0) {
-                            return _buildStudentList(snapshot.data);
-                          } else {
-                            return Text('No students assigned!');
-                          }
-                        } else {
-                          return CircularProgressIndicator();
-                        }
-                      },
-                    )
+                    } else {
+                      return CircularProgressIndicator();
+                    }
+                  },
                 ),
-              ),
+                Text(widget.task.description ?? "No Description"),
+                Text("Due: " + DateFormat('dd/MM/y').format(widget.task.dueDate)),
+                Text('Tags:'),
+                Wrap(
+                  spacing: 8.0,
+                  children: getTagChips(),
+                ),
+                Container(
+                    color: Colors.green,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: DropdownButtonFormField(
+                        items: _options,
+                        decoration: InputDecoration(
+                            labelText: "Sort By: "
+                        ),
+                        onChanged: (value) => setState(() => _sortBy = value),
+                        value: _sortBy,
+                      )
+                  )
+                ),
+                StreamBuilder(
+                  stream: _students,
+                  builder: (context, snapshot) {
+                    if(snapshot.hasData) {
+                      if(snapshot.data.length > 0) {
+                        return _buildStudentList(snapshot.data);
+                      } else {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 80),
+                          child: Text('No students assigned!'),
+                        );
+                      }
+                    } else {
+                      return CircularProgressIndicator();
+                    }
+                  },
+                )
+              ],
             ),
-          ],
-        )
-    );
+          )
+      );
   }
 
   Future<DateTime> setDueDate(BuildContext context) async {
@@ -491,7 +554,18 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
             buildDetailsTab(),
             buildAssignedTab(),
           ],
-        )
-      );
+        ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        tooltip: 'Add Student',
+        onPressed: () {
+          Map<String, dynamic> arguments = {
+            'task': widget.task,
+            'group': widget.group
+          };
+          Navigator.of(context).pushNamed('teacher_assignStudent', arguments: arguments);
+        },
+      ),
+    );
   }
 }

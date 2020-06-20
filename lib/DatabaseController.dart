@@ -10,6 +10,8 @@ import 'package:rxdart/rxdart.dart';
 import 'DataContainers/TaskStatus.dart';
 import 'package:orbital2020/Teacher.dart';
 
+import 'DataContainers/TaskWithStatus.dart';
+
 class DatabaseController {
   final db = Firestore.instance;
 
@@ -124,6 +126,23 @@ class DatabaseController {
           createdById: document["createdById"] ?? "",
           createdByName: document["createdByName"] ?? "",
           tags: document["tags"]?.cast<String>() ?? []
+    ));
+  }
+
+  Stream<TaskWithStatus> getTaskWithStatus(TaskStatus task) {
+    return db.collection("tasks")
+        .document(task.id)
+        .snapshots()
+        .map((document) => TaskWithStatus(
+        id: document.documentID,
+        name: document['name'],
+        description: document["description"],
+        dueDate: document["dueDate"]?.toDate(),
+        createdById: document["createdById"] ?? "",
+        createdByName: document["createdByName"] ?? "",
+        tags: document["tags"]?.cast<String>() ?? [],
+        completed: task.completed,
+        verified: task.verified
     ));
   }
 
@@ -473,6 +492,7 @@ class DatabaseController {
         .collection('groups')
         .document(groupId)
         .collection('students')
+        .orderBy("name")
         .snapshots()
         .map((snapshot) => snapshot.documents)
         .map((documents) =>
@@ -486,6 +506,7 @@ class DatabaseController {
     Stream<List<Group>> groups = db.collection('teachers')
         .document(teacherId)
         .collection('groups')
+        .orderBy("name")
         .snapshots()
         .map((snapshot) => snapshot.documents)
         .map((documents) =>
@@ -553,13 +574,15 @@ class DatabaseController {
   }
 
 
-//  Stream<StudentWithStatus> getStudentNameTaskStatus(String studentId, String taskId) {
-//    return Rx.combineLatest2(getStudentTaskStatus(studentId, taskId),
-//        getUserName(studentId),
-//            (TaskStatus status, String name) {
-//            return StudentWithStatus(id: studentId, name: name, completed: status.completed, verified: status.verified);
-//        });
-//  }
+  Stream<StudentWithStatus> getStudentWithStatus(Student student, String taskId) {
+    return getStudentTaskStatus(student.id, taskId).map(
+            (status) => StudentWithStatus(
+              id: student.id,
+              name: student.name,
+              completed: status.completed,
+              verified: status.verified)
+    );
+  }
 
 
 

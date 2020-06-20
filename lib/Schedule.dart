@@ -92,7 +92,6 @@ class _ScheduleState extends State<Schedule> {
   }
 
   Widget _buildTask(List tasks) {
-
     print("hello");
     if (tasks.isEmpty) {
       return Text("No scheduled tasks for the day!");

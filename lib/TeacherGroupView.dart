@@ -7,8 +7,10 @@ import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:provider/provider.dart';
+import 'package:rxdart/rxdart.dart';
 
 import 'AppDrawer.dart';
+import 'Sort.dart';
 
 class TeacherGroupView extends StatefulWidget {
   final Group group;
@@ -29,6 +31,11 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
   TabController _tabController;
   String _searchText;
   bool _searchBarActive;
+  Sort _sortTask;
+  List<DropdownMenuItem> _options = [
+    DropdownMenuItem(child: Text("Name"), value: Sort.name,),
+    DropdownMenuItem(child: Text("Due Date"), value: Sort.dueDate,),
+  ];
 
   @override
   void initState() {
@@ -47,45 +54,73 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
         teacherId: _user.id,
         groupId: widget.group.id,
     );
+    _sortTask = Sort.name;
   }
 
   bool filtered(String listItem) {
     return listItem.toLowerCase().startsWith(_searchText);
   }
 
-  Widget _buildTaskList(Set<String> tasks) {
-  List<String> taskList = tasks.toList();
+  List<Task> sortAndFilter(List<Task> originalTasks) {
+    List<Task> filteredTasks = originalTasks.where((task) => filtered(task.name)).toList();
+    switch (_sortTask) {
+      case Sort.name:
+        filteredTasks.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+        return filteredTasks;
+      case Sort.dueDate:
+        filteredTasks.sort((a, b) {
+          if (a.dueDate == null && b.dueDate == null) {
+            return 0;
+          } else if (a.dueDate == null) {
+            return 1;
+          } else if (b.dueDate == null) {
+            return -1;
+          } else {
+            return a.dueDate.compareTo(b.dueDate);
+          }
+        });
+        return filteredTasks;
+      default:
+        filteredTasks.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+        return filteredTasks;
+    }
+  }
 
-    return ListView.builder(
-        itemCount: taskList.length,
-        itemBuilder: (context, index) {
-          String taskId = taskList[index];
-          return StreamBuilder<Task>(
-            stream: db.getTask(taskId),
-            builder: (context, snapshot) {
-              if (snapshot.hasData && filtered(snapshot.data.name)) {
+  Widget _buildTaskList(Set<String> tasks) {
+    List<Stream<Task>> streamList = [];
+    tasks.forEach((taskId) {
+      streamList.add(db.getTask(taskId));
+    });
+
+    return StreamBuilder<List<Task>>(
+      stream: CombineLatestStream.list(streamList),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          List<Task> filteredTasks = sortAndFilter(snapshot.data);
+          return ListView.builder(
+              itemCount: filteredTasks.length,
+              itemBuilder: (context, index) {
+                Task task = filteredTasks[index];
                 return ListTile(
-                  title: Text(snapshot.data.name),
-                  subtitle: snapshot.data.dueDate != null ?
-                    Text("Due: " + DateFormat('dd/MM/y').format(snapshot.data.dueDate)) :
-                    Text(""),
+                  title: Text(task.name),
+                  subtitle: task.dueDate != null
+                      ? Text("Due: " + DateFormat('dd/MM/y').format(task.dueDate))
+                      : Container(width: 0, height: 0,),
                   onTap: () {
                     Map<String, dynamic> arguments = {
-                      'task': snapshot.data,
+                      'task': task,
                       'group': widget.group
                     };
                     Navigator.of(context).pushNamed(
                         'teacher_taskView', arguments: arguments);
                   },
                 );
-              } else if (snapshot.hasData) {
-                return Container(width: 0.0, height: 0.0);
-              } else {
-                return CircularProgressIndicator();
               }
-            }
           );
+        } else {
+          return CircularProgressIndicator();
         }
+      },
     );
   }
 
@@ -114,47 +149,54 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
   }
 
   Widget _buildTasksTabView() {
-    return Scrollbar(
-      child: RefreshIndicator(
-          onRefresh: _refreshTasks,
-          child: StreamBuilder(
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: DropdownButtonFormField(
+            items: _options,
+            decoration: InputDecoration(
+                labelText: "Sort By: "
+            ),
+            onChanged: (value) => setState(() => _sortTask = value),
+            value: _sortTask,
+          ),
+        ),
+        StreamBuilder(
             stream: _tasks,
             builder: (context, snapshot) {
               if(snapshot.hasData) {
                 if(snapshot.data.length > 0) {
-                  return _buildTaskList(snapshot.data);
+                  return Expanded(child: _buildTaskList(snapshot.data));
                 } else {
-                  return Text('No tasks assigned!');
+                  return Expanded(child: Center(child: Text('No tasks assigned!')));
                 }
               } else {
-                return CircularProgressIndicator();
+                return Expanded(child: Center(child: CircularProgressIndicator()));
               }
             },
-          )
-      ),
+        ),
+
+      ]
     );
   }
 
   Widget _buildStudentsTabView() {
-    return Scrollbar(
-      child: RefreshIndicator(
-          onRefresh: _refreshStudents,
-          child: StreamBuilder<Set<Student>>(
-            stream: _students,
-            builder: (context, snapshot) {
-              if(snapshot.hasData) {
-                if(snapshot.data.length > 0) {
-                  return _buildStudentList(snapshot.data);
-                } else {
-                  return Text('No students assigned!');
-                }
-              } else {
-                return CircularProgressIndicator();
-              }
-            },
-          )
-      ),
-    );
+     return StreamBuilder<Set<Student>>(
+        stream: _students,
+        builder: (context, snapshot) {
+          if(snapshot.hasData) {
+            if(snapshot.data.length > 0) {
+              return _buildStudentList(snapshot.data);
+            } else {
+              return Center(child: Text('No students assigned!'));
+            }
+          } else {
+            return CircularProgressIndicator();
+          }
+        },
+     );
+
   }
 
   void _activateSearchBar() {
@@ -166,6 +208,7 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
   void _deactivateSearchBar() {
     setState(() {
       _searchBarActive = false;
+      _searchText = "";
     });
   }
 
