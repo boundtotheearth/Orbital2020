@@ -66,8 +66,9 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
               if (snapshot.hasData && filtered(snapshot.data.name)) {
                 return ListTile(
                   title: Text(snapshot.data.name),
-                  subtitle: Text("Due: " +
-                      DateFormat('dd/MM/y').format(snapshot.data.dueDate)),
+                  subtitle: snapshot.data.dueDate != null ?
+                    Text("Due: " + DateFormat('dd/MM/y').format(snapshot.data.dueDate)) :
+                    Text(""),
                   onTap: () {
                     Map<String, dynamic> arguments = {
                       'task': snapshot.data,

@@ -130,6 +130,32 @@ class _StudentTaskViewState extends State<StudentTaskView> {
     }
   }
 
+  List<PopupMenuItem> _actionMenuBuilder(BuildContext context) {
+    return [
+      PopupMenuItem(
+        value: 'delete',
+        child: Text('Delete', style: TextStyle(color: Colors.red),),
+      ),
+    ];
+  }
+
+  void _onActionMenuSelected(dynamic value) {
+    switch(value) {
+      case 'delete':
+        _onDelete();
+        break;
+      default:
+        print(value.toString() + " Not Implemented");
+    }
+  }
+
+  Future<void> _onDelete() {
+    return db.studentDeleteTask(task: widget.task, studentId: _user.id)
+      .then((value) {
+        Navigator.of(context).pop();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -147,8 +173,13 @@ class _StudentTaskViewState extends State<StudentTaskView> {
             onSaved: (value) => widget.task.name = value,
             enabled: editable,
           ),
-        )
-
+        ),
+        actions: <Widget>[
+          editable ? PopupMenuButton(
+            itemBuilder: _actionMenuBuilder,
+            onSelected: _onActionMenuSelected,
+          ) : Container(width: 0, height: 0,)
+        ],
       ),
       body: SafeArea(
         child: Form(

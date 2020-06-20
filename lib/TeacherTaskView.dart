@@ -152,7 +152,8 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
   }
 
   Future<void> _onDelete() {
-    return Future(null);
+    return db.teacherDeleteTask(task: widget.task, group: widget.group)
+        .then((value) => Navigator.of(context).pop());
   }
 
   void _activateSearchBar() {
@@ -229,6 +230,9 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
   void onTabChange() {
     setState(() {
       _canSearch = _tabController.index == 0 ? false : true;
+      if(_tabController.index == 0) {
+        submit();
+      }
     });
   }
 
@@ -361,6 +365,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
     return SafeArea(
         child: Form(
             key: _mainFormKey,
+            onWillPop: () => submit().then((value) => true),
             child: ListView(
                 padding: EdgeInsets.symmetric(horizontal: 5),
                 children: <Widget>[
@@ -446,20 +451,13 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
     return Scaffold(
       appBar: buildAppBar(),
       drawer: AppDrawer(),
-      body: WillPopScope(
-        onWillPop: () {
-          return submit().then((value) {
-            return true;
-          });
-        },
-        child: TabBarView(
+      body: TabBarView(
           controller: _tabController,
           children: <Widget>[
             buildDetailsTab(),
             buildAssignedTab(),
           ],
         )
-      ),
-    );
+      );
   }
 }

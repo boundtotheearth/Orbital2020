@@ -6,7 +6,6 @@ import 'package:orbital2020/DataContainers/ScheduleDetails.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/StudentWithStatus.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
-import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:rxdart/rxdart.dart';
 import 'DataContainers/TaskStatus.dart';
 import 'package:orbital2020/Teacher.dart';
@@ -577,6 +576,31 @@ class DatabaseController {
     );
   }
 
+  Future<void> studentDeleteTask({Task task, String studentId}) {
+    return Future.wait([
+      _unassignTaskFromStudent(task, studentId),
+      _deleteTask(task),
+    ]);
+  }
+
+  Future<void> teacherDeleteTask({Task task, Group group}) {
+    return Future.wait([
+      _unassignTaskFromGroup(task, group),
+      _deleteTask(task),
+      db.collection('teachers')
+          .document(task.createdById)
+          .collection('groups')
+          .document(group.id)
+          .collection('students')
+          .getDocuments()
+          .then((QuerySnapshot snapshot) {
+            snapshot.documents.forEach((document) {
+              _unassignTaskFromStudent(task, document.documentID);
+            });
+          })
+    ]);
+  }
+
   //Saving Game Data
   Future<void> saveGameData({String data, String studentId}) {
     DocumentReference newDoc = db.collection("students")
@@ -652,6 +676,30 @@ class DatabaseController {
           task.id = newDoc.documentID;
           return task;
     });
+  }
+
+  Future<void> _deleteTask(Task task) {
+    return db.collection('tasks')
+        .document(task.id)
+        .delete();
+  }
+
+  Future<void> _unassignTaskFromStudent(Task task, String studentId) {
+    return db.collection('students')
+        .document(studentId)
+        .collection('tasks')
+        .document(task.id)
+        .delete();
+  }
+
+  Future<void> _unassignTaskFromGroup(Task task, Group group) {
+    return db.collection('teachers')
+        .document(task.createdById)
+        .collection('groups')
+        .document(group.id)
+        .collection('tasks')
+        .document(task.id)
+        .delete();
   }
 
   Future<void> _assignTaskToGroup(Task task, Group group) {
