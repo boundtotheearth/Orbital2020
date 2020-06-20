@@ -110,7 +110,7 @@ class _StudentTaskViewState extends State<StudentTaskView> {
         return RaisedButton(
           child: const Text('Waiting for Verification...'),
           onPressed: () {
-            db.updateTaskCompletion(widget.task.id, _user.id, true)
+            db.updateTaskCompletion(widget.task.id, _user.id, false)
               .then((value) =>
               setState(() {
                 widget.task.completed = false;
