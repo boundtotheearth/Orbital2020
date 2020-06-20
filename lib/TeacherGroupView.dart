@@ -119,42 +119,6 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
         }
       },
     );
-<<<<<<< HEAD
-
-
-    return ListView.builder(
-        itemCount: tasks.length,
-        itemBuilder: (context, index) {
-          String taskId = tasks.elementAt(index);
-          return StreamBuilder<Task>(
-            stream: db.getTask(taskId),
-            builder: (context, snapshot) {
-              if (snapshot.hasData && filtered(snapshot.data.name)) {
-                return ListTile(
-                  title: Text(snapshot.data.name),
-                  subtitle: snapshot.data.dueDate != null ?
-                    Text("Due: " + DateFormat('dd/MM/y').format(snapshot.data.dueDate)) :
-                    Text(""),
-                  onTap: () {
-                    Map<String, dynamic> arguments = {
-                      'task': snapshot.data,
-                      'group': widget.group
-                    };
-                    Navigator.of(context).pushNamed(
-                        'teacher_taskView', arguments: arguments);
-                  },
-                );
-              } else if (snapshot.hasData) {
-                return Container(width: 0.0, height: 0.0);
-              } else {
-                return CircularProgressIndicator();
-              }
-            }
-          );
-        }
-    );
-=======
->>>>>>> Fixed bug with progress indicator in teachertaskview if no students assigned tasks. Reformated display for no data in teachergroupview
   }
 
   Widget _buildStudentList(Set<Student> students) {
