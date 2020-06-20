@@ -10,6 +10,8 @@ import 'package:rxdart/rxdart.dart';
 import 'DataContainers/TaskStatus.dart';
 import 'package:orbital2020/Teacher.dart';
 
+import 'DataContainers/TaskWithStatus.dart';
+
 class DatabaseController {
   final db = Firestore.instance;
 

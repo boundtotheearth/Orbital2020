@@ -118,6 +118,7 @@ class _TaskStatusTileState extends State<TaskStatusTile> {
             ? buildTrailing()
             : Text("Task Not Created By You!"),
         isThreeLine: true,
+        onTap: widget.onTap,
     );
   }
 

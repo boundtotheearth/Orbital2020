@@ -116,6 +116,9 @@ class _StudentMainState extends State<StudentMain> {
                 },
                 updateVerify: (value) {},
                 onFinish: () {},
+                onTap: () {
+                  Navigator.of(context).pushNamed('student_taskView', arguments: task);
+                },
               );
             },
           );
