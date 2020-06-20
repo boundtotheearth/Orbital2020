@@ -34,6 +34,8 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
   final _dueDateController = TextEditingController();
   final _tagController = TextEditingController();
 
+  final _nameFocusNode = FocusNode();
+
   Stream<List<Student>> _students;
   User _user;
   String _searchText;
@@ -197,12 +199,12 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
           key: _nameFormKey,
           child: TextFormField(
             controller: _nameController,
+            focusNode: _nameFocusNode,
             decoration: InputDecoration(
               border: InputBorder.none,
               focusedBorder: UnderlineInputBorder(),
             ),
             style: Theme.of(context).primaryTextTheme.headline6,
-            validator: RequiredValidator(errorText: "Name cannot be empty!"),
             onSaved: (value) => widget.task.name = value,
           ),
         ),
@@ -353,8 +355,40 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
     });
   }
 
+  //Custom validator for the name field as the default is ugly
+  bool _validateName() {
+    if(_nameController.text.isEmpty) {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Name Cannot be Empty!'),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    Text('Please enter a name for the task.'),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('ok'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _nameFocusNode.requestFocus();
+                  },
+                ),
+              ],
+            );
+          }
+      );
+      return false;
+    }
+    return true;
+  }
+
   Future<void> submit() {
-    if (_mainFormKey.currentState.validate() && _nameFormKey.currentState.validate()) {
+    if (_mainFormKey.currentState.validate() && _validateName()) {
       _nameFormKey.currentState.save();
       _mainFormKey.currentState.save();
       return db.updateTaskDetails(task: widget.task);
