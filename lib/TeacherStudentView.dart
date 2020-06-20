@@ -61,7 +61,17 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
         filteredTask.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
         return filteredTask;
       case Sort.dueDate:
-        filteredTask.sort((a, b) => a.dueDate.compareTo(b.dueDate));
+        filteredTask.sort((a, b) {
+          if (a.dueDate == null && b.dueDate == null) {
+            return 0;
+          } else if (a.dueDate == null) {
+            return 1;
+          } else if (b.dueDate == null) {
+            return -1;
+          } else {
+            return a.dueDate.compareTo(b.dueDate);
+          }
+        });
         return filteredTask;
       case Sort.createdBy:
         filteredTask.sort((a, b) => a.createdByName.toLowerCase().compareTo(b.createdByName.toLowerCase()));

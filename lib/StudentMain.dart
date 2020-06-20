@@ -71,7 +71,17 @@ class _StudentMainState extends State<StudentMain> {
         filtered.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
         return filtered;
       case Sort.dueDate:
-        filtered.sort((a, b) => a.dueDate.compareTo(b.dueDate));
+        filtered.sort((a, b) {
+          if (a.dueDate == null && b.dueDate == null) {
+            return 0;
+          } else if (a.dueDate == null) {
+            return 1;
+          } else if (b.dueDate == null) {
+            return -1;
+          } else {
+            return a.dueDate.compareTo(b.dueDate);
+          }
+        });
         return filtered;
       case Sort.createdBy:
         filtered.sort((a, b) => a.createdByName.toLowerCase().compareTo(b.createdByName.toLowerCase()));

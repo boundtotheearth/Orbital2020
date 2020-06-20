@@ -68,7 +68,17 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
         filteredTasks.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
         return filteredTasks;
       case Sort.dueDate:
-        filteredTasks.sort((a, b) => a.dueDate.compareTo(b.dueDate));
+        filteredTasks.sort((a, b) {
+          if (a.dueDate == null && b.dueDate == null) {
+            return 0;
+          } else if (a.dueDate == null) {
+            return 1;
+          } else if (b.dueDate == null) {
+            return -1;
+          } else {
+            return a.dueDate.compareTo(b.dueDate);
+          }
+        });
         return filteredTasks;
     }
   }
@@ -90,8 +100,9 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
                 Task task = filteredTasks[index];
                 return ListTile(
                   title: Text(task.name),
-                  subtitle: Text("Due: " +
-                      DateFormat('dd/MM/y').format(task.dueDate)),
+                  subtitle: task.dueDate != null
+                      ? Text("Due: " + DateFormat('dd/MM/y').format(task.dueDate))
+                      : Container(width: 0, height: 0,),
                   onTap: () {
                     Map<String, dynamic> arguments = {
                       'task': task,

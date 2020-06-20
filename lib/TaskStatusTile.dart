@@ -106,7 +106,9 @@ class _TaskStatusTileState extends State<TaskStatusTile> {
         title: Text(widget.task.name),
         subtitle: Column(
           children: [
-            Text(widget.task.dueDate != null ? ("Due: " + DateFormat('dd/MM/y').format(widget.task.dueDate)) : ""),
+            widget.task.dueDate != null
+              ? Text("Due: " + DateFormat('dd/MM/y').format(widget.task.dueDate))
+              : Container(width: 0, height: 0,),
             Text("By: " + widget.task.createdByName?? ""),
             Wrap(children: widget.isStudent ? getTagChips() : [])
           ],
