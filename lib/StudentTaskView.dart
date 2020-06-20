@@ -6,8 +6,6 @@ import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:provider/provider.dart';
-import 'AppDrawer.dart';
-
 
 class StudentTaskView extends StatefulWidget {
   final TaskWithStatus task;
@@ -81,6 +79,45 @@ class _StudentTaskViewState extends State<StudentTaskView> {
     setState(() {
       widget.task.tags.add(tag);
     });
+  }
+
+  Widget buildCompletedButton() {
+    if(!widget.task.completed) {
+      //Not conpleted
+      return RaisedButton(
+        child: const Text('Complete'),
+        onPressed: () {
+          db.updateTaskCompletion(widget.task.id, _user.id, true)
+            .then((value) =>
+              setState(() {
+                widget.task.completed = true;
+              })
+          );
+
+        },
+      );
+    } else {
+      if(widget.task.verified) {
+        //Completed, verified
+        return RaisedButton(
+          child: const Text('Claim Reward'),
+          onPressed: () {},
+        );
+      } else {
+        //Completed, not verified
+        return RaisedButton(
+          child: const Text('Waiting for Verification...'),
+          onPressed: () {
+            db.updateTaskCompletion(widget.task.id, _user.id, true)
+              .then((value) =>
+              setState(() {
+                widget.task.completed = false;
+              })
+            );
+          },
+        );
+      }
+    }
   }
 
   Future<void> submit() {
@@ -205,6 +242,7 @@ class _StudentTaskViewState extends State<StudentTaskView> {
                     spacing: 8.0,
                     children: getTagChips(),
                   ),
+                  buildCompletedButton(),
                 ]
             ),
           ),
