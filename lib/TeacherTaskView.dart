@@ -5,11 +5,9 @@ import 'package:intl/intl.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/DataContainers/TaskStatus.dart';
-import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/StudentStatusTile.dart';
 import 'package:orbital2020/TaskProgressIndicator.dart';
-import 'package:provider/provider.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:rxdart/rxdart.dart';
 import 'AppDrawer.dart';
@@ -41,7 +39,6 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
   final _nameFocusNode = FocusNode();
 
   Stream<List<Student>> _students;
-  User _user;
   String _searchText;
   bool _searchBarActive;
   TabController _tabController;
@@ -56,7 +53,6 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
   void initState() {
     super.initState();
     _students = db.getStudentsWithTask(widget.task.id);
-    _user = Provider.of<User>(context, listen: false);
     _searchText = '';
     _searchBarActive = false;
     _tabController = TabController(length: 2, vsync: this, initialIndex: 0);
@@ -100,8 +96,6 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
         if (snapshot.hasData) {
           List<StudentWithStatus> filteredStudents = sortAndFilter(snapshot.data);
           return ListView.builder(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
             itemCount: filteredStudents.length,
             itemBuilder: (context, index) {
               StudentWithStatus student = filteredStudents[index];
@@ -123,12 +117,6 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
         }
       },
     );
-  }
-
-  Future<Null> _refresh() async {
-    await Future.microtask(() => setState(() {
-      _students = db.getStudentsWithTask(widget.task.id);
-    }));
   }
 
   List<PopupMenuItem> _actionMenuBuilder(BuildContext context) {
@@ -271,7 +259,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
 
   Widget buildProgressIndicator(int completed, int total) {
     return AspectRatio(
-      aspectRatio: 3 / 2,
+      aspectRatio: 3 / 1.5,
       child: Container(
           padding: EdgeInsets.all(10),
           child: CustomPaint(
@@ -282,10 +270,10 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text("$completed/$total",
-                  style: TextStyle(fontSize: 28,
+                  style: TextStyle(fontSize: 24,
                       fontWeight: FontWeight.bold),),
                 Text("Completed",
-                  style: TextStyle(fontSize: 20),)
+                  style: TextStyle(fontSize: 16),)
               ],
             ),
           )
@@ -296,86 +284,77 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
 
   Widget buildAssignedTab() {
     return SafeArea(
-        child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                StreamBuilder(
-                  stream: _students,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      int total= snapshot.data.length;
-                      int completed = total;
-                      if (total > 0) {
-                        List<Stream<TaskStatus>> streamList = [];
-                        snapshot.data.forEach((Student student) {
-                          streamList.add(db.getStudentTaskStatus(
-                              student.id, widget.task.id));
-                        });
+        child: Column(
+          children: <Widget>[
+            StreamBuilder(
+              stream: _students,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  int total= snapshot.data.length;
+                  int completed = total;
+                  if (total > 0) {
+                    List<Stream<TaskStatus>> streamList = [];
+                    snapshot.data.forEach((Student student) {
+                      streamList.add(db.getStudentTaskStatus(
+                          student.id, widget.task.id));
+                    });
 
-                        return StreamBuilder<List<TaskStatus>>(
-                            stream: CombineLatestStream.list(streamList),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                completed = snapshot.data
-                                    .where((task) => task.completed)
-                                    .length;
-                                return buildProgressIndicator(completed, total);
-                              } else {
-                                return ListTile(
-                                  title: CircularProgressIndicator(),
-                                );
-                              }
-                            }
-                        );
-                      } else {
-                        return buildProgressIndicator(completed, total);
-                      }
-                    } else {
-                      return CircularProgressIndicator();
-                    }
-                  },
-                ),
-                Text(widget.task.description ?? "No Description"),
-                Text("Due: " + DateFormat('dd/MM/y').format(widget.task.dueDate)),
-                Text('Tags:'),
-                Wrap(
-                  spacing: 8.0,
-                  children: getTagChips(),
-                ),
-                Container(
-                    color: Colors.green,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: DropdownButtonFormField(
-                        items: _options,
-                        decoration: InputDecoration(
-                            labelText: "Sort By: "
-                        ),
-                        onChanged: (value) => setState(() => _sortBy = value),
-                        value: _sortBy,
-                      )
-                  )
-                ),
-                StreamBuilder(
-                  stream: _students,
-                  builder: (context, snapshot) {
-                    if(snapshot.hasData) {
-                      if(snapshot.data.length > 0) {
-                        return _buildStudentList(snapshot.data);
-                      } else {
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 80),
-                          child: Text('No students assigned!'),
-                        );
-                      }
-                    } else {
-                      return CircularProgressIndicator();
-                    }
-                  },
-                )
-              ],
+                    return StreamBuilder<List<TaskStatus>>(
+                        stream: CombineLatestStream.list(streamList),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            completed = snapshot.data
+                                .where((task) => task.completed)
+                                .length;
+                            return buildProgressIndicator(completed, total);
+                          } else {
+                            return ListTile(
+                              title: CircularProgressIndicator(),
+                            );
+                          }
+                        }
+                    );
+                  } else {
+                    return buildProgressIndicator(completed, total);
+                  }
+                } else {
+                  return CircularProgressIndicator();
+                }
+              },
             ),
-          )
+            Container(
+                color: Colors.green,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: DropdownButtonFormField(
+                    items: _options,
+                    decoration: InputDecoration(
+                        labelText: "Sort By: "
+                    ),
+                    onChanged: (value) => setState(() => _sortBy = value),
+                    value: _sortBy,
+                  )
+              )
+            ),
+            StreamBuilder(
+              stream: _students,
+              builder: (context, snapshot) {
+                if(snapshot.hasData) {
+                  if(snapshot.data.length > 0) {
+                    return _buildStudentList(snapshot.data);
+                  } else {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 80),
+                      child: Text('No students assigned!'),
+                    );
+                  }
+                } else {
+                  return CircularProgressIndicator();
+                }
+              },
+            )
+          ],
+        ),
       );
   }
 
@@ -456,6 +435,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
       _mainFormKey.currentState.save();
       return db.updateTaskDetails(task: widget.task);
     }
+    return Future.value();
   }
 
   Widget buildDetailsTab() {

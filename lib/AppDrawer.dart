@@ -8,9 +8,8 @@ import 'DataContainers/User.dart';
 
 class AppDrawer extends StatelessWidget {
   AppDrawer({ Key key }) : super(key: key);
-  User _user;
 
-  Future<void> signOut(BuildContext context) async {
+  Future<void> signOut(BuildContext context, User _user) async {
     print("Tapped Logout");
     try {
       Auth auth = AuthProvider.of(context).auth;
@@ -23,7 +22,7 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _user = Provider.of<User>(context, listen: false);
+    User _user = Provider.of<User>(context, listen: false);
     return Drawer(
         child: ListView(
           children: <Widget>[
@@ -74,7 +73,7 @@ class AppDrawer extends StatelessWidget {
             ),
             ListTile(
               title: Text('Logout'),
-              onTap: () => signOut(context)
+              onTap: () => signOut(context, _user)
             )
           ],
         )

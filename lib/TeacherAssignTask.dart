@@ -8,8 +8,6 @@ import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:provider/provider.dart';
 
-import 'DataContainers/TaskStatus.dart';
-
 //View shown when teacher is assigning a task to a student
 class TeacherAssignTask extends StatefulWidget {
   final Student student;

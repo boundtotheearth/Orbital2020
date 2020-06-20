@@ -79,11 +79,13 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
       case Sort.status:
         filteredTask.sort((a, b) => a.getStatusTeacher(_user.id).compareTo(b.getStatusTeacher(_user.id)));
         return filteredTask;
+      default:
+        filteredTask.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+        return filteredTask;
     }
   }
 
   Widget _buildTaskList(List<TaskStatus> tasks) {
-
     List<Stream<TaskWithStatus>> streamList = [];
     tasks.forEach((status) {
       streamList.add(db.getTaskWithStatus(status));
@@ -191,12 +193,6 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
       _searchBarActive = false;
       _searchText = "";
     });
-  }
-
-  Future<Null> _refresh() async {
-    await Future.microtask(() => setState(() {
-      _tasks = db.getStudentTaskDetailsSnapshots(studentId: widget.student.id);
-    }));
   }
 
   @override
