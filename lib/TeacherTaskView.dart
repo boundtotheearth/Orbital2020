@@ -83,6 +83,9 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
       case Sort.status:
         filteredStudent.sort((a, b) => a.getStatus().compareTo(b.getStatus()));
         return filteredStudent;
+      default:
+        filteredStudent.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+        return filteredStudent;
     }
   }
 
@@ -551,7 +554,18 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
             buildDetailsTab(),
             buildAssignedTab(),
           ],
-        )
-      );
+        ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        tooltip: 'Add Student',
+        onPressed: () {
+          Map<String, dynamic> arguments = {
+            'task': widget.task,
+            'group': widget.group
+          };
+          Navigator.of(context).pushNamed('teacher_assignStudent', arguments: arguments);
+        },
+      ),
+    );
   }
 }

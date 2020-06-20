@@ -80,6 +80,9 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
           }
         });
         return filteredTasks;
+      default:
+        filteredTasks.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+        return filteredTasks;
     }
   }
 
