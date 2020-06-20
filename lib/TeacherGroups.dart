@@ -131,7 +131,7 @@ class _TeacherGroupsState extends State<TeacherGroups> {
                     if(snapshot.data.length > 0) {
                       return _buildGroupList(snapshot.data);
                     } else {
-                      return Text('No groups');
+                      return Center(child: Text('No groups'));
                     }
                   } else {
                     return CircularProgressIndicator();

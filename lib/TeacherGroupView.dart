@@ -108,6 +108,7 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
         }
       },
     );
+<<<<<<< HEAD
 
 
     return ListView.builder(
@@ -141,6 +142,8 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
           );
         }
     );
+=======
+>>>>>>> Fixed bug with progress indicator in teachertaskview if no students assigned tasks. Reformated display for no data in teachergroupview
   }
 
   Widget _buildStudentList(Set<Student> students) {
@@ -181,22 +184,21 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
             value: _sortTask,
           ),
         ),
-        Expanded(
-          child: StreamBuilder(
-              stream: _tasks,
-              builder: (context, snapshot) {
-                if(snapshot.hasData) {
-                  if(snapshot.data.length > 0) {
-                    return _buildTaskList(snapshot.data);
-                  } else {
-                    return Text('No tasks assigned!');
-                  }
+        StreamBuilder(
+            stream: _tasks,
+            builder: (context, snapshot) {
+              if(snapshot.hasData) {
+                if(snapshot.data.length > 0) {
+                  return Expanded(child: _buildTaskList(snapshot.data));
                 } else {
-                  return CircularProgressIndicator();
+                  return Expanded(child: Center(child: Text('No tasks assigned!')));
                 }
-              },
-          ),
-        )
+              } else {
+                return Expanded(child: Center(child: CircularProgressIndicator()));
+              }
+            },
+        ),
+
       ]
     );
   }
@@ -209,7 +211,7 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
             if(snapshot.data.length > 0) {
               return _buildStudentList(snapshot.data);
             } else {
-              return Text('No students assigned!');
+              return Center(child: Text('No students assigned!'));
             }
           } else {
             return CircularProgressIndicator();

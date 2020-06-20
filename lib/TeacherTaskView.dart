@@ -266,6 +266,30 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
     });
   }
 
+  Widget buildProgressIndicator(int completed, int total) {
+    return AspectRatio(
+      aspectRatio: 3 / 2,
+      child: Container(
+          padding: EdgeInsets.all(10),
+          child: CustomPaint(
+            foregroundPainter: TaskProgressIndicator(total > 0 ?
+            completed / total
+                : 0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text("$completed/$total",
+                  style: TextStyle(fontSize: 28,
+                      fontWeight: FontWeight.bold),),
+                Text("Completed",
+                  style: TextStyle(fontSize: 20),)
+              ],
+            ),
+          )
+      ),
+    );
+  }
+
 
   Widget buildAssignedTab() {
     return SafeArea(
@@ -275,46 +299,34 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
                 StreamBuilder(
                   stream: _students,
                   builder: (context, snapshot) {
-                    if(snapshot.hasData) {
-                      List<Stream<TaskStatus>> streamList = [];
-                      snapshot.data.forEach((Student student) {
-                        streamList.add(db.getStudentTaskStatus(student.id, widget.task.id));
-                      });
+                    if (snapshot.hasData) {
+                      int total= snapshot.data.length;
+                      int completed = total;
+                      if (total > 0) {
+                        List<Stream<TaskStatus>> streamList = [];
+                        snapshot.data.forEach((Student student) {
+                          streamList.add(db.getStudentTaskStatus(
+                              student.id, widget.task.id));
+                        });
 
-                      return StreamBuilder<List<TaskStatus>>(
-                          stream: CombineLatestStream.list(streamList),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              int total = snapshot.data.length;
-                              int completed = snapshot.data.where((task) => task.completed).length;
-                              return AspectRatio(
-                                aspectRatio: 3 / 2,
-                                child: Container(
-                                    padding: EdgeInsets.all(10),
-                                    child: CustomPaint(
-                                      foregroundPainter: TaskProgressIndicator(total > 0 ?
-                                      completed / total
-                                          : 0),
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          Text("$completed/$total",
-                                            style: TextStyle(fontSize: 28,
-                                                fontWeight: FontWeight.bold),),
-                                          Text("Completed",
-                                            style: TextStyle(fontSize: 20),)
-                                        ],
-                                      ),
-                                    )
-                                ),
-                              );
-                            } else {
-                              return ListTile(
-                                title: CircularProgressIndicator(),
-                              );
+                        return StreamBuilder<List<TaskStatus>>(
+                            stream: CombineLatestStream.list(streamList),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                completed = snapshot.data
+                                    .where((task) => task.completed)
+                                    .length;
+                                return buildProgressIndicator(completed, total);
+                              } else {
+                                return ListTile(
+                                  title: CircularProgressIndicator(),
+                                );
+                              }
                             }
-                          }
-                      );
+                        );
+                      } else {
+                        return buildProgressIndicator(completed, total);
+                      }
                     } else {
                       return CircularProgressIndicator();
                     }
@@ -348,7 +360,10 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
                       if(snapshot.data.length > 0) {
                         return _buildStudentList(snapshot.data);
                       } else {
-                        return Text('No students assigned!');
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 80),
+                          child: Text('No students assigned!'),
+                        );
                       }
                     } else {
                       return CircularProgressIndicator();
