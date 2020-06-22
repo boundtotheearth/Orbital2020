@@ -90,32 +90,34 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
     students.forEach((student) {
       streamList.add(db.getStudentWithStatus(student, widget.task.id));
     });
-    return StreamBuilder(
-      stream: CombineLatestStream.list(streamList),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          List<StudentWithStatus> filteredStudents = sortAndFilter(snapshot.data);
-          return ListView.builder(
-            itemCount: filteredStudents.length,
-            itemBuilder: (context, index) {
-              StudentWithStatus student = filteredStudents[index];
-              return StudentStatusTile(
-                student: student,
-                isStudent: false,//_user.accountType == "student",
-                updateComplete: (value) {
-                  db.updateTaskCompletion(widget.task.id, student.id, value);
-                },
-                updateVerify: (value) {
-                  db.updateTaskVerification(widget.task.id, student.id, value);
-                },
-                onFinish: () {},
-              );
-            },
-          );
-        } else {
-          return CircularProgressIndicator();
-        }
-      },
+    return Expanded(
+      child: StreamBuilder(
+        stream: CombineLatestStream.list(streamList),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            List<StudentWithStatus> filteredStudents = sortAndFilter(snapshot.data);
+            return ListView.builder(
+              itemCount: filteredStudents.length,
+              itemBuilder: (context, index) {
+                StudentWithStatus student = filteredStudents[index];
+                return StudentStatusTile(
+                  student: student,
+                  isStudent: false,//_user.accountType == "student",
+                  updateComplete: (value) {
+                    db.updateTaskCompletion(widget.task.id, student.id, value);
+                  },
+                  updateVerify: (value) {
+                    db.updateTaskVerification(widget.task.id, student.id, value);
+                  },
+                  onFinish: () {},
+                );
+              },
+            );
+          } else {
+            return CircularProgressIndicator();
+          }
+        },
+      ),
     );
   }
 
