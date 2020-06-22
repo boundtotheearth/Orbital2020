@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'dart:async';
 import 'AppDrawer.dart';
-import 'DataContainers/Task.dart';
 import 'DataContainers/TaskStatus.dart';
 import 'DataContainers/User.dart';
 import 'Sort.dart';
@@ -89,6 +88,9 @@ class _StudentMainState extends State<StudentMain> {
       case Sort.status:
         filtered.sort((a, b) => a.getStatus().compareTo(b.getStatus()));
         return filtered;
+      default:
+        filtered.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+        return filtered;
     }
   }
 
@@ -97,35 +99,42 @@ class _StudentMainState extends State<StudentMain> {
     tasks.forEach((status) {
       streamList.add(db.getTaskWithStatus(status));
     });
-    return StreamBuilder<List<TaskWithStatus>>(
-      stream: CombineLatestStream.list(streamList),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          List<TaskWithStatus> filteredTasks = sortAndFilter(snapshot.data);
-          return ListView.builder(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            itemCount: filteredTasks.length,
-            itemBuilder: (context, index) {
-              TaskWithStatus task = filteredTasks[index];
-              return TaskStatusTile(
-                task: task,
-                isStudent: true,//_user.accountType == "student",
-                updateComplete: (value) {
-                  db.updateTaskCompletion(task.id, _user.id, value);
-                },
-                updateVerify: (value) {},
-                onFinish: () {},
-                onTap: () {
-                  Navigator.of(context).pushNamed('student_taskView', arguments: task);
-                },
-              );
+    return Expanded(
+      child: Scrollbar(
+        child: RefreshIndicator(
+          onRefresh: refresh,
+          child: StreamBuilder<List<TaskWithStatus>>(
+            stream: CombineLatestStream.list(streamList),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                List<TaskWithStatus> filteredTasks = sortAndFilter(snapshot.data);
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: filteredTasks.length,
+                  itemBuilder: (context, index) {
+                    TaskWithStatus task = filteredTasks[index];
+                    return TaskStatusTile(
+                      task: task,
+                      isStudent: true,//_user.accountType == "student",
+                      updateComplete: (value) {
+                        db.updateTaskCompletion(task.id, _user.id, value);
+                      },
+                      updateVerify: (value) {},
+                      onFinish: () {},
+                      onTap: () {
+                        Navigator.of(context).pushNamed('student_taskView', arguments: task);
+                      },
+                    );
+                  },
+                );
+              } else {
+                return CircularProgressIndicator();
+              }
             },
-          );
-        } else {
-          return CircularProgressIndicator();
-        }
-      },
+          ),
+        ),
+      ),
     );
   }
 

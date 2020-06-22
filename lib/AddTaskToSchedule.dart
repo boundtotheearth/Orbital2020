@@ -1,18 +1,15 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:intl/intl.dart';
 import 'package:orbital2020/DataContainers/ScheduleDetails.dart';
-import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:provider/provider.dart';
 import 'DataContainers/Task.dart';
 import 'AppDrawer.dart';
 import 'DataContainers/TaskStatus.dart';
 import 'DataContainers/User.dart';
-import 'package:async/async.dart';
 import 'package:rxdart/rxdart.dart';
 
 class AddTaskToSchedule extends StatefulWidget {

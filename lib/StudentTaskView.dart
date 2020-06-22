@@ -162,6 +162,7 @@ class _StudentTaskViewState extends State<StudentTaskView> {
 
       return db.updateTaskDetails(task: widget.task);
     }
+    return Future.value();
   }
 
   List<PopupMenuItem> _actionMenuBuilder(BuildContext context) {

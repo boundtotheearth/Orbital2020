@@ -262,24 +262,6 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
     }
   }
 
-  Future<Null> _refreshTasks() async {
-    await Future.microtask(() => setState(() {
-      _tasks = db.getGroupTaskSnapshots(
-        teacherId: _user.id,
-        groupId: widget.group.id,
-      );
-    }));
-  }
-
-  Future<Null> _refreshStudents() async {
-    await Future.microtask(() => setState(() {
-      _students = db.getGroupStudentSnapshots(
-        teacherId: _user.id,
-        groupId: widget.group.id,
-      );
-    }));
-  }
-
   @override
   void dispose() {
     _tabController.dispose();

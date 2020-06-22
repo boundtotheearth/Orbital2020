@@ -1,9 +1,6 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:orbital2020/DataContainers/ScheduleDetails.dart';
-import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';

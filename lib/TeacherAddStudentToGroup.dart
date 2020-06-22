@@ -22,7 +22,6 @@ class _TeacherAddStudentToGroupState extends State<TeacherAddStudentToGroup> {
   final DatabaseController db = DatabaseController();
 
   User _user;
-  Stream<List<Student>> _allStudents;
   Set<Student> _studentsToAdd;
   String _searchText;
 
@@ -31,7 +30,6 @@ class _TeacherAddStudentToGroupState extends State<TeacherAddStudentToGroup> {
   void initState() {
     super.initState();
     _user = Provider.of<User>(context, listen: false);
-    _allStudents = db.getAllStudentsSnapshots();
     _studentsToAdd = Set();
     _searchText = "";
   }
