@@ -99,42 +99,35 @@ class _StudentMainState extends State<StudentMain> {
     tasks.forEach((status) {
       streamList.add(db.getTaskWithStatus(status));
     });
-    return Expanded(
-      child: Scrollbar(
-        child: RefreshIndicator(
-          onRefresh: refresh,
-          child: StreamBuilder<List<TaskWithStatus>>(
-            stream: CombineLatestStream.list(streamList),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                List<TaskWithStatus> filteredTasks = sortAndFilter(snapshot.data);
-                return ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: filteredTasks.length,
-                  itemBuilder: (context, index) {
-                    TaskWithStatus task = filteredTasks[index];
-                    return TaskStatusTile(
-                      task: task,
-                      isStudent: true,//_user.accountType == "student",
-                      updateComplete: (value) {
-                        db.updateTaskCompletion(task.id, _user.id, value);
-                      },
-                      updateVerify: (value) {},
-                      onFinish: () {},
-                      onTap: () {
-                        Navigator.of(context).pushNamed('student_taskView', arguments: task);
-                      },
-                    );
-                  },
-                );
-              } else {
-                return CircularProgressIndicator();
-              }
+    return StreamBuilder<List<TaskWithStatus>>(
+      stream: CombineLatestStream.list(streamList),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          List<TaskWithStatus> filteredTasks = sortAndFilter(snapshot.data);
+          return ListView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: filteredTasks.length,
+            itemBuilder: (context, index) {
+              TaskWithStatus task = filteredTasks[index];
+              return TaskStatusTile(
+                task: task,
+                isStudent: true,//_user.accountType == "student",
+                updateComplete: (value) {
+                  db.updateTaskCompletion(task.id, _user.id, value);
+                },
+                updateVerify: (value) {},
+                onFinish: () {},
+                onTap: () {
+                  Navigator.of(context).pushNamed('student_taskView', arguments: task);
+                },
+              );
             },
-          ),
-        ),
-      ),
+          );
+        } else {
+          return CircularProgressIndicator();
+        }
+      },
     );
   }
 
