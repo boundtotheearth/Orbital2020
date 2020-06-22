@@ -10,6 +10,21 @@ class RootPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Auth auth = AuthProvider.of(context).auth;
+    return FutureBuilder<User>(
+      future: auth.getLoggedInUser(),
+      builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
+        if(snapshot.hasData) {
+          return Provider<User>(
+            create: (_) => snapshot.data,
+            child: HomePage(),
+          );
+        } else if(snapshot.hasError) {
+          return LoginPage();
+        } else {
+          return _buildLoading();
+        }
+      },
+    );
     return StreamBuilder<User>(
       stream: auth.onAuthStateChanged,
       builder: (BuildContext context, AsyncSnapshot<User> snapshot) {

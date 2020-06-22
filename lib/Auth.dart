@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'DataContainers/User.dart';
 
 abstract class Auth {
+  Future<User> getLoggedInUser();
   Future<String> signInWithEmailPassword(String email, String password);
   Future<String> createAccWithEmailPassword(String name, String email, String password);
   Future<void> signOut();
@@ -15,9 +16,20 @@ class FirebaseAuthentication implements Auth {
 
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
+  Future<User> getLoggedInUser() async {
+    FirebaseUser user = await _firebaseAuth.currentUser();
+    if(user == null) {
+      return Future.error(null);
+    } else {
+      return User(id: user.uid, name: user.displayName);
+    }
+  }
+
   @override
   Stream<User> get onAuthStateChanged {
-    return _firebaseAuth.onAuthStateChanged.map((user) => User(id: user.uid, name: user.displayName));
+    return _firebaseAuth.onAuthStateChanged.map((user) {
+      return User(id: user.uid, name: user.displayName);
+    });
   }
 
   @override
