@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:orbital2020/AuthProvider.dart';
+import 'package:orbital2020/Root.dart';
 import 'package:provider/provider.dart';
 
 import 'Auth.dart';
@@ -15,6 +16,9 @@ class AppDrawer extends StatelessWidget {
       Auth auth = AuthProvider.of(context).auth;
       await auth.signOut();
       print("Signed out: ${_user.id}");
+      Navigator.of(context, rootNavigator: true).pushReplacement(
+        MaterialPageRoute(builder: (context) => RootPage())
+      );
     } catch (error) {
       print("$error");
     }
