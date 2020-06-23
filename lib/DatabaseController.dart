@@ -366,6 +366,18 @@ class DatabaseController {
     return tasks;
   }
 
+  Stream<Set<String>> getUncompletedTasks(String studentId) {
+    return db.collection("students")
+        .document(studentId)
+        .collection("tasks")
+        .where("completed", isEqualTo: false)
+        .snapshots()
+        .map((snapshot) => snapshot.documents.map((document) => document.documentID)
+          .toSet()
+        );
+
+  }
+
 //  Get a stream of snapshots containing tasks assigned to a student with studentId.
 //  Each snapshot contains a list of tasks with their corresponding completion status.
 //  Stream<Set<TaskWithStatus>> getStudentTaskSnapshots({@required String studentId}) {

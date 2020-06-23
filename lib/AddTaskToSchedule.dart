@@ -36,7 +36,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
   TimeOfDay _startTime;
   TimeOfDay _endTime;
   DateTime _scheduledDate;
-  Stream<Set<TaskStatus>> _allTasks;
+  Stream<Set<String>> _allUncompletedTasks;
 
 
 
@@ -45,7 +45,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
     _user = Provider.of<User>(context, listen: false);
     _scheduledDate = widget.scheduledDate.isBefore(today) ? today : widget.scheduledDate;
     _scheduledDateController = TextEditingController(text: DateFormat("dd/MM/y").format(_scheduledDate));
-    _allTasks = db.getStudentTaskDetailsSnapshots(studentId: _user.id);
+    _allUncompletedTasks = db.getUncompletedTasks(_user.id);
     super.initState();
   }
 
@@ -94,15 +94,15 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
       key: _formKey,
       child: ListView(
         children: <Widget>[
-          StreamBuilder(
-            stream: _allTasks,
+          StreamBuilder<Set<String>>(
+            stream: _allUncompletedTasks,
             builder: (context, snapshot)  {
               if (!snapshot.hasData) {
                 return CircularProgressIndicator();
               } else {
                 List<Stream<Task>> streamList = [];
-                for (TaskStatus t in snapshot.data) {
-                  streamList.add(db.getTaskName(t.id));
+                for (String taskId in snapshot.data) {
+                  streamList.add(db.getTaskName(taskId));
                 }
                  return StreamBuilder<List<Task>>(
                   stream: CombineLatestStream.list(streamList),
