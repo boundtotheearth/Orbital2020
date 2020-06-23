@@ -69,6 +69,28 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
       return _scheduledDate;
     });
   }
+  
+  bool isTimeAfter(String t1, String t2) {
+    List<String> first = t1.split(":");
+    List<String> second = t2.split(":");
+    double diff = double.parse(first[0]) + double.parse(first[1]) / 60 - double.parse(second[0]) - double.parse(second[1]) / 60;
+    return diff >= 0;
+  }
+
+
+  String validateEndTime(String value) {
+    String checkEmpty = RequiredValidator(errorText: "End Time cannot be empty!").call(value);
+    String checkFormat = DateValidator("h:mm", errorText: "Invalid time format! Should be HH:mm").call(value);
+    if (checkEmpty != null) {
+      return checkEmpty;
+    } else if (checkFormat != null){
+      return checkFormat;
+    } else if (isTimeAfter(_startTimeController.text, value)) {
+      return "End Time must be after Start Time";
+    } else {
+      return null;
+    }
+  }
 
   void submit() {
     if (_formKey.currentState.validate()) {
@@ -181,10 +203,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
               });
             },
             controller: _endTimeController,
-            validator: MultiValidator([
-              RequiredValidator(errorText: "End Time cannot be empty!"),
-              DateValidator("h:mm", errorText: "Invalid time format! Should be HH:mm"),
-            ]),
+            validator: validateEndTime
           ),
           RaisedButton(
             onPressed: submit,
