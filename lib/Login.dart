@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:orbital2020/AuthProvider.dart';
@@ -33,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
 
   final DatabaseController db = DatabaseController();
   final formKey = new GlobalKey<FormState>();
-  final passwordKey = new GlobalKey<FormFieldState>();
+  final passwordController = new TextEditingController();
 
   bool validateAndSave() {
     final form = formKey.currentState;
@@ -100,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   final emailValidator = MultiValidator([
-    RequiredValidator(errorText: "Email cannot be empty"),
+    RequiredValidator(errorText: "Email cannot be empty!"),
     EmailValidator(errorText: "Email format is invalid!"),
   ]);
 
@@ -134,6 +133,7 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
               new TextFormField(
+                key: Key('email'),
                 decoration: const InputDecoration(
                   icon: Icon(Icons.email),
                   labelText: "Email",
@@ -143,6 +143,7 @@ class _LoginPageState extends State<LoginPage> {
                 onSaved: (value) => _email = value,
               ),
               new TextFormField(
+                key: Key('password'),
                 decoration: const InputDecoration(
                   icon: Icon(Icons.lock),
                   labelText: "Password",
@@ -210,6 +211,7 @@ class _LoginPageState extends State<LoginPage> {
                 ],
               ),
               new TextFormField(
+                key: Key('name'),
                 decoration: const InputDecoration(
                   icon: Icon(Icons.person),
                   labelText: "Full Name",
@@ -219,6 +221,7 @@ class _LoginPageState extends State<LoginPage> {
                 onSaved: (value) => _name = value,
               ),
               new TextFormField(
+                key: Key('email'),
                 decoration: const InputDecoration(
                   icon: Icon(Icons.email),
                   labelText: "Email",
@@ -228,7 +231,8 @@ class _LoginPageState extends State<LoginPage> {
                 onSaved: (value) => _email = value,
               ),
               new TextFormField(
-                key: passwordKey,
+                key: Key('password'),
+                controller: passwordController,
                 decoration: const InputDecoration(
                   icon: Icon(Icons.lock),
                   labelText: "Password",
@@ -241,6 +245,7 @@ class _LoginPageState extends State<LoginPage> {
                 onSaved: (value) => _password = value,
               ),
               new TextFormField(
+                key: Key('confirm-password'),
                 decoration: const InputDecoration(
                   icon: Icon(Icons.lock),
                   labelText: "Confirm Password",
@@ -248,7 +253,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 obscureText: true,
                 validator: (value) => MatchValidator(errorText: "Passwords do not match!")
-                    .validateMatch(value, passwordKey.currentState.value),
+                    .validateMatch(value, passwordController.text),
               ),
               new RaisedButton(
                 onPressed: submit,
@@ -263,31 +268,35 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _redirectText() {
     String question = _displayType == DisplayType.login
-        ? "Don't have an account?"
-        : "Already have an account?";
+        ? "Don't have an account? "
+        : "Already have an account? ";
     String action = _displayType == DisplayType.login
         ? "Register here!"
         :  "Login here!";
 
     return Center(
-        child: new RichText(
-            text: TextSpan(
-                text: question,
-                style: TextStyle(color: Colors.white, fontSize: 12.0),
-                children: <TextSpan>[
-                  TextSpan(
-                      text: action,
-                      style: TextStyle(fontStyle: FontStyle.italic),
-                      recognizer: new TapGestureRecognizer()..onTap =
-                          _displayType == DisplayType.login
-                              ? redirectToSignup
-                              : redirectToLogin
-                  )
-                ]
-            )
-        )
-    );
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+              question,
+              style: TextStyle(color: Colors.white, fontSize: 14)
+          ),
+          GestureDetector(
+            child: Text(
+                action,
+                style: TextStyle(color: Colors.white, fontSize: 14, fontStyle: FontStyle.italic)
+            ),
+            onTap: () {
+              _displayType == DisplayType.login
+                ? redirectToSignup()
+                : redirectToLogin();
+            },
+          )
 
+        ],
+      ),
+    );
   }
 
   Widget _alert(String header, String msg) {

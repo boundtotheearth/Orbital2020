@@ -66,6 +66,12 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
     _sortBy = Sort.name;
   }
 
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
   bool filtered(String studentName) {
     return studentName.toLowerCase().startsWith(_searchText);
   }
@@ -124,18 +130,6 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
   List<PopupMenuItem> _actionMenuBuilder(BuildContext context) {
     return [
       PopupMenuItem(
-        value: 'all_submitted',
-        child: Text('All Submitted'),
-      ),
-      PopupMenuItem(
-        value: 'clear_all',
-        child: Text('Clear All'),
-      ),
-      PopupMenuItem(
-        value: 'archive',
-        child: Text('Archive'),
-      ),
-      PopupMenuItem(
         value: 'delete',
         child: Text('Delete', style: TextStyle(color: Colors.red),),
       )
@@ -144,33 +138,12 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
 
   void _onActionMenuSelected(dynamic value) {
     switch(value) {
-      case 'all_submitted':
-        _onAllSubmitted();
-        break;
-      case 'clear_all':
-        _onClearAll();
-        break;
-      case 'archive':
-        _onArchive();
-        break;
       case 'delete':
         _onDelete();
         break;
       default:
         print(value.toString() + " Not Implemented");
     }
-  }
-
-  Future<void> _onAllSubmitted() {
-    return Future(null);
-  }
-
-  Future<void> _onArchive() {
-    return Future(null);
-  }
-
-  Future<void> _onClearAll() {
-    return Future(null);
   }
 
   Future<void> _onDelete() {
@@ -219,14 +192,18 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
         title: Form(
           key: _nameFormKey,
           child: TextFormField(
+            key: Key('name'),
             controller: _nameController,
             focusNode: _nameFocusNode,
             decoration: InputDecoration(
               border: InputBorder.none,
-              focusedBorder: UnderlineInputBorder(),
+              focusedBorder: InputBorder.none,
+              focusedErrorBorder: InputBorder.none,
+              errorStyle: TextStyle(height: 0),
             ),
             style: Theme.of(context).primaryTextTheme.headline6,
             onSaved: (value) => widget.task.name = value,
+            validator: _validateName,
           ),
         ),
         actions: <Widget>[
@@ -400,8 +377,8 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
   }
 
   //Custom validator for the name field as the default is ugly
-  bool _validateName() {
-    if(_nameController.text.isEmpty) {
+  String _validateName(String value) {
+    if(value.isEmpty) {
       showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -426,31 +403,32 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
             );
           }
       );
-      return false;
+      return "";
     }
-    return true;
+    return null;
   }
 
-  Future<void> submit() {
-    if (_mainFormKey.currentState.validate() && _validateName()) {
+  Future<bool> submit() {
+    if (_mainFormKey.currentState.validate() && _nameFormKey.currentState.validate()) {
       _nameFormKey.currentState.save();
       _mainFormKey.currentState.save();
-      return db.updateTaskDetails(task: widget.task);
+      return db.updateTaskDetails(task: widget.task).then((value) => true);
     }
-    return Future.value();
+    return Future.value(false);
   }
 
   Widget buildDetailsTab() {
     return SafeArea(
         child: Form(
             key: _mainFormKey,
-            onWillPop: () => submit().then((value) => true),
+            onWillPop: () => submit().then((value) => value),
             child: ListView(
                 padding: EdgeInsets.symmetric(horizontal: 5),
                 children: <Widget>[
                   AspectRatio(
                     aspectRatio: 3/2,
                     child: TextFormField(
+                      key: Key('description'),
                       controller: _descriptionController,
                       decoration: const InputDecoration(
                         alignLabelWithHint: true,
@@ -469,6 +447,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
                     children: <Widget>[
                       Expanded(
                           child: TextFormField(
+                            key: Key('due'),
                             decoration: const InputDecoration(
                               labelText: 'Due',
                               suffixIcon: Icon(Icons.calendar_today),
@@ -490,6 +469,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
                     ],
                   ),
                   TextFormField(
+                    key: Key('tags'),
                     controller: _tagController,
                     decoration: InputDecoration(
                       labelText: "Add Tag",

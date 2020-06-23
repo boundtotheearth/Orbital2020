@@ -86,16 +86,24 @@ class _TeacherAddStudentToGroupState extends State<TeacherAddStudentToGroup> {
   }
 
   Future<void> submitAdd() {
-    return db.teacherAddStudentsToGroup(teacherId: _user.id,
-        group: widget.group,
-        students: _studentsToAdd);
+    if(_studentsToAdd.length > 0) {
+      return db.teacherAddStudentsToGroup(teacherId: _user.id,
+          group: widget.group,
+          students: _studentsToAdd);
+    }
+    return Future(null);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Students'),
+        leading: IconButton(
+          icon: BackButtonIcon(),
+          onPressed: Navigator.of(context).maybePop,
+          tooltip: 'Back',
+        ),
+        title: const Text('Add Students To Group'),
       ),
       body: SafeArea(
           child: Column(

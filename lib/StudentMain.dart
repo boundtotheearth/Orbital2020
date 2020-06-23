@@ -21,7 +21,7 @@ class StudentMain extends StatefulWidget {
 }
 
 class _StudentMainState extends State<StudentMain> {
-  final DatabaseController db = DatabaseController();
+  DatabaseController db;
   User _user;
   Stream<Set<TaskStatus>> _tasks;
   String _searchText;
@@ -37,6 +37,7 @@ class _StudentMainState extends State<StudentMain> {
   @override
   void initState() {
     super.initState();
+    db = DatabaseController();
     _user = Provider.of<User>(context, listen: false);
     _tasks = db.getStudentTaskDetailsSnapshots(studentId: _user.id);
     _searchText = "";

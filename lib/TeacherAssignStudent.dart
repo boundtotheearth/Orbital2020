@@ -7,7 +7,7 @@ import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:provider/provider.dart';
 
-//View shown when teacher is assigning a task to a student
+//View shown when teacher is assigning students to a task
 class TeacherAssignStudent extends StatefulWidget {
   final Task task;
   final Group group;
@@ -101,7 +101,12 @@ class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Assign to Students'),
+        leading: IconButton(
+          icon: BackButtonIcon(),
+          onPressed: Navigator.of(context).maybePop,
+          tooltip: 'Back',
+        ),
+        title: const Text('Students To Assign'),
       ),
       body: SafeArea(
           child: Column(

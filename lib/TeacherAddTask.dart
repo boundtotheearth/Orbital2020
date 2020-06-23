@@ -147,6 +147,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
             padding: EdgeInsets.symmetric(horizontal: 5),
             children: <Widget>[
               TextFormField(
+                key: Key('name'),
                 decoration: const InputDecoration(
                   labelText: 'Name',
                 ),
@@ -156,6 +157,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
               AspectRatio(
                 aspectRatio: 3/2,
                 child: TextFormField(
+                  key: Key('description'),
                   decoration: const InputDecoration(
                     alignLabelWithHint: true,
                     labelText: 'Description',
@@ -171,6 +173,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
                 children: <Widget>[
                   Expanded(
                       child: TextFormField(
+                        key: Key('due'),
                         decoration: const InputDecoration(
                           labelText: 'Due',
                           suffixIcon: Icon(Icons.calendar_today),
@@ -190,6 +193,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
                 ],
               ),
               TextFormField(
+                key: Key('tags'),
                 controller: _tagController,
                 decoration: InputDecoration(
                   labelText: "Add Tag",
