@@ -181,8 +181,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
             ),
             onTap: () {
               _setTime(context, Time.start).then((value) {
-                _startTimeController.text = DateFormat("HH:mm")
-                  .format(_scheduledDate.add(Duration(hours: value.hour, minutes: value.minute)));
+                _startTimeController.text = "${value.hour.toString().padLeft(2, '0')}:${value.minute.toString().padLeft(2, '0')}";
               });
             },
             controller: _startTimeController,
@@ -198,8 +197,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
             ),
             onTap: () {
               _setTime(context, Time.end).then((value) {
-                _endTimeController.text = DateFormat("HH:mm")
-                    .format(_scheduledDate.add(Duration(hours: value.hour, minutes: value.minute)));
+                _endTimeController.text = "${value.hour.toString().padLeft(2, '0')}:${value.minute.toString().padLeft(2, '0')}";
               });
             },
             controller: _endTimeController,
