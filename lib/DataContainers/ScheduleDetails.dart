@@ -16,6 +16,7 @@ class ScheduleDetails {
 
   Map<String, dynamic> toKeyValuePair() {
     Map<String, dynamic> map = Map();
+    map["taskId"] = this.taskId;
     map["scheduledDate"] = this.scheduledDate;
     map["startTime"] = this.startTime;
     map["endTime"] = this.endTime;

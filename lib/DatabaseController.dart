@@ -71,7 +71,7 @@ class DatabaseController {
     return db.collection('students')
         .document(studentId)
         .collection("scheduledTasks")
-        .document(task.taskId)
+        .document()
         .setData(task.toKeyValuePair());
   }
 
@@ -182,7 +182,7 @@ class DatabaseController {
         .map((snapshot) => snapshot.documents)
         .map((documents) => documents.map((document) {
           return ScheduleDetails(
-            taskId: document.documentID,
+            taskId: document["taskId"],
             scheduledDate: document["scheduledDate"].toDate(),
             startTime: document["startTime"].toDate(),
             endTime: document["endTime"].toDate()
