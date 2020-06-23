@@ -71,8 +71,25 @@ class DatabaseController {
     return db.collection('students')
         .document(studentId)
         .collection("scheduledTasks")
-        .document()
-        .setData(task.toKeyValuePair());
+        .add(task.toKeyValuePair());
+  }
+
+  //Student deletes schedule
+  Future<void> deleteSchedule(String studentId, String scheduleId) {
+    return db.collection("students")
+        .document(studentId)
+        .collection("scheduledTasks")
+        .document(scheduleId)
+        .delete();
+  }
+
+  //Student updates his schedule
+  Future<void> updateSchedule(String studentId, ScheduleDetails schedule) {
+    return db.collection("students")
+        .document(studentId)
+        .collection("scheduledTasks")
+        .document(schedule.id)
+        .updateData(schedule.toKeyValuePair());
   }
 
   //Student gets all scheduled tasks
@@ -182,6 +199,7 @@ class DatabaseController {
         .map((snapshot) => snapshot.documents)
         .map((documents) => documents.map((document) {
           return ScheduleDetails(
+            id: document.documentID,
             taskId: document["taskId"],
             scheduledDate: document["scheduledDate"].toDate(),
             startTime: document["startTime"].toDate(),

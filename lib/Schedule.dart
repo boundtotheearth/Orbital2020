@@ -145,7 +145,13 @@ class _ScheduleState extends State<Schedule> {
                       ],
                     ),
                     title: Text(snapshot.data.name), //task.name),
-                    onTap: () {}
+                    onTap: () {
+                      Map<String, dynamic> arguments = {
+                        'date': _selectedDate,
+                        'schedule': task
+                      };
+                      Navigator.of(context).pushNamed("addSchedule", arguments: arguments);
+                    }
 
                 );
               } else {
@@ -181,7 +187,13 @@ class _ScheduleState extends State<Schedule> {
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
-        onPressed: () => Navigator.of(context).pushNamed("addSchedule", arguments: _selectedDate),
+        onPressed: () {
+          Map<String, dynamic> arguments = {
+            'date': _selectedDate,
+          };
+          Navigator.of(context).pushNamed(
+              "addSchedule", arguments: arguments);
+        },
       ),
     );
   }

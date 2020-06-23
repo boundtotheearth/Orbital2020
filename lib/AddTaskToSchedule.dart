@@ -13,8 +13,9 @@ import 'DataContainers/User.dart';
 import 'package:rxdart/rxdart.dart';
 
 class AddTaskToSchedule extends StatefulWidget {
-  AddTaskToSchedule({this.scheduledDate});
+  AddTaskToSchedule({this.scheduledDate, this.schedule});
   final DateTime scheduledDate;
+  final ScheduleDetails schedule;
   @override
   State<StatefulWidget> createState() => AddTaskToScheduleState();
 }
@@ -30,7 +31,8 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
   final TextEditingController _startTimeController = TextEditingController();
   final TextEditingController _endTimeController = TextEditingController();
   final DateTime today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
-  TextEditingController _scheduledDateController;
+  TextEditingController _scheduledDateController = TextEditingController();
+  bool _editable;
   User _user;
   String _selectedTask;
   TimeOfDay _startTime;
@@ -43,8 +45,17 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
   @override
   void initState() {
     _user = Provider.of<User>(context, listen: false);
+    _editable = widget.schedule != null;
     _scheduledDate = widget.scheduledDate.isBefore(today) ? today : widget.scheduledDate;
-    _scheduledDateController = TextEditingController(text: DateFormat("dd/MM/y").format(_scheduledDate));
+    if (_editable) {
+      _selectedTask = widget.schedule.taskId;
+      _scheduledDateController.text = DateFormat("dd/MM/y").format(widget.schedule.scheduledDate);
+      _startTime = TimeOfDay.fromDateTime(widget.schedule.startTime);
+      _startTimeController.text = timeToString(_startTime);
+      _endTime = TimeOfDay.fromDateTime(widget.schedule.endTime);
+      _endTimeController.text = timeToString(_endTime);
+    }
+    _scheduledDateController.text = DateFormat("dd/MM/y").format(_scheduledDate);
     _allUncompletedTasks = db.getUncompletedTasks(_user.id);
     super.initState();
   }
@@ -52,10 +63,15 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
   Future<TimeOfDay> _setTime(BuildContext context, Time timeType) async {
     return showTimePicker(
         context: context,
-        initialTime: TimeOfDay.now()).then((value) {
+        initialTime: TimeOfDay.now(),
+        ).then((value) {
           timeType == Time.start ? _startTime = value : _endTime = value;
           return value;
     });
+  }
+
+  String timeToString(TimeOfDay time) {
+    return "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
   }
 
   Future<DateTime> _setDate(BuildContext context) async {
@@ -92,28 +108,79 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
     }
   }
 
-  void submit() {
+  String validateStartTime(String value) {
+    String checkEmpty = RequiredValidator(errorText: "End Time cannot be empty!").call(value);
+    String checkFormat = DateValidator("h:mm", errorText: "Invalid time format! Should be HH:mm").call(value);
+    if (checkEmpty != null) {
+      return checkEmpty;
+    } else if (checkFormat != null){
+      return checkFormat;
+    }
+//    else if (_scheduledDate == today && !isTimeAfter(value, timeToString(TimeOfDay.fromDateTime(DateTime.now())))) {
+//      return "Start Time must be later than current time!";
+//    }
+    else {
+      return null;
+    }
+  }
+
+  Future<bool> submit() async {
     if (_formKey.currentState.validate()) {
       print("Form is valid");
       _formKey.currentState.save();
       print("TaskId: $_selectedTask, date: $_scheduledDate, start: $_startTime, end: $_endTime");
       ScheduleDetails task = ScheduleDetails(
+          id: widget.schedule?.id,
           taskId: _selectedTask,
           scheduledDate: _scheduledDate,
           startTime: _scheduledDate.add(Duration(hours: _startTime.hour, minutes: _startTime.minute)),
           endTime: _scheduledDate.add(Duration(hours: _endTime.hour, minutes: _endTime.minute)));
-      db.scheduleTask(_user.id, task);
+      if (_editable) {
+        await db.updateSchedule(_user.id, task);
+      } else {
+        await db.scheduleTask(_user.id, task);
+      }
       Navigator.pop(context);
+      return Future.value(true);
     } else {
       print("Form is invalid.");
+      return Future.value(false);
     }
   }
 
+  void delete() {
+    showDialog(
+        context: context,
+        builder: (BuildContext alertContext) => AlertDialog(
+          title: Text("Confirmation"),
+          content: Text("Are you sure you want to delete this task from schedule?"),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("Yes"),
+              onPressed: () {
+                db.deleteSchedule(_user.id, widget.schedule.id);
+                Navigator.of(context).pop();
+                Navigator.of(alertContext).pop();
+              }
+            ),
+            FlatButton(
+              child: Text("Cancel"),
+              onPressed: () => Navigator.of(alertContext).pop(),
+            )
+          ],
+          elevation: 24.0,
+        ),
+        barrierDismissible: false
+    );
+  }
 
 
   Widget _buildForm() {
     return Form(
       key: _formKey,
+      onWillPop: () async {
+        return _editable ? submit().then((value) => value) : true;
+      },
       child: ListView(
         children: <Widget>[
           StreamBuilder<Set<String>>(
@@ -181,14 +248,11 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
             ),
             onTap: () {
               _setTime(context, Time.start).then((value) {
-                _startTimeController.text = "${value.hour.toString().padLeft(2, '0')}:${value.minute.toString().padLeft(2, '0')}";
+                _startTimeController.text = timeToString(value);
               });
             },
             controller: _startTimeController,
-            validator: MultiValidator([
-              RequiredValidator(errorText: "Start Time cannot be empty!"),
-              DateValidator("h:mm", errorText: "Invalid time format! Should be HH:mm")
-            ]),
+            validator: validateStartTime
           ),
           TextFormField(
             decoration: InputDecoration(
@@ -197,16 +261,14 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
             ),
             onTap: () {
               _setTime(context, Time.end).then((value) {
-                _endTimeController.text = "${value.hour.toString().padLeft(2, '0')}:${value.minute.toString().padLeft(2, '0')}";
+                _endTimeController.text = timeToString(value);
               });
             },
             controller: _endTimeController,
             validator: validateEndTime
           ),
-          RaisedButton(
-            onPressed: submit,
-            child: const Text("Add to Schedule")
-          )
+          _editable ? RaisedButton(onPressed: delete, child: const Text("Delete from Schedule"))
+            : RaisedButton(onPressed: submit, child: const Text("Add to Schedule"))
         ],
       )
     );

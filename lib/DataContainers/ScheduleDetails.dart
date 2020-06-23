@@ -1,15 +1,18 @@
 class ScheduleDetails {
+  String id;
   String taskId;
   DateTime scheduledDate;
   DateTime startTime;
   DateTime endTime;
 
   ScheduleDetails({
+    String id,
     String taskId,
     DateTime scheduledDate,
     DateTime startTime,
     DateTime endTime,
-  }) :  this.taskId = taskId,
+  }) :  this.id = id,
+        this.taskId = taskId,
         this.scheduledDate = scheduledDate,
         this.startTime = startTime,
         this.endTime = endTime;
