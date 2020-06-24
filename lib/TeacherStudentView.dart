@@ -139,7 +139,11 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
   }
 
   Future<void> _onRemoveStudent() {
-    return Future(null);
+    return db.teacherRemoveStudentFromGroup(teacherId: _user.id, group: widget.group, student: widget.student)
+        .then((value) {
+
+      Navigator.of(context).pop();
+    });
   }
 
   void _activateSearchBar() {
