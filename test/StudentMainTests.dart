@@ -14,7 +14,7 @@ Type typeOf<T>() => T;
 User testUser = User(id: "P6IYsnpoAZZTdmy2aLBHYHrMf6E2", name: "FarrellStu");
 
 void runTests() {
-  testWidgets("Student Main Basic UI", (WidgetTester tester) async {
+  testWidgets("Basic UI", (WidgetTester tester) async {
     MockDatabaseController mockDB = MockDatabaseController();
     mockDB.selfCreateAndAssignTask(
         task: Task(
@@ -44,7 +44,7 @@ void runTests() {
     expect(find.text('testing task'), findsOneWidget);
   });
 
-  testWidgets("Student Main Drawer", (WidgetTester tester) async {
+  testWidgets("Drawer UI", (WidgetTester tester) async {
     MaterialApp app = MaterialApp (
         home: Provider<User>(
           create: (_) => testUser,
@@ -57,7 +57,7 @@ void runTests() {
     expect(find.byType(AppDrawer), findsOneWidget);
   });
 
-  testWidgets("Student Main Search", (WidgetTester tester) async {
+  testWidgets("Search UI", (WidgetTester tester) async {
     MaterialApp app = MaterialApp (
         home: Provider<User>(
           create: (_) => testUser,

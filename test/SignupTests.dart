@@ -13,18 +13,20 @@ void runTests() {
     await tester.tap(find.text("Register here!"));
     await tester.pump();
 
+    expect(find.text("Garden of Focus"), findsOneWidget);
     expect(find.text("I am a:"), findsOneWidget);
     expect(find.byType(typeOf<RadioListTile<AccountType>>()), findsNWidgets(2));
     expect(find.text("Student"), findsOneWidget);
+    expect(find.text("Teacher"), findsOneWidget);
     expect(find.text("Full Name"), findsOneWidget);
     expect(find.text("Email"), findsOneWidget);
     expect(find.text("Password"), findsOneWidget);
     expect(find.text("Confirm Password"), findsOneWidget);
     expect(find.byType(RaisedButton), findsOneWidget);
-    //expect(find.text("Login here!"), findsOneWidget);
+    expect(find.text("Login here!"), findsOneWidget);
   });
 
-  testWidgets("No Signup Input Validation", (WidgetTester tester) async {
+  testWidgets("No Input Validation", (WidgetTester tester) async {
     MaterialApp app = MaterialApp (
       home: LoginPage(),
     );
@@ -45,7 +47,7 @@ void runTests() {
     expect(formKey.currentState.validate(), isFalse);
   });
 
-  testWidgets("Invalid Signup Input Validation", (WidgetTester tester) async {
+  testWidgets("Invalid Input Validation", (WidgetTester tester) async {
     MaterialApp app = MaterialApp (
       home: LoginPage(),
     );
@@ -78,7 +80,7 @@ void runTests() {
     expect(formKey.currentState.validate(), isFalse);
   });
 
-  testWidgets("Valid Signup Validation", (WidgetTester tester) async {
+  testWidgets("Valid Input Validation", (WidgetTester tester) async {
     MaterialApp app = MaterialApp (
       home: LoginPage(),
     );

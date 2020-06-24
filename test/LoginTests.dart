@@ -17,7 +17,7 @@ void runTests() {
     expect(find.text("Register here!"), findsOneWidget);
   });
 
-  testWidgets("No Login Input Validation", (WidgetTester tester) async {
+  testWidgets("No Input Validation", (WidgetTester tester) async {
     MaterialApp app = MaterialApp (
       home: LoginPage(),
     );
@@ -34,7 +34,7 @@ void runTests() {
     expect(formKey.currentState.validate(), isFalse);
   });
 
-  testWidgets("Invalid Login Input Validation", (WidgetTester tester) async {
+  testWidgets("Invalid Input Validation", (WidgetTester tester) async {
     MaterialApp app = MaterialApp (
       home: LoginPage(),
     );

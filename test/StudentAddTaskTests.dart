@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 User testUser = User(id: "P6IYsnpoAZZTdmy2aLBHYHrMf6E2", name: "FarrellStu");
 
 void runTests() {
-  testWidgets("Student Add Task UI", (WidgetTester tester) async {
+  testWidgets("Basic UI", (WidgetTester tester) async {
     MaterialApp app = MaterialApp (
         home: Provider<User>(
           create: (_) => testUser,
@@ -75,27 +75,11 @@ void runTests() {
     await tester.pumpWidget(app);
 
     await tester.tap(find.byKey(Key('due')));
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(find.byType(CalendarDatePicker), findsOneWidget);
     expect(find.text("SELECT DATE"), findsOneWidget);
     expect(find.text("CANCEL"), findsOneWidget);
-    expect(find.text("OK"), findsOneWidget);
-  });
-
-  testWidgets("Date Picker Controls", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: StudentAddTask(),
-        )
-    );
-    await tester.pumpWidget(app);
-
-    await tester.tap(find.byKey(Key('due')));
-    await tester.pump();
-
-    expect(find.byType(CalendarDatePicker), findsOneWidget);
     expect(find.text("OK"), findsOneWidget);
 
     await tester.tap(find.text('OK'));
@@ -104,15 +88,15 @@ void runTests() {
     expect(find.byType(CalendarDatePicker), findsNothing);
 
     await tester.tap(find.byKey(Key('due')));
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(find.byType(CalendarDatePicker), findsOneWidget);
-    expect(find.text("CANCEL"), findsOneWidget);
 
     await tester.tap(find.text('CANCEL'));
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(find.byType(CalendarDatePicker), findsNothing);
+
   });
 
   testWidgets("Add Tag Controls", (WidgetTester tester) async {

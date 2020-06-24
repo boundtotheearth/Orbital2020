@@ -9,7 +9,7 @@ User testUser = User(id: "CBHrubROTEaYnNwhrxpc3DBwhXx1", name: "Farrell");
 Group mockGroup = Group(id: "AgRiWVNb2flktExYqpvN", name: "test Group 3");
 
 void runTests() {
-  testWidgets("Teacher Add Task UI", (WidgetTester tester) async {
+  testWidgets("Basic UI", (WidgetTester tester) async {
     MaterialApp app = MaterialApp (
         home: Provider<User>(
           create: (_) => testUser,
@@ -65,24 +65,6 @@ void runTests() {
     Form formWidget = tester.widget(formFinder) as Form;
     GlobalKey<FormState> formKey = formWidget.key as GlobalKey<FormState>;
     expect(formKey.currentState.validate(), isFalse);
-  });
-
-  testWidgets("Date Picker UI", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherAddTask(group: mockGroup,),
-        )
-    );
-    await tester.pumpWidget(app);
-
-    await tester.tap(find.byKey(Key('due')));
-    await tester.pump();
-
-    expect(find.byType(CalendarDatePicker), findsOneWidget);
-    expect(find.text("SELECT DATE"), findsOneWidget);
-    expect(find.text("CANCEL"), findsOneWidget);
-    expect(find.text("OK"), findsOneWidget);
   });
 
   testWidgets("Date Picker Controls", (WidgetTester tester) async {

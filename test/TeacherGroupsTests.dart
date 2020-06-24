@@ -11,7 +11,7 @@ import 'MockDatabaseController.dart';
 User testUser = User(id: "CBHrubROTEaYnNwhrxpc3DBwhXx1", name: "Farrell");
 
 void runTests() {
-  testWidgets("Groups Basic UI", (WidgetTester tester) async {
+  testWidgets("Basic UI", (WidgetTester tester) async {
     MockDatabaseController mockDB = MockDatabaseController();
     mockDB.teacherCreateGroup(
       teacherId: testUser.id,
@@ -37,7 +37,7 @@ void runTests() {
     expect(find.text('testing group'), findsOneWidget);
   });
 
-  testWidgets("Teacher Groups Drawer", (WidgetTester tester) async {
+  testWidgets("Drawer UI", (WidgetTester tester) async {
     MaterialApp app = MaterialApp (
         home: Provider<User>(
           create: (_) => testUser,
@@ -50,7 +50,7 @@ void runTests() {
     expect(find.byType(AppDrawer), findsOneWidget);
   });
 
-  testWidgets("Teacher Groups Search", (WidgetTester tester) async {
+  testWidgets("Search UI", (WidgetTester tester) async {
     MaterialApp app = MaterialApp (
         home: Provider<User>(
           create: (_) => testUser,

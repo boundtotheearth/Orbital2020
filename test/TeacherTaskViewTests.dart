@@ -29,6 +29,24 @@ TaskWithStatus mockTaskCompleted = mockTask.addStatus(true, false);
 TaskWithStatus mockTaskVerified = mockTask.addStatus(true, true);
 
 void runTests() {
+  testWidgets("Basic UI", (WidgetTester tester) async {
+    MaterialApp app = MaterialApp (
+        home: Provider<User>(
+          create: (_) => testUser,
+          child: TeacherTaskView(task: mockTask, group: mockGroup),
+        )
+    );
+    await tester.pumpWidget(app);
+    
+    expect(find.byIcon(Icons.menu), findsOneWidget);
+    expect(find.byType(PopupMenuButton), findsOneWidget);
+    expect(find.byType(TabBar), findsOneWidget);
+    expect(find.text('Details'), findsOneWidget);
+    expect(find.text('Assigned'), findsOneWidget);
+    expect(find.byType(FloatingActionButton), findsOneWidget);
+
+  });
+  
   testWidgets("Empty Details UI", (WidgetTester tester) async {
     MaterialApp app = MaterialApp (
         home: Provider<User>(
@@ -41,7 +59,6 @@ void runTests() {
     expect(find.text('Description'), findsOneWidget);
     expect(find.text('Due'), findsOneWidget);
     expect(find.text('Add Tag'), findsOneWidget);
-    expect(find.byType(FloatingActionButton), findsOneWidget);
   });
 
   testWidgets("Full Details UI", (WidgetTester tester) async {
@@ -67,8 +84,9 @@ void runTests() {
         teacherId: testUser.id,
         group: mockGroup
     );
-    Student mockStudent = Student(id: 'abc', name: "testing student");
+    Student mockStudent = Student(id: 'P6IYsnpoAZZTdmy2aLBHYHrMf6E2', name: "testing student");
     await mockDB.initialiseNewStudent(mockStudent);
+    await mockDB.teacherAddStudentsToGroup(teacherId: testUser.id, group: mockGroup, students: [mockStudent]);
     await mockDB.teacherCreateTask(
         task: mockTask,
         group: mockGroup
@@ -85,6 +103,7 @@ void runTests() {
     await tester.pumpWidget(app);
     await tester.tap(find.text('Assigned'));
     await tester.pumpAndSettle();
+
     expect(find.byType(ProgressIndicator), findsOneWidget);
     expect(find.byType(ListView), findsOneWidget);
     expect(find.text("testing student"), findsOneWidget);
@@ -227,7 +246,7 @@ void runTests() {
 
   });
 
-  testWidgets("Empty Validation", (WidgetTester tester) async {
+  testWidgets("No Input Validation", (WidgetTester tester) async {
     MaterialApp app = MaterialApp (
         home: Provider<User>(
           create: (_) => testUser,

@@ -127,6 +127,8 @@ void runTests() {
     await tester.pump();
     TextFormField tagsField = tester.widget(tagsFieldFinder) as TextFormField;
     expect(tagsField.enabled, isTrue);
+
+    expect(find.byIcon(Icons.cancel), findsWidgets);
   });
 
   testWidgets("Not Editable UI", (WidgetTester tester) async {
@@ -167,6 +169,8 @@ void runTests() {
     await tester.pump();
     TextFormField tagsField = tester.widget(tagsFieldFinder) as TextFormField;
     expect(tagsField.enabled, isFalse);
+
+    expect(find.byIcon(Icons.cancel), findsNothing);
   });
 
   testWidgets("Delete UI", (WidgetTester tester) async {
@@ -247,7 +251,7 @@ void runTests() {
 
   });
 
-  testWidgets("Empty Validation", (WidgetTester tester) async {
+  testWidgets("No Input Validation", (WidgetTester tester) async {
     MaterialApp app = MaterialApp (
         home: Provider<User>(
           create: (_) => testUser,

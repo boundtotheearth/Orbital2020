@@ -63,9 +63,9 @@ class _StudentTaskViewState extends State<StudentTaskView> {
     for(String tag in widget.task.tags) {
       tagChips.add(Chip(
         label: Text(tag),
-        onDeleted: () {
-          deleteTag(tag);
-        },
+        onDeleted: editable ? () {
+            deleteTag(tag);
+          } : null,
       ));
     }
     return tagChips;

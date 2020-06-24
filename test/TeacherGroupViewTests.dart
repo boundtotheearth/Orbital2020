@@ -33,6 +33,7 @@ void runTests() {
     expect(find.text(mockGroup.name), findsOneWidget);
     expect(find.byIcon(Icons.search), findsOneWidget);
     expect(find.byIcon(Icons.menu), findsOneWidget);
+    expect(find.byType(TabBar), findsOneWidget);
     expect(find.text('Tasks'), findsOneWidget);
     expect(find.text('Students'), findsOneWidget);
 
@@ -131,8 +132,6 @@ void runTests() {
         ]
     );
 
-    print(mockDB.showDB());
-
     MaterialApp app = MaterialApp (
         home: Provider<User>(
           create: (_) => testUser,
@@ -169,7 +168,7 @@ void runTests() {
     expect(find.byType(AppDrawer), findsOneWidget);
   });
 
-  testWidgets("Teacher Group View Search", (WidgetTester tester) async {
+  testWidgets("Search UI", (WidgetTester tester) async {
     MaterialApp app = MaterialApp (
         home: Provider<User>(
           create: (_) => testUser,

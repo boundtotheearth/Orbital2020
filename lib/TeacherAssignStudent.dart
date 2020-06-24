@@ -9,17 +9,18 @@ import 'package:provider/provider.dart';
 
 //View shown when teacher is assigning students to a task
 class TeacherAssignStudent extends StatefulWidget {
+  final DatabaseController databaseController;
   final Task task;
   final Group group;
 
-  TeacherAssignStudent({Key key, @required this.task, @required this.group}) : super(key: key);
+  TeacherAssignStudent({Key key, this.databaseController, @required this.task, @required this.group}) : super(key: key);
 
   @override
   _TeacherAssignStudentState createState() => _TeacherAssignStudentState();
 }
 
 class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
-  final DatabaseController db = DatabaseController();
+  DatabaseController db;
 
   User _user;
   Set<Student> _students;
@@ -29,6 +30,7 @@ class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
   @override
   void initState() {
     super.initState();
+    db = widget.databaseController ?? DatabaseController();
     _user = Provider.of<User>(context, listen: false);
 //    _allStudents = db.getGroupStudentSnapshots(teacherId: _user.id, groupId: widget.group.id);
 //    _alreadyAssigned = db.getTaskStudentSnapshots(taskId: widget.task.id);

@@ -232,7 +232,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
   void onTabChange() {
     setState(() {
       _canSearch = _tabController.index == 0 ? false : true;
-      if(_tabController.index == 0) {
+      if(_mainFormKey.currentState != null) {
         submit();
       }
     });
@@ -267,42 +267,42 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
     return SafeArea(
         child: Column(
           children: <Widget>[
-            StreamBuilder(
-              stream: _students,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  int total= snapshot.data.length;
-                  int completed = total;
-                  if (total > 0) {
-                    List<Stream<TaskStatus>> streamList = [];
-                    snapshot.data.forEach((Student student) {
-                      streamList.add(db.getStudentTaskStatus(
-                          student.id, widget.task.id));
-                    });
-
-                    return StreamBuilder<List<TaskStatus>>(
-                        stream: CombineLatestStream.list(streamList),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            completed = snapshot.data
-                                .where((task) => task.completed)
-                                .length;
-                            return buildProgressIndicator(completed, total);
-                          } else {
-                            return ListTile(
-                              title: CircularProgressIndicator(),
-                            );
-                          }
-                        }
-                    );
-                  } else {
-                    return buildProgressIndicator(completed, total);
-                  }
-                } else {
-                  return CircularProgressIndicator();
-                }
-              },
-            ),
+//            StreamBuilder(
+//              stream: _students,
+//              builder: (context, snapshot) {
+//                if (snapshot.hasData) {
+//                  int total= snapshot.data.length;
+//                  int completed = total;
+//                  if (total > 0) {
+//                    List<Stream<TaskStatus>> streamList = [];
+//                    snapshot.data.forEach((Student student) {
+//                      streamList.add(db.getStudentTaskStatus(
+//                          student.id, widget.task.id));
+//                    });
+//
+//                    return StreamBuilder<List<TaskStatus>>(
+//                        stream: CombineLatestStream.list(streamList),
+//                        builder: (context, snapshot) {
+//                          if (snapshot.hasData) {
+//                            completed = snapshot.data
+//                                .where((task) => task.completed)
+//                                .length;
+//                            return buildProgressIndicator(completed, total);
+//                          } else {
+//                            return ListTile(
+//                              title: CircularProgressIndicator(),
+//                            );
+//                          }
+//                        }
+//                    );
+//                  } else {
+//                    return buildProgressIndicator(completed, total);
+//                  }
+//                } else {
+//                  return CircularProgressIndicator();
+//                }
+//              },
+//            ),
             Container(
                 color: Colors.green,
                 child: Padding(
@@ -330,6 +330,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
                     );
                   }
                 } else {
+                  print('here');
                   return CircularProgressIndicator();
                 }
               },
