@@ -3,14 +3,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 import 'package:orbital2020/AppDrawer.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
+import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/TeacherTaskView.dart';
 import 'package:provider/provider.dart';
 
+import 'MockDatabaseController.dart';
+
 User testUser = User(id: "CBHrubROTEaYnNwhrxpc3DBwhXx1", name: "Farrell");
-Group mockGroup = Group(id: "AgRiWVNb2flktExYqpvN", name: "test Group 3");
+Group mockGroup = Group(id: "AgRiWVNb2flktExYqpvN", name: "test Group 3", students: Set());
 
 Task mockTask = Task(
   name: 'mockTask',
@@ -59,14 +62,32 @@ void runTests() {
   });
 
   testWidgets("Assigned UI", (WidgetTester tester) async {
+    MockDatabaseController mockDB = MockDatabaseController();
+    await mockDB.teacherCreateGroup(
+        teacherId: testUser.id,
+        group: mockGroup
+    );
+    Student mockStudent = Student(id: 'abc', name: "testing student");
+    await mockDB.initialiseNewStudent(mockStudent);
+    await mockDB.teacherCreateTask(
+        task: mockTask,
+        group: mockGroup
+    );
+    await mockDB.teacherAssignStudentsToTask([mockStudent], mockTask);
+    print(mockDB.showDB());
+
     MaterialApp app = MaterialApp (
         home: Provider<User>(
           create: (_) => testUser,
-          child: TeacherTaskView(task: mockTask, group: mockGroup),
+          child: TeacherTaskView(databaseController: mockDB, task: mockTask, group: mockGroup),
         )
     );
     await tester.pumpWidget(app);
-
+    await tester.tap(find.text('Assigned'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ProgressIndicator), findsOneWidget);
+    expect(find.byType(ListView), findsOneWidget);
+    expect(find.text("testing student"), findsOneWidget);
     //TODO
   });
 

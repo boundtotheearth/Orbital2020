@@ -16,10 +16,11 @@ import 'Sort.dart';
 
 
 class TeacherTaskView extends StatefulWidget {
+  final DatabaseController databaseController;
   final Task task;
   final Group group;
 
-  TeacherTaskView({Key key, @required this.task, @required this.group}) : super(key: key);
+  TeacherTaskView({Key key, this.databaseController, @required this.task, @required this.group}) : super(key: key);
 
   @override
   _TeacherTaskViewState createState() => _TeacherTaskViewState();
@@ -28,7 +29,7 @@ class TeacherTaskView extends StatefulWidget {
 
 class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProviderStateMixin{
 
-  final DatabaseController db = DatabaseController();
+  DatabaseController db;
   final _nameFormKey = GlobalKey<FormState>();
   final _mainFormKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
@@ -52,6 +53,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
   @override
   void initState() {
     super.initState();
+    db = widget.databaseController ?? DatabaseController();
     _students = db.getStudentsWithTask(widget.task.id);
     _searchText = '';
     _searchBarActive = false;

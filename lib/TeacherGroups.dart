@@ -10,15 +10,15 @@ import 'AppDrawer.dart';
 
 
 class TeacherGroups extends StatefulWidget {
-
-  TeacherGroups({Key key}) : super(key: key);
+  final DatabaseController databaseController;
+  TeacherGroups({Key key, this.databaseController}) : super(key: key);
 
   @override
   _TeacherGroupsState createState() => _TeacherGroupsState();
 }
 
 class _TeacherGroupsState extends State<TeacherGroups> {
-  final DatabaseController db = DatabaseController();
+  DatabaseController db;
   final CloudStorageController storage = CloudStorageController();
 
   User _user;
@@ -29,6 +29,7 @@ class _TeacherGroupsState extends State<TeacherGroups> {
   @override
   void initState() {
     super.initState();
+    db = widget.databaseController ?? DatabaseController();
     _user = Provider.of<User>(context, listen: false);
     _groups = db.getTeacherGroupSnapshots(teacherId: _user.id);
     _searchText = "";
