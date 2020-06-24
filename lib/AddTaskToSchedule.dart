@@ -33,6 +33,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
   final DateTime today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
   TextEditingController _scheduledDateController = TextEditingController();
   bool _editable;
+  bool _viewOnly = false;
   User _user;
   String _selectedTask;
   TimeOfDay _startTime;
@@ -46,7 +47,11 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
   void initState() {
     _user = Provider.of<User>(context, listen: false);
     _editable = widget.schedule != null;
-    _scheduledDate = widget.scheduledDate.isBefore(today) ? today : widget.scheduledDate;
+    if (widget.scheduledDate.isBefore(today) && !_editable) {
+      _scheduledDate = today;
+    } else {
+      _scheduledDate = widget.scheduledDate;
+    }
     if (_editable) {
       _selectedTask = widget.schedule.taskId;
       _scheduledDateController.text = DateFormat("dd/MM/y").format(widget.schedule.scheduledDate);
@@ -54,6 +59,9 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
       _startTimeController.text = timeToString(_startTime);
       _endTime = TimeOfDay.fromDateTime(widget.schedule.endTime);
       _endTimeController.text = timeToString(_endTime);
+    }
+    if (_editable && widget.schedule.startTime.isBefore(DateTime.now()) ) {
+      _viewOnly = true;
     }
     _scheduledDateController.text = DateFormat("dd/MM/y").format(_scheduledDate);
     _allUncompletedTasks = db.getUncompletedTasks(_user.id);
@@ -65,7 +73,9 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
         context: context,
         initialTime: TimeOfDay.now(),
         ).then((value) {
-          timeType == Time.start ? _startTime = value : _endTime = value;
+          if (value != null) {
+            timeType == Time.start ? _startTime = value : _endTime = value;
+          }
           return value;
     });
   }
@@ -81,7 +91,9 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
         firstDate: today,
         lastDate: DateTime(2100)
     ).then((value) {
-      _scheduledDate = value;
+      if (value != null) {
+        _scheduledDate = value;
+      }
       return _scheduledDate;
     });
   }
@@ -116,9 +128,9 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
     } else if (checkFormat != null){
       return checkFormat;
     }
-//    else if (_scheduledDate == today && !isTimeAfter(value, timeToString(TimeOfDay.fromDateTime(DateTime.now())))) {
-//      return "Start Time must be later than current time!";
-//    }
+    else if (_scheduledDate == today && !isTimeAfter(value, DateFormat.Hm().format(DateTime.now()))) {
+      return "Start Time must be later than current time!";
+    }
     else {
       return null;
     }
@@ -174,6 +186,67 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
     );
   }
 
+  Widget _buildTaskDropDown() {
+    if (!_viewOnly) {
+      return StreamBuilder<Set<String>>(
+          stream: _allUncompletedTasks,
+          builder: (context, snapshot)  {
+            if (!snapshot.hasData) {
+              return Container(width: 0, height: 0);
+            } else {
+              List<Stream<Task>> streamList = [];
+              for (String taskId in snapshot.data) {
+                streamList.add(db.getTaskName(taskId));
+              }
+              return StreamBuilder<List<Task>>(
+                stream: CombineLatestStream.list(streamList),
+                builder: (context, snapshot) {
+                  print(snapshot.data);
+                  return DropdownButtonFormField(
+                    items: snapshot.data?.map((task) => DropdownMenuItem(
+                      child: Text(task.name),
+                      value: task.id,
+                    )
+                    )?.toList(),
+                    onChanged: (selected) {
+                      print(selected);
+                      setState(() {
+                        _selectedTask = selected;
+                      });
+                    },
+                    value: _selectedTask,
+                    hint: Text("Select Task"),
+                    validator: (input) {
+                      if (input == null) {
+                        return "Task cannot be empty";
+                      } else {
+                        return null;
+                      }
+                    },
+                    isExpanded: true,
+                  );
+                },
+              );
+            }
+          }
+      );
+    } else {
+      return StreamBuilder<Task>(
+        stream: db.getTaskName(widget.schedule.taskId),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return DropdownButtonFormField(
+              items: [],
+              onChanged: null,
+              disabledHint: Text(snapshot.data.name),
+            );
+          } else {
+            return Container(width: 0, height: 0);
+          }
+        },
+      );
+    }
+  }
 
   Widget _buildForm() {
     return Form(
@@ -183,53 +256,13 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
       },
       child: ListView(
         children: <Widget>[
-          StreamBuilder<Set<String>>(
-            stream: _allUncompletedTasks,
-            builder: (context, snapshot)  {
-              if (!snapshot.hasData) {
-                return CircularProgressIndicator();
-              } else {
-                List<Stream<Task>> streamList = [];
-                for (String taskId in snapshot.data) {
-                  streamList.add(db.getTaskName(taskId));
-                }
-                 return StreamBuilder<List<Task>>(
-                  stream: CombineLatestStream.list(streamList),
-                  builder: (context, snapshot) {
-                    print(snapshot.data);
-                    return DropdownButtonFormField(
-                      items: snapshot.data?.map((task) => DropdownMenuItem(
-                        child: Text(task.name),
-                        value: task.id,
-                        )
-                      )?.toList(),
-                      onChanged: (selected) {
-                        print(selected);
-                        setState(() {
-                          _selectedTask = selected;
-                        });
-                      },
-                      value: _selectedTask,
-                      hint: Text("Select Task"),
-                      validator: (input) {
-                        if (input == null) {
-                          return "Task cannot be empty";
-                        } else {
-                          return null;
-                        }
-                      },
-                      isExpanded: true,
-                    );
-                  },
-                );
-              }
-            }
-          ),
+          _buildTaskDropDown(),
           TextFormField(
             decoration: InputDecoration(
                 labelText: "Scheduled Date",
                 suffixIcon: Icon(Icons.calendar_today)
             ),
+            enabled: !_viewOnly,
             onTap: () {
               _setDate(context).then((value) {
                 _scheduledDateController.text = DateFormat("dd/MM/y").format(value);
@@ -246,6 +279,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
               labelText: "Start Time",
               suffixIcon: Icon(Icons.timer)
             ),
+            enabled: !_viewOnly,
             onTap: () {
               _setTime(context, Time.start).then((value) {
                 _startTimeController.text = timeToString(value);
@@ -259,6 +293,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
                 labelText: "End Time",
                 suffixIcon: Icon(Icons.timer)
             ),
+            enabled: !_viewOnly,
             onTap: () {
               _setTime(context, Time.end).then((value) {
                 _endTimeController.text = timeToString(value);
