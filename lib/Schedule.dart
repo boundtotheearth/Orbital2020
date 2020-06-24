@@ -77,6 +77,19 @@ class _ScheduleState extends State<Schedule> {
               calendarController: _calendarController,
               events: _scheduledTasks,
               onDaySelected: _onDateSelected,
+              builders: CalendarBuilders(
+                markersBuilder: (context, date, events, holidays) {
+                  final children = <Widget>[];
+                  if (events.isNotEmpty) {
+                    children.add(Positioned(
+                      right: 1,
+                      bottom: 1,
+                      child: _buildEventsMarker(date, events),
+                    ));
+                  }
+                  return children;
+                }
+              ),
             ),
             Expanded(
                 child: _buildTask(_selectedTasks)
@@ -88,7 +101,27 @@ class _ScheduleState extends State<Schedule> {
     );
   }
 
+  Widget _buildEventsMarker(DateTime date, List events) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      decoration: BoxDecoration(
+        shape: BoxShape.rectangle,
+        color: _calendarController.isSelected(date)
+          ? Colors.orange[500] : _calendarController.isToday(date)
+            ? Colors.red[500] : Colors.orange[200]
+      ),
+      width: 16.0,
+      height: 16.0,
+      child: Center(
+        child: Text("${events.length}",
+          style: TextStyle(color: Colors.white, fontSize: 12.0)
+        )
+      ),
+    );
+  }
+
   Widget _buildTask(List tasks) {
+    tasks.sort((a, b) => a.startTime.compareTo(b.startTime));
     print("hello");
     if (tasks.isEmpty) {
       return Text("No scheduled tasks for the day!");
@@ -112,7 +145,13 @@ class _ScheduleState extends State<Schedule> {
                       ],
                     ),
                     title: Text(snapshot.data.name), //task.name),
-                    onTap: () {}
+                    onTap: () {
+                      Map<String, dynamic> arguments = {
+                        'date': _selectedDate,
+                        'schedule': task
+                      };
+                      Navigator.of(context).pushNamed("addSchedule", arguments: arguments);
+                    }
 
                 );
               } else {
@@ -148,7 +187,13 @@ class _ScheduleState extends State<Schedule> {
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
-        onPressed: () => Navigator.of(context).pushNamed("addSchedule", arguments: _selectedDate),
+        onPressed: () {
+          Map<String, dynamic> arguments = {
+            'date': _selectedDate,
+          };
+          Navigator.of(context).pushNamed(
+              "addSchedule", arguments: arguments);
+        },
       ),
     );
   }
