@@ -13,7 +13,7 @@ import 'package:orbital2020/Teacher.dart';
 import 'DataContainers/TaskWithStatus.dart';
 
 class DatabaseController {
-  final db = Firestore.instance;
+  Firestore db = Firestore.instance;
 
   void test() async {
     Future<void> a = db.collection('students').getDocuments().then((query) {
@@ -477,7 +477,9 @@ class DatabaseController {
         .document(groupId)
         .collection('tasks')
         .snapshots()
-        .map((snapshot) => snapshot.documents)
+        .map((snapshot) {
+          return snapshot.documents;
+    })
         .map((documents) =>
         documents.map((document) => document.documentID).toSet()
     );
@@ -575,6 +577,7 @@ class DatabaseController {
 
   //Get list of students that have a certain task
   Stream<List<Student>> getStudentsWithTask(String taskId) {
+    print(taskId);
     return db.collection('tasks')
         .document(taskId)
         .collection('students')
@@ -685,7 +688,7 @@ class DatabaseController {
     DocumentReference newGroup = db.collection('teachers')
         .document(teacherId)
         .collection('groups')
-        .document();
+        .document(group.id != null ? group.id : null);
     group.id = newGroup.documentID;
 
     WriteBatch batch = db.batch();

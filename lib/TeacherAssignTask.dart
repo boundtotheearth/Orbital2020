@@ -8,12 +8,13 @@ import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:provider/provider.dart';
 
-//View shown when teacher is assigning a task to a student
+//View shown when teacher is assigning tasks to a student
 class TeacherAssignTask extends StatefulWidget {
+  final DatabaseController databaseController;
   final Student student;
   final Group group;
 
-  TeacherAssignTask({Key key, @required this.student, @required this.group}) : super(key: key);
+  TeacherAssignTask({Key key, this.databaseController, @required this.student, @required this.group}) : super(key: key);
 
 
   @override
@@ -21,7 +22,7 @@ class TeacherAssignTask extends StatefulWidget {
 }
 
 class _TeacherAssignTaskState extends State<TeacherAssignTask> {
-  final DatabaseController db = DatabaseController();
+  DatabaseController db;
 
   User _user;
 
@@ -36,6 +37,7 @@ class _TeacherAssignTaskState extends State<TeacherAssignTask> {
   @override
   void initState() {
     super.initState();
+    db = widget.databaseController ?? DatabaseController();
     _user = Provider.of<User>(context, listen: false);
 //    _allTasks = db.getGroupTaskSnapshots(teacherId: _user.id, groupId: widget.group.id);
 //    _alreadyAssigned = db.getStudentTaskDetailsSnapshots(studentId: widget.student.id);
@@ -122,7 +124,12 @@ class _TeacherAssignTaskState extends State<TeacherAssignTask> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Assign Task'),
+        leading: IconButton(
+          icon: BackButtonIcon(),
+          onPressed: Navigator.of(context).maybePop,
+          tooltip: 'Back',
+        ),
+        title: const Text('Assign Task To Student'),
       ),
       body: SafeArea(
         child: Column(
@@ -143,12 +150,6 @@ class _TeacherAssignTaskState extends State<TeacherAssignTask> {
             Expanded(
               child: buildSuggestions(),
             ),
-            RaisedButton(
-              child: const Text('Add New Task'),
-              onPressed: () {
-
-              },
-            )
           ],
         )
       ),

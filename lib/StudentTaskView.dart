@@ -63,9 +63,9 @@ class _StudentTaskViewState extends State<StudentTaskView> {
     for(String tag in widget.task.tags) {
       tagChips.add(Chip(
         label: Text(tag),
-        onDeleted: () {
-          deleteTag(tag);
-        },
+        onDeleted: editable ? () {
+            deleteTag(tag);
+          } : null,
       ));
     }
     return tagChips;
@@ -123,8 +123,8 @@ class _StudentTaskViewState extends State<StudentTaskView> {
   }
 
   //Custom validator for the name field as the default is ugly
-  bool _validateName() {
-    if(_nameController.text.isEmpty) {
+  String _validateName(String value) {
+    if(value.isEmpty) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -149,20 +149,19 @@ class _StudentTaskViewState extends State<StudentTaskView> {
           );
         }
       );
-      return false;
+      return "";
     }
-    return true;
+    return null;
   }
 
-  Future<void> submit() {
-    print("submit");
-    if (_mainFormKey.currentState.validate() && _validateName()) {
+  Future<bool> submit() {
+    if (_mainFormKey.currentState.validate() && _nameFormKey.currentState.validate()) {
       _nameFormKey.currentState.save();
       _mainFormKey.currentState.save();
 
-      return db.updateTaskDetails(task: widget.task);
+      return db.updateTaskDetails(task: widget.task).then((value) => true);
     }
-    return Future.value();
+    return Future.value(false);
   }
 
   List<PopupMenuItem> _actionMenuBuilder(BuildContext context) {
@@ -195,17 +194,26 @@ class _StudentTaskViewState extends State<StudentTaskView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: BackButtonIcon(),
+          onPressed: Navigator.of(context).maybePop,
+          tooltip: 'Back',
+        ),
         title: Form(
           key: _nameFormKey,
           child: TextFormField(
+            key: Key('name'),
             controller: _nameController,
             focusNode: _nameFocusNode,
             decoration: InputDecoration(
               border: InputBorder.none,
-              focusedBorder: UnderlineInputBorder(),
+              focusedBorder: InputBorder.none,
+              focusedErrorBorder: InputBorder.none,
+              errorStyle: TextStyle(height: 0),
             ),
             style: Theme.of(context).primaryTextTheme.headline6,
             onSaved: (value) => widget.task.name = value,
+            validator: _validateName,
             enabled: editable,
           ),
         ),
@@ -220,12 +228,13 @@ class _StudentTaskViewState extends State<StudentTaskView> {
         child: Form(
             key: _mainFormKey,
             onWillPop: () async {
-              return editable ? submit().then((value) => true) : true;
+              return editable ? submit().then((value) => value) : true;
             },
             child: ListView(
                 padding: EdgeInsets.symmetric(horizontal: 5),
                 children: <Widget>[
                   TextFormField(
+                    key: Key('created-by'),
                     decoration: const InputDecoration(
                       labelText: 'Created By',
                       border: InputBorder.none,
@@ -237,6 +246,7 @@ class _StudentTaskViewState extends State<StudentTaskView> {
                   AspectRatio(
                     aspectRatio: 3/2,
                     child: TextFormField(
+                      key: Key('description'),
                       controller: _descriptionController,
                       decoration: const InputDecoration(
                         alignLabelWithHint: true,
@@ -256,6 +266,7 @@ class _StudentTaskViewState extends State<StudentTaskView> {
                     children: <Widget>[
                       Expanded(
                           child: TextFormField(
+                            key: Key('due'),
                             decoration: const InputDecoration(
                               labelText: 'Due',
                               suffixIcon: Icon(Icons.calendar_today),
@@ -278,6 +289,7 @@ class _StudentTaskViewState extends State<StudentTaskView> {
                     ],
                   ),
                   TextFormField(
+                    key: Key('tags'),
                     controller: _tagController,
                     decoration: InputDecoration(
                       labelText: "Add Tag",

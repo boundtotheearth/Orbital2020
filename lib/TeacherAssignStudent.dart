@@ -7,19 +7,20 @@ import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:provider/provider.dart';
 
-//View shown when teacher is assigning a task to a student
+//View shown when teacher is assigning students to a task
 class TeacherAssignStudent extends StatefulWidget {
+  final DatabaseController databaseController;
   final Task task;
   final Group group;
 
-  TeacherAssignStudent({Key key, @required this.task, @required this.group}) : super(key: key);
+  TeacherAssignStudent({Key key, this.databaseController, @required this.task, @required this.group}) : super(key: key);
 
   @override
   _TeacherAssignStudentState createState() => _TeacherAssignStudentState();
 }
 
 class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
-  final DatabaseController db = DatabaseController();
+  DatabaseController db;
 
   User _user;
   Set<Student> _students;
@@ -29,6 +30,7 @@ class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
   @override
   void initState() {
     super.initState();
+    db = widget.databaseController ?? DatabaseController();
     _user = Provider.of<User>(context, listen: false);
 //    _allStudents = db.getGroupStudentSnapshots(teacherId: _user.id, groupId: widget.group.id);
 //    _alreadyAssigned = db.getTaskStudentSnapshots(taskId: widget.task.id);
@@ -101,7 +103,12 @@ class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Assign to Students'),
+        leading: IconButton(
+          icon: BackButtonIcon(),
+          onPressed: Navigator.of(context).maybePop,
+          tooltip: 'Back',
+        ),
+        title: const Text('Students To Assign'),
       ),
       body: SafeArea(
           child: Column(

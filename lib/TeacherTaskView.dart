@@ -16,10 +16,11 @@ import 'Sort.dart';
 
 
 class TeacherTaskView extends StatefulWidget {
+  final DatabaseController databaseController;
   final Task task;
   final Group group;
 
-  TeacherTaskView({Key key, @required this.task, @required this.group}) : super(key: key);
+  TeacherTaskView({Key key, this.databaseController, @required this.task, @required this.group}) : super(key: key);
 
   @override
   _TeacherTaskViewState createState() => _TeacherTaskViewState();
@@ -28,7 +29,7 @@ class TeacherTaskView extends StatefulWidget {
 
 class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProviderStateMixin{
 
-  final DatabaseController db = DatabaseController();
+  DatabaseController db;
   final _nameFormKey = GlobalKey<FormState>();
   final _mainFormKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
@@ -52,6 +53,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
   @override
   void initState() {
     super.initState();
+    db = widget.databaseController ?? DatabaseController();
     _students = db.getStudentsWithTask(widget.task.id);
     _searchText = '';
     _searchBarActive = false;
@@ -64,6 +66,12 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
     DateFormat('dd/MM/y').format(widget.task.dueDate) :
     "";
     _sortBy = Sort.name;
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   bool filtered(String studentName) {
@@ -124,18 +132,6 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
   List<PopupMenuItem> _actionMenuBuilder(BuildContext context) {
     return [
       PopupMenuItem(
-        value: 'all_submitted',
-        child: Text('All Submitted'),
-      ),
-      PopupMenuItem(
-        value: 'clear_all',
-        child: Text('Clear All'),
-      ),
-      PopupMenuItem(
-        value: 'archive',
-        child: Text('Archive'),
-      ),
-      PopupMenuItem(
         value: 'delete',
         child: Text('Delete', style: TextStyle(color: Colors.red),),
       )
@@ -144,33 +140,12 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
 
   void _onActionMenuSelected(dynamic value) {
     switch(value) {
-      case 'all_submitted':
-        _onAllSubmitted();
-        break;
-      case 'clear_all':
-        _onClearAll();
-        break;
-      case 'archive':
-        _onArchive();
-        break;
       case 'delete':
         _onDelete();
         break;
       default:
         print(value.toString() + " Not Implemented");
     }
-  }
-
-  Future<void> _onAllSubmitted() {
-    return Future(null);
-  }
-
-  Future<void> _onArchive() {
-    return Future(null);
-  }
-
-  Future<void> _onClearAll() {
-    return Future(null);
   }
 
   Future<void> _onDelete() {
@@ -219,14 +194,18 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
         title: Form(
           key: _nameFormKey,
           child: TextFormField(
+            key: Key('name'),
             controller: _nameController,
             focusNode: _nameFocusNode,
             decoration: InputDecoration(
               border: InputBorder.none,
-              focusedBorder: UnderlineInputBorder(),
+              focusedBorder: InputBorder.none,
+              focusedErrorBorder: InputBorder.none,
+              errorStyle: TextStyle(height: 0),
             ),
             style: Theme.of(context).primaryTextTheme.headline6,
             onSaved: (value) => widget.task.name = value,
+            validator: _validateName,
           ),
         ),
         actions: <Widget>[
@@ -253,7 +232,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
   void onTabChange() {
     setState(() {
       _canSearch = _tabController.index == 0 ? false : true;
-      if(_tabController.index == 0) {
+      if(_mainFormKey.currentState != null) {
         submit();
       }
     });
@@ -288,42 +267,42 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
     return SafeArea(
         child: Column(
           children: <Widget>[
-            StreamBuilder(
-              stream: _students,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  int total= snapshot.data.length;
-                  int completed = total;
-                  if (total > 0) {
-                    List<Stream<TaskStatus>> streamList = [];
-                    snapshot.data.forEach((Student student) {
-                      streamList.add(db.getStudentTaskStatus(
-                          student.id, widget.task.id));
-                    });
-
-                    return StreamBuilder<List<TaskStatus>>(
-                        stream: CombineLatestStream.list(streamList),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            completed = snapshot.data
-                                .where((task) => task.completed)
-                                .length;
-                            return buildProgressIndicator(completed, total);
-                          } else {
-                            return ListTile(
-                              title: CircularProgressIndicator(),
-                            );
-                          }
-                        }
-                    );
-                  } else {
-                    return buildProgressIndicator(completed, total);
-                  }
-                } else {
-                  return CircularProgressIndicator();
-                }
-              },
-            ),
+//            StreamBuilder(
+//              stream: _students,
+//              builder: (context, snapshot) {
+//                if (snapshot.hasData) {
+//                  int total= snapshot.data.length;
+//                  int completed = total;
+//                  if (total > 0) {
+//                    List<Stream<TaskStatus>> streamList = [];
+//                    snapshot.data.forEach((Student student) {
+//                      streamList.add(db.getStudentTaskStatus(
+//                          student.id, widget.task.id));
+//                    });
+//
+//                    return StreamBuilder<List<TaskStatus>>(
+//                        stream: CombineLatestStream.list(streamList),
+//                        builder: (context, snapshot) {
+//                          if (snapshot.hasData) {
+//                            completed = snapshot.data
+//                                .where((task) => task.completed)
+//                                .length;
+//                            return buildProgressIndicator(completed, total);
+//                          } else {
+//                            return ListTile(
+//                              title: CircularProgressIndicator(),
+//                            );
+//                          }
+//                        }
+//                    );
+//                  } else {
+//                    return buildProgressIndicator(completed, total);
+//                  }
+//                } else {
+//                  return CircularProgressIndicator();
+//                }
+//              },
+//            ),
             Container(
                 color: Colors.green,
                 child: Padding(
@@ -351,6 +330,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
                     );
                   }
                 } else {
+                  print('here');
                   return CircularProgressIndicator();
                 }
               },
@@ -400,8 +380,8 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
   }
 
   //Custom validator for the name field as the default is ugly
-  bool _validateName() {
-    if(_nameController.text.isEmpty) {
+  String _validateName(String value) {
+    if(value.isEmpty) {
       showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -426,31 +406,32 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
             );
           }
       );
-      return false;
+      return "";
     }
-    return true;
+    return null;
   }
 
-  Future<void> submit() {
-    if (_mainFormKey.currentState.validate() && _validateName()) {
+  Future<bool> submit() {
+    if (_mainFormKey.currentState.validate() && _nameFormKey.currentState.validate()) {
       _nameFormKey.currentState.save();
       _mainFormKey.currentState.save();
-      return db.updateTaskDetails(task: widget.task);
+      return db.updateTaskDetails(task: widget.task).then((value) => true);
     }
-    return Future.value();
+    return Future.value(false);
   }
 
   Widget buildDetailsTab() {
     return SafeArea(
         child: Form(
             key: _mainFormKey,
-            onWillPop: () => submit().then((value) => true),
+            onWillPop: () => submit().then((value) => value),
             child: ListView(
                 padding: EdgeInsets.symmetric(horizontal: 5),
                 children: <Widget>[
                   AspectRatio(
                     aspectRatio: 3/2,
                     child: TextFormField(
+                      key: Key('description'),
                       controller: _descriptionController,
                       decoration: const InputDecoration(
                         alignLabelWithHint: true,
@@ -469,6 +450,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
                     children: <Widget>[
                       Expanded(
                           child: TextFormField(
+                            key: Key('due'),
                             decoration: const InputDecoration(
                               labelText: 'Due',
                               suffixIcon: Icon(Icons.calendar_today),
@@ -490,6 +472,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
                     ],
                   ),
                   TextFormField(
+                    key: Key('tags'),
                     controller: _tagController,
                     decoration: InputDecoration(
                       labelText: "Add Tag",

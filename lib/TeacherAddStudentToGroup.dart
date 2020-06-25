@@ -9,17 +9,17 @@ import 'package:provider/provider.dart';
 
 //View shown when teacher is assigning a task to a student
 class TeacherAddStudentToGroup extends StatefulWidget {
+  final DatabaseController databaseController;
   final Group group;
 
-  TeacherAddStudentToGroup({Key key, @required this.group}) : super(key: key);
-
+  TeacherAddStudentToGroup({Key key, this.databaseController, @required this.group}) : super(key: key);
 
   @override
   _TeacherAddStudentToGroupState createState() => _TeacherAddStudentToGroupState();
 }
 
 class _TeacherAddStudentToGroupState extends State<TeacherAddStudentToGroup> {
-  final DatabaseController db = DatabaseController();
+  DatabaseController db;
 
   User _user;
   Set<Student> _studentsToAdd;
@@ -29,6 +29,7 @@ class _TeacherAddStudentToGroupState extends State<TeacherAddStudentToGroup> {
   @override
   void initState() {
     super.initState();
+    db = widget.databaseController ?? DatabaseController();
     _user = Provider.of<User>(context, listen: false);
     _studentsToAdd = Set();
     _searchText = "";
@@ -86,16 +87,24 @@ class _TeacherAddStudentToGroupState extends State<TeacherAddStudentToGroup> {
   }
 
   Future<void> submitAdd() {
-    return db.teacherAddStudentsToGroup(teacherId: _user.id,
-        group: widget.group,
-        students: _studentsToAdd);
+    if(_studentsToAdd.length > 0) {
+      return db.teacherAddStudentsToGroup(teacherId: _user.id,
+          group: widget.group,
+          students: _studentsToAdd);
+    }
+    return Future(null);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Students'),
+        leading: IconButton(
+          icon: BackButtonIcon(),
+          onPressed: Navigator.of(context).maybePop,
+          tooltip: 'Back',
+        ),
+        title: const Text('Add Students To Group'),
       ),
       body: SafeArea(
           child: Column(

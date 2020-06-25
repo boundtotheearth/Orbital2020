@@ -140,6 +140,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
           padding: EdgeInsets.symmetric(horizontal: 5),
           children: <Widget>[
             TextFormField(
+              key: Key('name'),
               decoration: const InputDecoration(
                 labelText: 'Name',
               ),
@@ -149,6 +150,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
             AspectRatio(
               aspectRatio: 3/2,
               child: TextFormField(
+                key: Key('description'),
                 decoration: const InputDecoration(
                   alignLabelWithHint: true,
                   labelText: 'Description',
@@ -160,29 +162,25 @@ class _AddTaskFormState extends State<AddTaskForm> {
                 onSaved: (value) => _taskDescription = value,
               ),
             ),
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: 'Due',
-                      suffixIcon: Icon(Icons.calendar_today),
-                    ),
-                    onTap: () {
-                      setDueDate(context).then((value) {
-                        if(value != null) {
-                          _dueDateController.text =
-                              DateFormat('dd/MM/y').format(value);
-                        }
-                      });
-                    },
-                    controller: _dueDateController,
-                    validator: DateValidator('dd/MM/y', errorText: 'Invalid date format!'),
-                  )
-                ),
-              ],
+            TextFormField(
+              key: Key('due'),
+              decoration: const InputDecoration(
+                labelText: 'Due',
+                suffixIcon: Icon(Icons.calendar_today),
+              ),
+              onTap: () {
+                setDueDate(context).then((value) {
+                  if(value != null) {
+                    _dueDateController.text =
+                        DateFormat('dd/MM/y').format(value);
+                  }
+                });
+              },
+              controller: _dueDateController,
+              validator: DateValidator('dd/MM/y', errorText: 'Invalid date format!'),
             ),
             TextFormField(
+              key: Key('tags'),
               controller: _tagController,
               decoration: InputDecoration(
                 labelText: "Add Tag",
@@ -213,18 +211,8 @@ class _AddTaskFormState extends State<AddTaskForm> {
               children: getTagChips(),
             ),
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                RaisedButton(
-                  onPressed: () {
-                    if (_formKey.currentState.validate()) {
-                      Scaffold
-                          .of(context)
-                          .showSnackBar(SnackBar(content: Text('Processing Data')));
-                    }
-                  },
-                  child: const Text('Submit & Save'),
-                ),
-                Spacer(),
                 RaisedButton(
                   onPressed: submit,
                   child: const Text('Save'),

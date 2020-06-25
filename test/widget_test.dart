@@ -8,23 +8,70 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:orbital2020/main.dart';
+import 'LoginTests.dart' as LoginTests;
+import 'SignupTests.dart' as SignupTests;
+import 'StudentMainTests.dart' as StudentMainTests;
+import 'StudentAddTaskTests.dart' as StudentAddTaskTests;
+import 'StudentTaskViewTests.dart' as StudentTaskViewTests;
+import 'TeacherGroupsTests.dart' as TeacherGroupsTests;
+import 'TeacherGroupViewTests.dart' as TeacherGroupViewTests;
+import 'TeacherTaskViewTests.dart' as TeacherTaskViewTests;
+import 'TeacherStudentViewTests.dart' as TeacherStudentViewTests;
+import 'TeacherAddGroupTests.dart' as TeacherAddGroupTests;
+import 'TeacherAddStudentToGroupTests.dart' as TeacherAddStudentToGroupTests;
+import 'TeacherAssignStudentTests.dart' as TeacherAssignStudentsTests;
+import 'TeacherAssignTaskTests.dart' as TeacherAssignTaskTests;
+import 'TeacherAddTaskTests.dart' as TeacherAddTaskTests;
+
+Type typeOf<T>() => T;
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
+  setUp(() {
+    WidgetsBinding.instance.renderView.configuration =  new TestViewConfiguration(size: const Size(1080.0, 2340.0));
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  group("Login Tests", () {
+    LoginTests.runTests();
+  });
+  group("Signup Tests", () {
+    SignupTests.runTests();
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  group("Student Main Tests", () {
+    StudentMainTests.runTests();
+  });
+  group("Student Add Task Tests", () {
+    StudentAddTaskTests.runTests();
+  });
+  group("Student Task View Tests", () {
+    StudentTaskViewTests.runTests();
+  });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  group("Teacher Groups Tests", () {
+    TeacherGroupsTests.runTests();
+  });
+  group("Teacher Group View Tests", () {
+    TeacherGroupViewTests.runTests();
+  });
+  group("Teacher Task View Tests", () {
+    TeacherTaskViewTests.runTests();
+  });
+  group("Teacher Student View Tests", () {
+    TeacherStudentViewTests.runTests();
+  });
+  group("Teacher Add Group Tests", () {
+    TeacherAddGroupTests.runTests();
+  });
+  group("Teacher Add Student To Group Tests", () {
+    TeacherAddStudentToGroupTests.runTests();
+  });
+  group("Teacher Assign Students Tests", () {
+    TeacherAssignStudentsTests.runTests();
+  });
+  group("Teacher Assign Task Tests", () {
+    TeacherAssignTaskTests.runTests();
+  });
+  group("Teacher Add Task Tests", () {
+    TeacherAddTaskTests.runTests();
   });
 }

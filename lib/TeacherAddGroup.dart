@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:form_field_validator/form_field_validator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:orbital2020/CloudStorageController.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
@@ -13,8 +14,8 @@ import 'package:provider/provider.dart';
 
 //View shown when teacher is assigning a task to a student
 class TeacherAddGroup extends StatefulWidget {
-
-  TeacherAddGroup({Key key}) : super(key: key);
+  final DatabaseController databaseController;
+  TeacherAddGroup({Key key, this.databaseController}) : super(key: key);
 
 
   @override
@@ -22,8 +23,9 @@ class TeacherAddGroup extends StatefulWidget {
 }
 
 class _TeacherAddGroupState extends State<TeacherAddGroup> {
-  final DatabaseController db = DatabaseController();
+  DatabaseController db;
   final CloudStorageController storage = CloudStorageController();
+  final _formKey = GlobalKey<FormState>();
 
   User _user;
 
@@ -37,6 +39,7 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
   @override
   void initState() {
     super.initState();
+    db = widget.databaseController ?? DatabaseController();
     _user = Provider.of<User>(context, listen: false);
     _allStudents = db.getAllStudentsSnapshots();
     _students = Set();
@@ -95,14 +98,17 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
     );
   }
 
-  Future<void> submitGroup() {
-    return _groupImage != null
-        ? storage.uploadGroupImage(image: _groupImage, name: _groupName)
-          .then((imageUrl) {
-            Group newGroup = Group(name: _groupName, students: _students, imageUrl: imageUrl);
-            db.teacherCreateGroup(teacherId: _user.id, group: newGroup);
-          })
-        : db.teacherCreateGroup(teacherId: _user.id, group: Group(name: _groupName, students: _students));
+  Future<bool> submitGroup() async {
+    if(_formKey.currentState.validate()) {
+      Group newGroup = Group(name: _groupName, students: _students);
+      if(_groupImage != null) {
+        await storage.uploadGroupImage(image: _groupImage, name: _groupName).then((imageUrl) {
+          newGroup.imageUrl = imageUrl;
+        });
+      }
+      return db.teacherCreateGroup(teacherId: _user.id, group: newGroup).then((value) => true);
+    }
+    return Future.value(false);
   }
 
   Future<File> selectImage() {
@@ -120,59 +126,70 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: BackButtonIcon(),
+          onPressed: Navigator.of(context).maybePop,
+          tooltip: 'Back',
+        ),
         title: const Text('New Group'),
       ),
       body: SafeArea(
-          child: Column(
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.only(right: 10),
-                    child: InkWell(
-                        onTap: selectImage,
-                        child: _groupImage != null ?
-                        CircleAvatar(
-                          backgroundImage: FileImage(_groupImage),
-                          radius: 30,
-                        ) :
-                        CircleAvatar(
-                          child: const Text("G"),
-                          radius: 30,
-                        )
-                    ),
-                  ),
-                  Expanded(
-                    child: TextField(
-                      decoration: const InputDecoration(
-                        labelText: 'Group Name',
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.only(right: 10),
+                      child: InkWell(
+                          onTap: selectImage,
+                          child: _groupImage != null ?
+                          CircleAvatar(
+                            backgroundImage: FileImage(_groupImage),
+                            radius: 30,
+                          ) :
+                          CircleAvatar(
+                            child: const Text("G"),
+                            radius: 30,
+                          )
                       ),
-                      onChanged: (value) {
-                        setState(() {
-                          _groupName = value;
-                        });
-                      },
                     ),
-                  )
-                ],
-              ),
-              TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Add Students',
+                    Expanded(
+                      child: TextFormField(
+                        key: Key('group-name'),
+                        decoration: const InputDecoration(
+                          labelText: 'Group Name',
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            _groupName = value;
+                          });
+                        },
+                        validator: RequiredValidator(errorText: "Name cannot be empty!"),
+                      ),
+                    )
+                  ],
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    _searchText = value;
-                  });
-                },
-              ),
-              Wrap(
-                children: buildChips(),
-              ),
-              Expanded(
-                child: buildSuggestions(),
-              ),
-            ],
+                TextFormField(
+                  key: Key('add-students'),
+                  decoration: const InputDecoration(
+                    labelText: 'Add Students',
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _searchText = value;
+                    });
+                  },
+                ),
+                Wrap(
+                  children: buildChips(),
+                ),
+                Expanded(
+                  child: buildSuggestions(),
+                ),
+              ],
+            ),
           )
       ),
       floatingActionButton: Builder(
@@ -186,7 +203,11 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
                   .showSnackBar(SnackBar(content: Text('Processing Data')));
 
               submitGroup()
-                  .then((value) => Navigator.pop(context));
+                  .then((canPop) {
+                    if(canPop) {
+                      Navigator.pop(context);
+                    }
+              });
             },
           );
         },
