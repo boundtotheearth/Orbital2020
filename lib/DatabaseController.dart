@@ -634,15 +634,88 @@ class DatabaseController {
 
   Future<void> studentDeleteTask({Task task, String studentId}) {
     return Future.wait([
-      _unassignTaskFromStudent(task, studentId),
-      _deleteTask(task),
+      _unassignTaskFromStudent(task.id, studentId),
+      _deleteTask(task.id),
+    ]);
+  }
+
+  Future<void> teacherDeleteGroup({String teacherId, Group group}) {
+    DocumentReference groupDocument = db.collection('teachers')
+        .document(teacherId)
+        .collection('groups')
+        .document(group.id);
+
+    List<String> studentIds = [];
+    //Unassign students from group
+    Future removeStudents = groupDocument.collection('students')
+      .getDocuments()
+      .then((QuerySnapshot snapshot) {
+        for(DocumentSnapshot doc in snapshot.documents) {
+          studentIds.add(doc.documentID);
+          doc.reference.delete();
+        }
+    });
+
+    //Unassign tasks from group
+    Future removeTasks = groupDocument.collection('tasks')
+        .getDocuments()
+        .then((QuerySnapshot snapshot) {
+      for(DocumentSnapshot doc in snapshot.documents) {
+        //unassign from students
+        for(String studentId in studentIds) {
+          _unassignTaskFromStudent(doc.documentID, studentId);
+        }
+
+        //Also delete the task
+        _deleteTask(doc.documentID);
+
+        //Unassign from group
+        doc.reference.delete();
+      }
+    });
+
+    //delete group
+    Future removeGroup = groupDocument.delete();
+
+    return Future.wait([
+      removeStudents,
+      removeTasks,
+      removeGroup
+    ]);
+  }
+
+  Future<void> teacherRemoveStudentFromGroup({String teacherId, Group group, Student student}) {
+    DocumentReference groupDoc = db.collection('teachers')
+        .document(teacherId)
+        .collection('groups')
+        .document(group.id);
+
+    //Unassign all group tasks from student
+    Future removeTasks = groupDoc.collection('tasks')
+      .getDocuments()
+      .then((snapshot) {
+        for(DocumentSnapshot taskDoc in snapshot.documents) {
+          _unassignStudentFromTask(taskDoc.documentID, student.id);
+          _unassignTaskFromStudent(taskDoc.documentID, student.id);
+        }
+    });
+
+    //remove student
+    Future removeStudent = groupDoc
+        .collection('students')
+        .document(student.id)
+        .delete();
+
+    return Future.wait([
+      removeTasks,
+      removeStudent
     ]);
   }
 
   Future<void> teacherDeleteTask({Task task, Group group}) {
     return Future.wait([
       _unassignTaskFromGroup(task, group),
-      _deleteTask(task),
+      _deleteTask(task.id),
       db.collection('teachers')
           .document(task.createdById)
           .collection('groups')
@@ -651,7 +724,8 @@ class DatabaseController {
           .getDocuments()
           .then((QuerySnapshot snapshot) {
             snapshot.documents.forEach((document) {
-              _unassignTaskFromStudent(task, document.documentID);
+              _unassignTaskFromStudent(task.id, document.documentID);
+              _unassignStudentFromTask(task.id, document.documentID);
             });
           })
     ]);
@@ -734,17 +808,25 @@ class DatabaseController {
     });
   }
 
-  Future<void> _deleteTask(Task task) {
+  Future<void> _deleteTask(String taskId) {
     return db.collection('tasks')
-        .document(task.id)
+        .document(taskId)
         .delete();
   }
 
-  Future<void> _unassignTaskFromStudent(Task task, String studentId) {
+  Future<void> _unassignTaskFromStudent(String taskId, String studentId) {
     return db.collection('students')
         .document(studentId)
         .collection('tasks')
-        .document(task.id)
+        .document(taskId)
+        .delete();
+  }
+
+  Future<void> _unassignStudentFromTask(String taskId, String studentId) {
+    return db.collection('tasks')
+        .document(taskId)
+        .collection('students')
+        .document(studentId)
         .delete();
   }
 

@@ -252,6 +252,10 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
             tooltip: 'Search',
             onPressed: _activateSearchBar,
           ),
+          PopupMenuButton(
+            itemBuilder: _actionMenuBuilder,
+            onSelected: _onActionMenuSelected,
+          )
         ],
         bottom: TabBar(
           controller: _tabController,
@@ -262,6 +266,62 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
         ),
       );
     }
+  }
+
+  List<PopupMenuItem> _actionMenuBuilder(BuildContext context) {
+    return [
+      PopupMenuItem(
+        value: 'delete',
+        child: Text('Delete', style: TextStyle(color: Colors.red),),
+      ),
+    ];
+  }
+
+  void _onActionMenuSelected(dynamic value) {
+    switch(value) {
+      case 'delete':
+        _onDelete();
+        break;
+      default:
+        print(value.toString() + " Not Implemented");
+    }
+  }
+
+  Future<void> _onDelete() {
+    BuildContext viewContext = context;
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Are you sure you want to delete the group?'),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text('This action is permanent!'),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('YES'),
+                onPressed: () {
+                  db.teacherDeleteGroup(teacherId: _user.id, group: widget.group)
+                      .then((value) {
+                    Navigator.of(context).pop();
+                    Navigator.of(viewContext).pop();
+                  });
+                },
+              ),
+              FlatButton(
+                child: Text('NO'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        }
+    );
   }
 
   @override
