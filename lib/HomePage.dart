@@ -54,8 +54,10 @@ class HomePage extends StatelessWidget {
                         builder = (_) => Schedule();
                         break;
                       case 'addSchedule':
+                        Map<String, dynamic> arguments = settings.arguments;
                         builder = (_) =>
-                            AddTaskToSchedule(scheduledDate: settings.arguments);
+                            AddTaskToSchedule(scheduledDate: arguments['date'],
+                              schedule: arguments['schedule'],);
                         break;
                       case 'teacher_groups':
                         builder = (_) => TeacherGroups();

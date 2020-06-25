@@ -71,8 +71,25 @@ class DatabaseController {
     return db.collection('students')
         .document(studentId)
         .collection("scheduledTasks")
-        .document(task.taskId)
-        .setData(task.toKeyValuePair());
+        .add(task.toKeyValuePair());
+  }
+
+  //Student deletes schedule
+  Future<void> deleteSchedule(String studentId, String scheduleId) {
+    return db.collection("students")
+        .document(studentId)
+        .collection("scheduledTasks")
+        .document(scheduleId)
+        .delete();
+  }
+
+  //Student updates his schedule
+  Future<void> updateSchedule(String studentId, ScheduleDetails schedule) {
+    return db.collection("students")
+        .document(studentId)
+        .collection("scheduledTasks")
+        .document(schedule.id)
+        .updateData(schedule.toKeyValuePair());
   }
 
   //Student gets all scheduled tasks
@@ -182,7 +199,8 @@ class DatabaseController {
         .map((snapshot) => snapshot.documents)
         .map((documents) => documents.map((document) {
           return ScheduleDetails(
-            taskId: document.documentID,
+            id: document.documentID,
+            taskId: document["taskId"],
             scheduledDate: document["scheduledDate"].toDate(),
             startTime: document["startTime"].toDate(),
             endTime: document["endTime"].toDate()
@@ -364,6 +382,18 @@ class DatabaseController {
           }).toSet();
         });
     return tasks;
+  }
+
+  Stream<Set<String>> getUncompletedTasks(String studentId) {
+    return db.collection("students")
+        .document(studentId)
+        .collection("tasks")
+        .where("completed", isEqualTo: false)
+        .snapshots()
+        .map((snapshot) => snapshot.documents.map((document) => document.documentID)
+          .toSet()
+        );
+
   }
 
 //  Get a stream of snapshots containing tasks assigned to a student with studentId.

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:orbital2020/AuthProvider.dart';
+import 'package:orbital2020/Root.dart';
 import 'package:orbital2020/Teacher.dart';
 import 'Auth.dart';
 import 'DataContainers/Student.dart';
@@ -60,6 +61,9 @@ class _LoginPageState extends State<LoginPage> {
           );
         } else {
           print("Logged in: $userId");
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => RootPage())
+          );
         }
       } else {
         String userId = await auth.createAccWithEmailPassword(_name, _email, _password);
@@ -72,11 +76,19 @@ class _LoginPageState extends State<LoginPage> {
         } else {
           if(_accountType == AccountType.student) {
             Student newStudent = new Student(id: userId, name: _name);
-            db.initialiseNewStudent(newStudent);
+            db.initialiseNewStudent(newStudent).then((value) {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => RootPage())
+              );
+            });
             print("New Student Account created: $userId");
           } else if(_accountType == AccountType.teacher) {
             Teacher newTeacher = new Teacher(id: userId, name: _name);
-            db.initialiseNewTeacher(newTeacher);
+            db.initialiseNewTeacher(newTeacher).then((value) {
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => RootPage())
+              );
+            });
             print("New Teacher Account created: $userId");
           }
         }
@@ -268,8 +280,8 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _redirectText() {
     String question = _displayType == DisplayType.login
-        ? "Don't have an account? "
-        : "Already have an account? ";
+        ? "Don't have an account?\n"
+        : "Already have an account?\n";
     String action = _displayType == DisplayType.login
         ? "Register here!"
         :  "Login here!";
@@ -293,7 +305,6 @@ class _LoginPageState extends State<LoginPage> {
                 : redirectToLogin();
             },
           )
-
         ],
       ),
     );
