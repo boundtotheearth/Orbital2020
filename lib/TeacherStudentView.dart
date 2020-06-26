@@ -141,11 +141,40 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
   }
 
   Future<void> _onRemoveStudent() {
-    return db.teacherRemoveStudentFromGroup(teacherId: _user.id, group: widget.group, student: widget.student)
-        .then((value) {
-
-      Navigator.of(context).pop();
-    });
+    BuildContext viewContext = context;
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Are you sure you want to delete the task?'),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text('This action is permanent!'),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('YES'),
+                onPressed: () {
+                  return db.teacherRemoveStudentFromGroup(teacherId: _user.id, group: widget.group, student: widget.student)
+                      .then((value) {
+                    Navigator.of(context).pop();
+                    Navigator.of(viewContext).pop();
+                  });
+                },
+              ),
+              FlatButton(
+                child: Text('NO'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        }
+    );
   }
 
   void _activateSearchBar() {
