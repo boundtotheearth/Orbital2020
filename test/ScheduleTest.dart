@@ -7,9 +7,9 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:orbital2020/AppDrawer.dart';
 
 
-void main() {
+void runTests() {
 
-  User userWithoutSchedule = User(id: "P6IYsnpoAZZTdmy2aLBHYHrMf6E2", name: "FarrellStu");
+  User userWithoutSchedule = User(id: "I2MnlPlUYsX6ufy77OGT5gkLrBH3", name: "Vanessa Wong");
   User userWithSchedule;
   final TestWidgetsFlutterBinding binding = TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -29,12 +29,12 @@ void main() {
     expect(find.text("No scheduled tasks for the day!"), findsOneWidget);
   });
 
-  testWidgets("Schedule UI with schedule for the day", (WidgetTester tester) async {
-    await binding.setSurfaceSize(Size(640, 640));
-    await tester.pumpWidget(makeTestable(page: Schedule(), user: userWithSchedule));
-    expect(find.byType(TableCalendar), findsOneWidget);
-    expect(find.byType(ListView), findsOneWidget);
-  });
+//  testWidgets("Schedule UI with schedule for the day", (WidgetTester tester) async {
+//    await binding.setSurfaceSize(Size(640, 640));
+//    await tester.pumpWidget(makeTestable(page: Schedule(), user: userWithSchedule));
+//    expect(find.byType(TableCalendar), findsOneWidget);
+//    expect(find.byType(ListView), findsOneWidget);
+//  });
 
   testWidgets("Appbar UI", (WidgetTester tester) async {
     await binding.setSurfaceSize(Size(640, 640));

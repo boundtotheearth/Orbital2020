@@ -80,7 +80,9 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
   }
 
   String timeToString(TimeOfDay time) {
-    return "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
+    return time == null
+      ? ""
+      : "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
   }
 
   Future<DateTime> _setDate(BuildContext context) async {
@@ -120,7 +122,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
   }
 
   String validateStartTime(String value) {
-    String checkEmpty = RequiredValidator(errorText: "End Time cannot be empty!").call(value);
+    String checkEmpty = RequiredValidator(errorText: "Start Time cannot be empty!").call(value);
     String checkFormat = DateValidator("h:mm", errorText: "Invalid time format! Should be HH:mm").call(value);
     if (checkEmpty != null) {
       return checkEmpty;
@@ -191,7 +193,11 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
           stream: _allUncompletedTasks,
           builder: (context, snapshot)  {
             if (!snapshot.hasData) {
-              return Container(width: 0, height: 0);
+              return DropdownButtonFormField(
+                items: [],
+                onChanged: null,
+                disabledHint: Text("Loading..."),
+              );
             } else {
               List<Stream<Task>> streamList = [];
               for (String taskId in snapshot.data) {
@@ -233,15 +239,11 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
       return StreamBuilder<Task>(
         stream: db.getTaskName(widget.schedule.taskId),
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return DropdownButtonFormField(
-              items: [],
-              onChanged: null,
-              disabledHint: Text(snapshot.data.name),
-            );
-          } else {
-            return Container(width: 0, height: 0);
-          }
+          return DropdownButtonFormField(
+            items: [],
+            onChanged: null,
+            disabledHint: snapshot.hasData ? Text(snapshot.data.name) : Text("Loading..."),
+          );
         },
       );
     }
@@ -257,6 +259,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
         children: <Widget>[
           _buildTaskDropDown(),
           TextFormField(
+            key: Key("date"),
             decoration: InputDecoration(
                 labelText: "Scheduled Date",
                 suffixIcon: Icon(Icons.calendar_today)
@@ -274,6 +277,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
             ]),
           ),
           TextFormField(
+            key: Key("start"),
             decoration: InputDecoration(
               labelText: "Start Time",
               suffixIcon: Icon(Icons.timer)
@@ -288,6 +292,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
             validator: validateStartTime
           ),
           TextFormField(
+            key: Key("end"),
             decoration: InputDecoration(
                 labelText: "End Time",
                 suffixIcon: Icon(Icons.timer)
