@@ -184,10 +184,40 @@ class _StudentTaskViewState extends State<StudentTaskView> {
   }
 
   Future<void> _onDelete() {
-    return db.studentDeleteTask(task: widget.task, studentId: _user.id)
-      .then((value) {
-        Navigator.of(context).pop();
-    });
+    BuildContext viewContext = context;
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Are you sure you want to delete the task?'),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text('This action is permanent!'),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('YES'),
+                onPressed: () {
+                  db.studentDeleteTask(task: widget.task, studentId: _user.id)
+                      .then((value) {
+                    Navigator.of(context).pop();
+                    Navigator.of(viewContext).pop();
+                  });
+                },
+              ),
+              FlatButton(
+                child: Text('NO'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        }
+    );
   }
 
   @override
