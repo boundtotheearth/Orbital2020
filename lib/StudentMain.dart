@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:orbital2020/GameWidget.dart';
@@ -96,6 +97,10 @@ class _StudentMainState extends State<StudentMain> {
     }
   }
 
+  Future<void> _deleteTask(Task task) {
+    return db.studentDeleteTask(task: task, studentId: _user.id);
+  }
+
   Widget _buildTaskList(Set<TaskStatus> tasks) {
     List<Stream<TaskWithStatus>> streamList = [];
     tasks.forEach((status) {
@@ -116,7 +121,7 @@ class _StudentMainState extends State<StudentMain> {
                 task: task,
                 isStudent: true,//_user.accountType == "student",
                 updateComplete: (value) {
-                  db.updateTaskCompletion(task.id, _user.id, value);
+                  _deleteTask(task);
                 },
                 updateVerify: (value) {},
                 onFinish: () {},

@@ -752,8 +752,12 @@ class DatabaseController {
         .limit(1)
         .getDocuments()
         .then((snapshot) {
-          DocumentSnapshot document = snapshot.documents[0];
-          return document['data'];
+          if(snapshot.documents.length > 0) {
+            DocumentSnapshot document = snapshot.documents[0];
+            return document['data'];
+          } else {
+            return "";
+          }
         }
     );
   }

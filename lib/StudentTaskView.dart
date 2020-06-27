@@ -89,36 +89,12 @@ class _StudentTaskViewState extends State<StudentTaskView> {
       return RaisedButton(
         child: const Text('Complete'),
         onPressed: () {
-          db.updateTaskCompletion(widget.task.id, _user.id, true)
-            .then((value) =>
-              setState(() {
-                widget.task.completed = true;
-              })
-          );
+          db.studentDeleteTask(task: widget.task, studentId: _user.id).then((value) {
+            Navigator.of(context).pop();
+          });
 
         },
       );
-    } else {
-      if(widget.task.verified) {
-        //Completed, verified
-        return RaisedButton(
-          child: const Text('Claim Reward'),
-          onPressed: () {},
-        );
-      } else {
-        //Completed, not verified
-        return RaisedButton(
-          child: const Text('Waiting for Verification...'),
-          onPressed: () {
-            db.updateTaskCompletion(widget.task.id, _user.id, false)
-              .then((value) =>
-              setState(() {
-                widget.task.completed = false;
-              })
-            );
-          },
-        );
-      }
     }
   }
 
