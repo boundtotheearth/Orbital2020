@@ -22,6 +22,8 @@ import 'TeacherAddStudentToGroupTests.dart' as TeacherAddStudentToGroupTests;
 import 'TeacherAssignStudentTests.dart' as TeacherAssignStudentsTests;
 import 'TeacherAssignTaskTests.dart' as TeacherAssignTaskTests;
 import 'TeacherAddTaskTests.dart' as TeacherAddTaskTests;
+import 'ScheduleTest.dart' as ScheduleTest;
+import 'AddScheduleTest.dart' as AddScheduleTest;
 
 Type typeOf<T>() => T;
 
@@ -45,6 +47,12 @@ void main() {
   });
   group("Student Task View Tests", () {
     StudentTaskViewTests.runTests();
+  });
+  group("Schedule Tests", () {
+    ScheduleTest.runTests();
+  });
+  group("Add to Schedule Tests", () {
+    AddScheduleTest.runTests();
   });
 
   group("Teacher Groups Tests", () {
