@@ -92,10 +92,10 @@ class _StudentTaskViewState extends State<StudentTaskView> {
           db.studentDeleteTask(task: widget.task, studentId: _user.id).then((value) {
             Navigator.of(context).pop();
           });
-
         },
       );
     }
+    return Text("Completed");
   }
 
   //Custom validator for the name field as the default is ugly

@@ -93,32 +93,38 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
       streamList.add(db.getTaskWithStatus(status));
     });
     return StreamBuilder<List<TaskWithStatus>>(
-      stream: CombineLatestStream.list(streamList),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          List<TaskWithStatus> filteredTasks = sortAndFilter(snapshot.data);
-          return ListView.builder(
-            itemCount: filteredTasks.length,
-            itemBuilder: (context, index) {
-              TaskWithStatus task = filteredTasks[index];
-              return TaskStatusTile(
-                task: task,
-                isStudent: false,//_user.accountType == "student",
-                updateComplete: (value) {
-                  db.updateTaskCompletion(task.id, widget.student.id, value);
+        stream: CombineLatestStream.list(streamList),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            List<TaskWithStatus> filteredTasks = sortAndFilter(snapshot.data);
+            return Expanded(
+              child: ListView.builder(
+                itemCount: filteredTasks.length,
+                itemBuilder: (context, index) {
+                  TaskWithStatus task = filteredTasks[index];
+                  return TaskStatusTile(
+                    task: task,
+                    isStudent: false,//_user.accountType == "student",
+                    updateComplete: (value) {
+                      db.updateTaskCompletion(task.id, widget.student.id, value);
+                    },
+                    updateVerify: (value) {
+                      db.updateTaskVerification(task.id, widget.student.id, value);
+                    },
+                    onFinish: () {},
+                  );
                 },
-                updateVerify: (value) {
-                  db.updateTaskVerification(task.id, widget.student.id, value);
-                },
-                onFinish: () {},
-              );
-            },
-          );
-        } else {
-          return CircularProgressIndicator();
-        }
-      },
-    );
+              ),
+            );
+          } else {
+            return SizedBox(
+              width: 50,
+              height: 50,
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
+      );
   }
 
   List<PopupMenuItem> _actionMenuBuilder(BuildContext context) {
@@ -251,21 +257,23 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
                     ),
                   )
               ),
-              Expanded(
-                child: StreamBuilder(
-                  stream: _tasks,
-                  builder: (context, snapshot) {
-                    if(snapshot.hasData) {
-                      if(snapshot.data.length > 0) {
-                        return _buildTaskList(snapshot.data.toList());
-                      } else {
-                        return Text('No tasks assigned!');
-                      }
+              StreamBuilder(
+                stream: _tasks,
+                builder: (context, snapshot) {
+                  if(snapshot.hasData) {
+                    if(snapshot.data.length > 0) {
+                      return _buildTaskList(snapshot.data.toList());
                     } else {
-                      return CircularProgressIndicator();
+                      return Text('No tasks assigned!');
                     }
-                  },
-                ),
+                  } else {
+                    return SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                },
               )
             ],
           )

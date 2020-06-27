@@ -87,28 +87,30 @@ class _TeacherAssignTaskState extends State<TeacherAssignTask> {
       stream: db.getUnassignedTasks(_user.id, widget.group.id, widget.student.id),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return ListView.builder(
-                itemCount: snapshot.data.length,
-                itemBuilder: (context, index) {
-                  String taskId = snapshot.data.elementAt(index);
-                  return StreamBuilder<Task>(
-                    stream: db.getTask(taskId),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData && filtered(snapshot.data)) {
-                        return ListTile(
-                          title: Text(snapshot.data.name),
-                          onTap: () {
-                            addTask(snapshot.data);
-                          },
-                        );
-                      } else if (snapshot.hasData) {
-                        return Container(width: 0.0, height: 0.0,);
-                      } else {
-                        return CircularProgressIndicator();
-                      }
-                    }
-                  );
-                }
+            return Expanded(
+              child: ListView.builder(
+                  itemCount: snapshot.data.length,
+                  itemBuilder: (context, index) {
+                    String taskId = snapshot.data.elementAt(index);
+                    return StreamBuilder<Task>(
+                        stream: db.getTask(taskId),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData && filtered(snapshot.data)) {
+                            return ListTile(
+                              title: Text(snapshot.data.name),
+                              onTap: () {
+                                addTask(snapshot.data);
+                              },
+                            );
+                          } else if (snapshot.hasData) {
+                            return Container(width: 0.0, height: 0.0,);
+                          } else {
+                            return CircularProgressIndicator();
+                          }
+                        }
+                    );
+                  }
+              ),
             );
           } else {
             return CircularProgressIndicator();
@@ -147,9 +149,7 @@ class _TeacherAssignTaskState extends State<TeacherAssignTask> {
             Wrap(
               children: buildChips(),
             ),
-            Expanded(
-              child: buildSuggestions(),
-            ),
+            buildSuggestions(),
           ],
         )
       ),
