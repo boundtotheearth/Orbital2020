@@ -7,12 +7,14 @@ import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:orbital2020/DataContainers/User.dart';
+import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/TeacherTaskView.dart';
 import 'package:provider/provider.dart';
 
 import 'MockDatabaseController.dart';
 
 User testUser = User(id: "CBHrubROTEaYnNwhrxpc3DBwhXx1", name: "Farrell");
+MockDatabaseController mockDB = MockDatabaseController();
 Group mockGroup = Group(id: "AgRiWVNb2flktExYqpvN", name: "test Group 3", students: Set());
 
 Task mockTask = Task(
@@ -28,16 +30,25 @@ TaskWithStatus mockTaskIncomplete = mockTask.addStatus(false, false);
 TaskWithStatus mockTaskCompleted = mockTask.addStatus(true, false);
 TaskWithStatus mockTaskVerified = mockTask.addStatus(true, true);
 
+MaterialApp app = MaterialApp(
+    home: MultiProvider(
+      providers: [
+        Provider<User>(
+          create: (_) => testUser,
+        ),
+        Provider<DatabaseController>(
+          create: (_) => mockDB,
+        )
+      ],
+      child: TeacherTaskView(task: mockTask, group: mockGroup,),
+    )
+);
+
 void runTests() {
   testWidgets("Basic UI", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherTaskView(task: mockTask, group: mockGroup),
-        )
-    );
+
     await tester.pumpWidget(app);
-    
+    await tester.pumpAndSettle();
     expect(find.byIcon(Icons.menu), findsOneWidget);
     expect(find.byType(PopupMenuButton), findsOneWidget);
     expect(find.byType(TabBar), findsOneWidget);
@@ -48,28 +59,18 @@ void runTests() {
   });
   
   testWidgets("Empty Details UI", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherTaskView(task: mockTask, group: mockGroup),
-        )
-    );
-    await tester.pumpWidget(app);
 
+    await tester.pumpWidget(app);
+    await tester.pumpAndSettle();
     expect(find.text('Description'), findsOneWidget);
     expect(find.text('Due'), findsOneWidget);
     expect(find.text('Add Tag'), findsOneWidget);
   });
 
   testWidgets("Full Details UI", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherTaskView(task: mockTask, group: mockGroup),
-        )
-    );
-    await tester.pumpWidget(app);
 
+    await tester.pumpWidget(app);
+    await tester.pumpAndSettle();
     expect(find.text(mockTask.name), findsOneWidget);
     expect(find.text(mockTask.description), findsOneWidget);
     expect(find.text(DateFormat('dd/MM/y').format(mockTask.dueDate)), findsOneWidget);
@@ -111,13 +112,9 @@ void runTests() {
 //  });
 
   testWidgets("Editable UI", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherTaskView(task: mockTask, group: mockGroup),
-        )
-    );
+
     await tester.pumpWidget(app);
+    await tester.pumpAndSettle();
 
     Finder nameFieldFinder = find.byKey(Key('name'));
     await tester.tap(nameFieldFinder);
@@ -145,12 +142,7 @@ void runTests() {
   });
 
   testWidgets("Delete UI", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherTaskView(task: mockTask, group: mockGroup),
-        )
-    );
+
     await tester.pumpWidget(app);
     expect(find.byType(PopupMenuButton), findsOneWidget);
 
@@ -162,36 +154,23 @@ void runTests() {
   });
 
   testWidgets("Drawer UI", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherTaskView(task: mockTask, group: mockGroup),
-        )
-    );
+
     await tester.pumpWidget(app);
+    await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.menu));
     await tester.pump();
     expect(find.byType(AppDrawer), findsOneWidget);
   });
 
   testWidgets("Search UI", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherTaskView(task: mockTask, group: mockGroup),
-        )
-    );
+
     await tester.pumpWidget(app);
+    await tester.pumpAndSettle();
     //TODO
   });
 
   testWidgets("Date Picker Controls", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherTaskView(task: mockTask, group: mockGroup),
-        )
-    );
+
     await tester.pumpWidget(app);
 
     await tester.tap(find.byKey(Key('due')));
@@ -218,12 +197,7 @@ void runTests() {
   });
 
   testWidgets("Add Tag Controls", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherTaskView(task: mockTask, group: mockGroup),
-        )
-    );
+
     await tester.pumpWidget(app);
 
     await tester.enterText(find.byKey(Key('tags')), "tag3\n");
@@ -247,12 +221,7 @@ void runTests() {
   });
 
   testWidgets("No Input Validation", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherTaskView(task: mockTask, group: mockGroup),
-        )
-    );
+
     await tester.pumpWidget(app);
 
     Finder nameFieldFinder = find.byKey(Key('name'));
@@ -275,12 +244,7 @@ void runTests() {
   });
 
   testWidgets("Valid Validation", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherTaskView(task: mockTask, group: mockGroup),
-        )
-    );
+
     await tester.pumpWidget(app);
 
     Finder nameFieldFinder = find.byKey(Key('name'));

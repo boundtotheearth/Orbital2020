@@ -5,6 +5,7 @@ import 'package:orbital2020/AppDrawer.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/DataContainers/User.dart';
+import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/StudentMain.dart';
 import 'package:provider/provider.dart';
 
@@ -12,10 +13,24 @@ import 'MockDatabaseController.dart';
 
 Type typeOf<T>() => T;
 User testUser = User(id: "P6IYsnpoAZZTdmy2aLBHYHrMf6E2", name: "FarrellStu");
+MockDatabaseController mockDB = MockDatabaseController();
+MaterialApp app = MaterialApp (
+    home: MultiProvider(
+      providers: [
+        Provider<User>(
+          create: (_) => testUser,
+        ),
+        Provider<DatabaseController>(
+          create: (_) => mockDB,
+        )
+      ],
+      child: StudentMain(),
+    )
+);
 
 void runTests() {
   testWidgets("Basic UI", (WidgetTester tester) async {
-    MockDatabaseController mockDB = MockDatabaseController();
+
     mockDB.selfCreateAndAssignTask(
         task: Task(
           name: "testing task"
@@ -24,12 +39,6 @@ void runTests() {
           id: testUser.id,
           name: testUser.name
         ),
-    );
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: StudentMain(databaseController: mockDB,),
-        )
     );
     await tester.pumpWidget(app);
     await tester.pumpAndSettle();
@@ -45,26 +54,16 @@ void runTests() {
   });
 
   testWidgets("Drawer UI", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: StudentMain(),
-        )
-    );
     await tester.pumpWidget(app);
+    await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.menu));
     await tester.pump();
     expect(find.byType(AppDrawer), findsOneWidget);
   });
 
   testWidgets("Search UI", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: StudentMain(),
-        )
-    );
     await tester.pumpWidget(app);
+    await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.search));
     await tester.pump();
     expect(find.byType(TextField), findsOneWidget);

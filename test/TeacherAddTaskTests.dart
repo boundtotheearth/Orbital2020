@@ -2,20 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/User.dart';
+import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/TeacherAddTask.dart';
 import 'package:provider/provider.dart';
 
+import 'MockDatabaseController.dart';
+
 User testUser = User(id: "CBHrubROTEaYnNwhrxpc3DBwhXx1", name: "Farrell");
+MockDatabaseController mockDB = MockDatabaseController();
 Group mockGroup = Group(id: "AgRiWVNb2flktExYqpvN", name: "test Group 3");
+
+MaterialApp app = MaterialApp(
+    home: MultiProvider(
+      providers: [
+        Provider<User>(
+          create: (_) => testUser,
+        ),
+        Provider<DatabaseController>(
+          create: (_) => mockDB,
+        )
+      ],
+      child: TeacherAddTask(group: mockGroup,),
+    )
+);
 
 void runTests() {
   testWidgets("Basic UI", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherAddTask(group: mockGroup,),
-        )
-    );
+
     await tester.pumpWidget(app);
     await tester.pumpAndSettle();
 
@@ -28,12 +41,7 @@ void runTests() {
   });
 
   testWidgets("No Input Validation", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherAddTask(group: mockGroup,),
-        )
-    );
+
     await tester.pumpWidget(app);
     await tester.tap(find.byType(RaisedButton));
     await tester.pump();
@@ -47,12 +55,7 @@ void runTests() {
   });
 
   testWidgets("Invalid Input Validation", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherAddTask(group: mockGroup,),
-        )
-    );
+
     await tester.pumpWidget(app);
 
     await tester.enterText(find.byKey(Key('due')), 'abc');
@@ -68,12 +71,7 @@ void runTests() {
   });
 
   testWidgets("Date Picker Controls", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherAddTask(group: mockGroup,),
-        )
-    );
+
     await tester.pumpWidget(app);
 
     await tester.tap(find.byKey(Key('due')));
@@ -100,12 +98,7 @@ void runTests() {
   });
 
   testWidgets("Add Tag Controls", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherAddTask(group: mockGroup,),
-        )
-    );
+
     await tester.pumpWidget(app);
 
     await tester.enterText(find.byKey(Key('tags')), "tag1\n");
@@ -129,12 +122,7 @@ void runTests() {
   });
 
   testWidgets("Valid Input Validation", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherAddTask(group: mockGroup,),
-        )
-    );
+
     await tester.pumpWidget(app);
 
     await tester.enterText(find.byKey(Key('name')), "abc");
