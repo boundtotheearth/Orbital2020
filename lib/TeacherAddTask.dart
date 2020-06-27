@@ -54,7 +54,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
   final _formKey = GlobalKey<FormState>();
   final _dueDateController = TextEditingController();
   final _tagController = TextEditingController();
-  final db = DatabaseController();
+  DatabaseController db;
 
   User _user;
 
@@ -67,6 +67,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
   void initState() {
     super.initState();
     _user = Provider.of<User>(context, listen: false);
+    db = Provider.of<DatabaseController>(context, listen: false);
   }
 
   Future<DateTime> setDueDate(BuildContext context) async {

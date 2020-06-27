@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/Login.dart';
 import 'package:provider/provider.dart';
 import 'Auth.dart';
@@ -14,7 +15,18 @@ class RootPage extends StatelessWidget {
       future: auth.getLoggedInUser(),
       builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
         if(snapshot.hasData) {
-          return Provider<User>(
+          return MultiProvider(
+            providers: [
+              Provider<User>(
+                create: (_) => snapshot.data,
+              ),
+              Provider<DatabaseController>(
+                create: (_) => DatabaseController(),
+              )
+            ],
+            child: HomePage(),
+          );
+            Provider<User>(
             create: (_) => snapshot.data,
             child: HomePage(),
           );

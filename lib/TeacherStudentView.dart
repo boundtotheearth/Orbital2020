@@ -16,11 +16,10 @@ import 'Sort.dart';
 
 
 class TeacherStudentView extends StatefulWidget {
-  final DatabaseController databaseController;
   final Student student;
   final Group group;
 
-  TeacherStudentView({Key key, this.databaseController, @required this.student, @required this.group}) : super(key: key);
+  TeacherStudentView({Key key, @required this.student, @required this.group}) : super(key: key);
 
   @override
   _TeacherStudentViewState createState() => _TeacherStudentViewState();
@@ -44,7 +43,7 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
   @override
   void initState() {
     super.initState();
-    db = widget.databaseController ?? DatabaseController();
+    db = Provider.of<DatabaseController>(context, listen: false);
     _user = Provider.of<User>(context, listen: false);
     _tasks = db.getStudentTaskDetailsSnapshots(studentId: widget.student.id);
     _searchText = '';

@@ -14,8 +14,7 @@ import 'Sort.dart';
 
 
 class StudentMain extends StatefulWidget {
-  final DatabaseController databaseController;
-  StudentMain({Key key, this.databaseController}) : super(key: key);
+  StudentMain({Key key}) : super(key: key);
 
   @override
   _StudentMainState createState() => _StudentMainState();
@@ -38,7 +37,7 @@ class _StudentMainState extends State<StudentMain> {
   @override
   void initState() {
     super.initState();
-    db = widget.databaseController ?? DatabaseController();
+    db = Provider.of<DatabaseController>(context, listen: false);
     _user = Provider.of<User>(context, listen: false);
     _tasks = db.getStudentTaskDetailsSnapshots(studentId: _user.id);
     _searchText = "";

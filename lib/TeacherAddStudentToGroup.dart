@@ -9,10 +9,9 @@ import 'package:provider/provider.dart';
 
 //View shown when teacher is assigning a task to a student
 class TeacherAddStudentToGroup extends StatefulWidget {
-  final DatabaseController databaseController;
   final Group group;
 
-  TeacherAddStudentToGroup({Key key, this.databaseController, @required this.group}) : super(key: key);
+  TeacherAddStudentToGroup({Key key, @required this.group}) : super(key: key);
 
   @override
   _TeacherAddStudentToGroupState createState() => _TeacherAddStudentToGroupState();
@@ -29,7 +28,7 @@ class _TeacherAddStudentToGroupState extends State<TeacherAddStudentToGroup> {
   @override
   void initState() {
     super.initState();
-    db = widget.databaseController ?? DatabaseController();
+    db = Provider.of<DatabaseController>(context, listen: false);
     _user = Provider.of<User>(context, listen: false);
     _studentsToAdd = Set();
     _searchText = "";
@@ -107,25 +106,28 @@ class _TeacherAddStudentToGroupState extends State<TeacherAddStudentToGroup> {
         title: const Text('Add Students To Group'),
       ),
       body: SafeArea(
-          child: Column(
-            children: <Widget>[
-              TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Add Students',
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 5.0),
+            child: Column(
+              children: <Widget>[
+                TextField(
+                  decoration: const InputDecoration(
+                    labelText: 'Add Students',
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _searchText = value;
+                    });
+                  },
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    _searchText = value;
-                  });
-                },
-              ),
-              Wrap(
-                children: buildChips(),
-              ),
-              Expanded(
-                child: buildSuggestions(),
-              ),
-            ],
+                Wrap(
+                  children: buildChips(),
+                ),
+                Expanded(
+                  child: buildSuggestions(),
+                ),
+              ],
+            ),
           )
       ),
       floatingActionButton: FloatingActionButton(

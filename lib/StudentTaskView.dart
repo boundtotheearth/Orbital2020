@@ -17,7 +17,7 @@ class StudentTaskView extends StatefulWidget {
 }
 
 class _StudentTaskViewState extends State<StudentTaskView> {
-  final DatabaseController db = DatabaseController();
+  DatabaseController db;
   final _nameFormKey = GlobalKey<FormState>();
   final _mainFormKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
@@ -35,6 +35,7 @@ class _StudentTaskViewState extends State<StudentTaskView> {
   void initState() {
     super.initState();
     _user = Provider.of<User>(context, listen: false);
+    db = Provider.of<DatabaseController>(context, listen: false);
     editable = _user.id == widget.task.createdById;
     _nameController.text = widget.task.name;
     _createdByController.text = editable ? "Me" : widget.task.createdByName;

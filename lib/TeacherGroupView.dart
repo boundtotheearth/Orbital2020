@@ -14,9 +14,8 @@ import 'Sort.dart';
 
 class TeacherGroupView extends StatefulWidget {
   final Group group;
-  final DatabaseController databaseController;
 
-  TeacherGroupView({Key key, this.databaseController, @required this.group}) : super(key: key);
+  TeacherGroupView({Key key, @required this.group}) : super(key: key);
 
   @override
   _TeacherGroupViewState createState() => _TeacherGroupViewState();
@@ -41,7 +40,7 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
   @override
   void initState() {
     super.initState();
-    db = widget.databaseController ?? DatabaseController();
+    db = Provider.of<DatabaseController>(context, listen: false);
 
     _user = Provider.of<User>(context, listen: false);
 
