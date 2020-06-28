@@ -120,7 +120,11 @@ class _StudentMainState extends State<StudentMain> {
                 task: task,
                 isStudent: true,//_user.accountType == "student",
                 updateComplete: (value) {
-                  _deleteTask(task);
+                  if(task.createdById == _user.id) {
+                    _deleteTask(task);
+                  } else {
+                    db.updateTaskCompletion(task.id, _user.id, value);
+                  }
                 },
                 updateVerify: (value) {},
                 onFinish: () {},
