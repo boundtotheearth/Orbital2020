@@ -100,6 +100,14 @@ class _TaskStatusTileState extends State<TaskStatusTile> {
     )).toList();
   }
 
+  Widget buildCreatedBy() {
+    if(widget.task.createdById == _user.id) {
+      return Text("By: Me");
+    } else {
+      return Text("By: " + widget.task.createdByName ?? "");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListTile(
@@ -109,7 +117,7 @@ class _TaskStatusTileState extends State<TaskStatusTile> {
             widget.task.dueDate != null
               ? Text("Due: " + DateFormat('dd/MM/y').format(widget.task.dueDate))
               : Container(width: 0, height: 0,),
-            Text("By: " + widget.task.createdByName?? ""),
+            buildCreatedBy(),
             Wrap(children: widget.isStudent ? getTagChips() : [])
           ],
           crossAxisAlignment: CrossAxisAlignment.start,
