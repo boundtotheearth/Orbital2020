@@ -101,7 +101,7 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
     if(_formKey.currentState.validate()) {
       Group newGroup = Group(name: _groupName, students: _students);
       if(_groupImage != null) {
-        await storage.uploadGroupImage(image: _groupImage, name: _groupName).then((imageUrl) {
+        await storage.uploadGroupImage(image: _groupImage, name: _groupName + DateTime.now().toString()).then((imageUrl) {
           newGroup.imageUrl = imageUrl;
         });
       }
