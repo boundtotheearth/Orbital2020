@@ -75,12 +75,26 @@ class DatabaseController {
   }
 
   //Student deletes schedule
-  Future<void> deleteSchedule(String studentId, String scheduleId) {
+  Future<void> deleteScheduleById(String studentId, String scheduleId) {
     return db.collection("students")
         .document(studentId)
         .collection("scheduledTasks")
         .document(scheduleId)
         .delete();
+  }
+
+  //Student deletes schedule
+  Future<void> deleteScheduleByTask(String studentId, Task task) {
+    return db.collection("students")
+        .document(studentId)
+        .collection("scheduledTasks")
+        .where('taskId', isEqualTo: task.id)
+        .getDocuments()
+        .then((snapshot) {
+          for(DocumentSnapshot doc in snapshot.documents) {
+            doc.reference.delete();
+          }
+    });
   }
 
   //Student updates his schedule
@@ -634,6 +648,7 @@ class DatabaseController {
 
   Future<void> studentDeleteTask({Task task, String studentId}) {
     return Future.wait([
+      deleteScheduleByTask(studentId, task),
       _unassignTaskFromStudent(task.id, studentId),
       _deleteTask(task.id),
     ]);
@@ -723,9 +738,10 @@ class DatabaseController {
           .collection('students')
           .getDocuments()
           .then((QuerySnapshot snapshot) {
-            snapshot.documents.forEach((document) {
-              _unassignTaskFromStudent(task.id, document.documentID);
-              _unassignStudentFromTask(task.id, document.documentID);
+            snapshot.documents.forEach((stuDoc) {
+              _unassignTaskFromStudent(task.id, stuDoc.documentID);
+              _unassignStudentFromTask(task.id, stuDoc.documentID);
+              deleteScheduleByTask(stuDoc.documentID, task);
             });
           })
     ]);

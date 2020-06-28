@@ -158,7 +158,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
             content: SingleChildScrollView(
               child: ListBody(
                 children: <Widget>[
-                  Text('This action is permanent!'),
+                  Text('This action is permanent! The task will also be deleted for all assigned students.'),
                 ],
               ),
             ),

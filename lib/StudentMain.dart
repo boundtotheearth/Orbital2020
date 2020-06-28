@@ -97,7 +97,6 @@ class _StudentMainState extends State<StudentMain> {
   }
 
   Future<void> _onDelete(Task task) {
-    BuildContext viewContext = context;
     return showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -116,7 +115,6 @@ class _StudentMainState extends State<StudentMain> {
                 onPressed: () {
                   _deleteTask(task).then((value) {
                     Navigator.of(context).pop();
-                    Navigator.of(viewContext).pop();
                   });
                 },
               ),
