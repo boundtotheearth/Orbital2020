@@ -172,7 +172,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
             FlatButton(
               child: Text("Yes"),
               onPressed: () {
-                db.deleteSchedule(_user.id, widget.schedule.id);
+                db.deleteScheduleById(_user.id, widget.schedule.id);
                 Navigator.of(context).pop();
                 Navigator.of(alertContext).pop();
               }

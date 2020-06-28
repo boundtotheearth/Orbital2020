@@ -17,7 +17,7 @@ class StudentTaskView extends StatefulWidget {
 }
 
 class _StudentTaskViewState extends State<StudentTaskView> {
-  DatabaseController db;
+  final DatabaseController db = DatabaseController();
   final _nameFormKey = GlobalKey<FormState>();
   final _mainFormKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
@@ -35,7 +35,6 @@ class _StudentTaskViewState extends State<StudentTaskView> {
   void initState() {
     super.initState();
     _user = Provider.of<User>(context, listen: false);
-    db = Provider.of<DatabaseController>(context, listen: false);
     editable = _user.id == widget.task.createdById;
     _nameController.text = widget.task.name;
     _createdByController.text = editable ? "Me" : widget.task.createdByName;
@@ -90,13 +89,16 @@ class _StudentTaskViewState extends State<StudentTaskView> {
       return RaisedButton(
         child: const Text('Complete'),
         onPressed: () {
-          db.updateTaskCompletion(widget.task.id, _user.id, true)
-            .then((value) =>
-              setState(() {
-                widget.task.completed = true;
-              })
-          );
-
+          if(widget.task.createdById == _user.id) {
+            _onDelete();
+          } else {
+            db.updateTaskCompletion(widget.task.id, _user.id, true)
+                .then((value) =>
+                setState(() {
+                  widget.task.completed = true;
+                })
+            );
+          }
         },
       );
     } else {
@@ -190,7 +192,7 @@ class _StudentTaskViewState extends State<StudentTaskView> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Are you sure you want to delete the task?'),
+            title: Text('Do you want to delete the task?'),
             content: SingleChildScrollView(
               child: ListBody(
                 children: <Widget>[
@@ -202,8 +204,7 @@ class _StudentTaskViewState extends State<StudentTaskView> {
               FlatButton(
                 child: Text('YES'),
                 onPressed: () {
-                  db.studentDeleteTask(task: widget.task, studentId: _user.id)
-                      .then((value) {
+                  _deleteTask().then((value) {
                     Navigator.of(context).pop();
                     Navigator.of(viewContext).pop();
                   });
@@ -219,6 +220,10 @@ class _StudentTaskViewState extends State<StudentTaskView> {
           );
         }
     );
+  }
+
+  Future<void> _deleteTask() {
+    return db.studentDeleteTask(task: widget.task, studentId: _user.id);
   }
 
   @override

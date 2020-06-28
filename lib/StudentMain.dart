@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:orbital2020/GameWidget.dart';
@@ -95,6 +96,44 @@ class _StudentMainState extends State<StudentMain> {
     }
   }
 
+  Future<void> _onDelete(Task task) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Do you want to complete and delete the task?'),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text('This action is permanent!'),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('YES'),
+                onPressed: () {
+                  _deleteTask(task).then((value) {
+                    Navigator.of(context).pop();
+                  });
+                },
+              ),
+              FlatButton(
+                child: Text('NO'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        }
+    );
+  }
+
+  Future<void> _deleteTask(Task task) {
+    return db.studentDeleteTask(task: task, studentId: _user.id);
+  }
+
   Widget _buildTaskList(Set<TaskStatus> tasks) {
     List<Stream<TaskWithStatus>> streamList = [];
     tasks.forEach((status) {
@@ -115,7 +154,11 @@ class _StudentMainState extends State<StudentMain> {
                 task: task,
                 isStudent: true,//_user.accountType == "student",
                 updateComplete: (value) {
-                  db.updateTaskCompletion(task.id, _user.id, value);
+                  if(task.createdById == _user.id) {
+                    _onDelete(task);
+                  } else {
+                    db.updateTaskCompletion(task.id, _user.id, value);
+                  }
                 },
                 updateVerify: (value) {},
                 onFinish: () {},

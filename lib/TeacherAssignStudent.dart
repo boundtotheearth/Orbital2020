@@ -73,21 +73,23 @@ class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
       stream: db.getStudentsUnassignedTask(_user.id, widget.group.id, widget.task.id),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-            return ListView.builder(
-                itemCount: snapshot.data.length,
-                itemBuilder: (context, index) {
-                  Student student = snapshot.data.elementAt(index);
-                  if (filtered(student)) {
-                    return ListTile(
-                      title: Text(student.name),
-                      onTap: () {
-                        addStudent(student);
-                      },
-                    );
-                  } else {
-                    return Container(width: 0.0, height: 0.0,);
-                  }
-                });
+            return Expanded(
+                child: ListView.builder(
+                    itemCount: snapshot.data.length,
+                    itemBuilder: (context, index) {
+                      Student student = snapshot.data.elementAt(index);
+                      if (filtered(student)) {
+                        return ListTile(
+                          title: Text(student.name),
+                          onTap: () {
+                            addStudent(student);
+                          },
+                        );
+                      } else {
+                        return Container(width: 0.0, height: 0.0,);
+                      }
+                    })
+            );
           } else {
             return CircularProgressIndicator();
           }
@@ -124,15 +126,13 @@ class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
                     });
                   },
                 ),
-                Wrap(
-                  children: buildChips(),
-                ),
-                Expanded(
-                  child: buildSuggestions(),
-                ),
-              ],
-            ),
+              Wrap(
+                children: buildChips(),
+              ),
+              buildSuggestions(),
+            ],
           )
+        )
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.check),

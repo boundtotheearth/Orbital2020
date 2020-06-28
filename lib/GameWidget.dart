@@ -33,8 +33,8 @@ class _GameWidgetState extends State<GameWidget> {
 
   void _onUnityCreated(controller) async {
     this._unityWidgetController = controller;
-    String gameData = await db.fetchGameData(studentId: _user.id);
-    _unityWidgetController.postMessage("GameField", "setGameData", gameData);
+    String gameData = await db.fetchGameData(studentId: _user.id) ?? "";
+    _unityWidgetController.postMessage("GameField", "setGameData", gameData );
     latestGameData = gameData;
   }
 
