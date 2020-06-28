@@ -1,19 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:orbital2020/DataContainers/User.dart';
+import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/StudentAddTask.dart';
 import 'package:provider/provider.dart';
 
+import 'MockDatabaseController.dart';
+
 User testUser = User(id: "P6IYsnpoAZZTdmy2aLBHYHrMf6E2", name: "FarrellStu");
+MockDatabaseController mockDB = MockDatabaseController();
+
+MaterialApp app = MaterialApp(
+    home: MultiProvider(
+      providers: [
+        Provider<User>(
+          create: (_) => testUser,
+        ),
+        Provider<DatabaseController>(
+          create: (_) => mockDB,
+        )
+      ],
+      child: StudentAddTask(),
+    )
+);
 
 void runTests() {
   testWidgets("Basic UI", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: StudentAddTask(),
-        )
-    );
     await tester.pumpWidget(app);
     await tester.pumpAndSettle();
 
@@ -26,12 +38,6 @@ void runTests() {
   });
 
   testWidgets("No Input Validation", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: StudentAddTask(),
-        )
-    );
     await tester.pumpWidget(app);
     await tester.tap(find.byType(RaisedButton));
     await tester.pump();
@@ -45,12 +51,6 @@ void runTests() {
   });
 
   testWidgets("Invalid Input Validation", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: StudentAddTask(),
-        )
-    );
     await tester.pumpWidget(app);
 
     await tester.enterText(find.byKey(Key('due')), 'abc');
@@ -66,12 +66,6 @@ void runTests() {
   });
 
   testWidgets("Date Picker UI", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: StudentAddTask(),
-        )
-    );
     await tester.pumpWidget(app);
 
     await tester.tap(find.byKey(Key('due')));
@@ -100,12 +94,6 @@ void runTests() {
   });
 
   testWidgets("Add Tag Controls", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: StudentAddTask(),
-        )
-    );
     await tester.pumpWidget(app);
 
     await tester.enterText(find.byKey(Key('tags')), "tag1\n");
@@ -129,12 +117,7 @@ void runTests() {
   });
 
   testWidgets("Valid Input Validation", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: StudentAddTask(),
-        )
-    );
+
     await tester.pumpWidget(app);
 
     await tester.enterText(find.byKey(Key('name')), "abc");

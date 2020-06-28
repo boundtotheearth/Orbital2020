@@ -9,11 +9,10 @@ import 'package:provider/provider.dart';
 
 //View shown when teacher is assigning students to a task
 class TeacherAssignStudent extends StatefulWidget {
-  final DatabaseController databaseController;
   final Task task;
   final Group group;
 
-  TeacherAssignStudent({Key key, this.databaseController, @required this.task, @required this.group}) : super(key: key);
+  TeacherAssignStudent({Key key, @required this.task, @required this.group}) : super(key: key);
 
   @override
   _TeacherAssignStudentState createState() => _TeacherAssignStudentState();
@@ -30,7 +29,7 @@ class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
   @override
   void initState() {
     super.initState();
-    db = widget.databaseController ?? DatabaseController();
+    db = Provider.of<DatabaseController>(context, listen: false);
     _user = Provider.of<User>(context, listen: false);
 //    _allStudents = db.getGroupStudentSnapshots(teacherId: _user.id, groupId: widget.group.id);
 //    _alreadyAssigned = db.getTaskStudentSnapshots(taskId: widget.task.id);
@@ -111,25 +110,28 @@ class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
         title: const Text('Students To Assign'),
       ),
       body: SafeArea(
-          child: Column(
-            children: <Widget>[
-              TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Add Students',
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 5.0),
+            child: Column(
+              children: <Widget>[
+                TextField(
+                  decoration: const InputDecoration(
+                    labelText: 'Add Students',
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _searchText = value;
+                    });
+                  },
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    _searchText = value;
-                  });
-                },
-              ),
-              Wrap(
-                children: buildChips(),
-              ),
-              Expanded(
-                child: buildSuggestions(),
-              ),
-            ],
+                Wrap(
+                  children: buildChips(),
+                ),
+                Expanded(
+                  child: buildSuggestions(),
+                ),
+              ],
+            ),
           )
       ),
       floatingActionButton: FloatingActionButton(

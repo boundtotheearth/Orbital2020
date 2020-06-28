@@ -23,7 +23,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final User user = Provider.of<User>(context);
-    final DatabaseController db = DatabaseController();
+    final DatabaseController db = Provider.of<DatabaseController>(context);
     final Future<String> accountType = db.getAccountType(userId: user.id);
 
     return WillPopScope(

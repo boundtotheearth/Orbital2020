@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:orbital2020/AuthProvider.dart';
 import 'package:orbital2020/Root.dart';
-import 'package:orbital2020/Teacher.dart';
+import 'package:orbital2020/DataContainers/Teacher.dart';
 import 'Auth.dart';
 import 'DataContainers/Student.dart';
 import 'DatabaseController.dart';

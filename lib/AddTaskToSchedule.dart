@@ -26,7 +26,7 @@ enum Time {
 
 class AddTaskToScheduleState extends State<AddTaskToSchedule> {
   final _formKey = GlobalKey<FormState>();
-  final DatabaseController db = DatabaseController();
+  DatabaseController db;
   final TextEditingController _startTimeController = TextEditingController();
   final TextEditingController _endTimeController = TextEditingController();
   final DateTime today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
@@ -45,6 +45,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
   @override
   void initState() {
     _user = Provider.of<User>(context, listen: false);
+    db = Provider.of<DatabaseController>(context, listen: false);
     _editable = widget.schedule != null;
     if (widget.scheduledDate.isBefore(today) && !_editable) {
       _scheduledDate = today;

@@ -14,8 +14,7 @@ import 'package:provider/provider.dart';
 
 //View shown when teacher is assigning a task to a student
 class TeacherAddGroup extends StatefulWidget {
-  final DatabaseController databaseController;
-  TeacherAddGroup({Key key, this.databaseController}) : super(key: key);
+  TeacherAddGroup({Key key}) : super(key: key);
 
 
   @override
@@ -39,7 +38,7 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
   @override
   void initState() {
     super.initState();
-    db = widget.databaseController ?? DatabaseController();
+    db = Provider.of<DatabaseController>(context, listen: false);
     _user = Provider.of<User>(context, listen: false);
     _allStudents = db.getAllStudentsSnapshots();
     _students = Set();
@@ -134,61 +133,64 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
         title: const Text('New Group'),
       ),
       body: SafeArea(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.only(right: 10),
-                      child: InkWell(
-                          onTap: selectImage,
-                          child: _groupImage != null ?
-                          CircleAvatar(
-                            backgroundImage: FileImage(_groupImage),
-                            radius: 30,
-                          ) :
-                          CircleAvatar(
-                            child: const Text("G"),
-                            radius: 30,
-                          )
-                      ),
-                    ),
-                    Expanded(
-                      child: TextFormField(
-                        key: Key('group-name'),
-                        decoration: const InputDecoration(
-                          labelText: 'Group Name',
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 5.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.only(right: 10),
+                        child: InkWell(
+                            onTap: selectImage,
+                            child: _groupImage != null ?
+                            CircleAvatar(
+                              backgroundImage: FileImage(_groupImage),
+                              radius: 30,
+                            ) :
+                            CircleAvatar(
+                              child: const Text("G"),
+                              radius: 30,
+                            )
                         ),
-                        onChanged: (value) {
-                          setState(() {
-                            _groupName = value;
-                          });
-                        },
-                        validator: RequiredValidator(errorText: "Name cannot be empty!"),
                       ),
-                    )
-                  ],
-                ),
-                TextFormField(
-                  key: Key('add-students'),
-                  decoration: const InputDecoration(
-                    labelText: 'Add Students',
+                      Expanded(
+                        child: TextFormField(
+                          key: Key('group-name'),
+                          decoration: const InputDecoration(
+                            labelText: 'Group Name',
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              _groupName = value;
+                            });
+                          },
+                          validator: RequiredValidator(errorText: "Name cannot be empty!"),
+                        ),
+                      )
+                    ],
                   ),
-                  onChanged: (value) {
-                    setState(() {
-                      _searchText = value;
-                    });
-                  },
-                ),
-                Wrap(
-                  children: buildChips(),
-                ),
-                Expanded(
-                  child: buildSuggestions(),
-                ),
-              ],
+                  TextFormField(
+                    key: Key('add-students'),
+                    decoration: const InputDecoration(
+                      labelText: 'Add Students',
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        _searchText = value;
+                      });
+                    },
+                  ),
+                  Wrap(
+                    children: buildChips(),
+                  ),
+                  Expanded(
+                    child: buildSuggestions(),
+                  ),
+                ],
+              ),
             ),
           )
       ),
