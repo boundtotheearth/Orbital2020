@@ -96,6 +96,42 @@ class _StudentMainState extends State<StudentMain> {
     }
   }
 
+  Future<void> _onDelete(Task task) {
+    BuildContext viewContext = context;
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Do you want to complete and delete the task?'),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text('This action is permanent!'),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('YES'),
+                onPressed: () {
+                  _deleteTask(task).then((value) {
+                    Navigator.of(context).pop();
+                    Navigator.of(viewContext).pop();
+                  });
+                },
+              ),
+              FlatButton(
+                child: Text('NO'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        }
+    );
+  }
+
   Future<void> _deleteTask(Task task) {
     return db.studentDeleteTask(task: task, studentId: _user.id);
   }
@@ -121,7 +157,7 @@ class _StudentMainState extends State<StudentMain> {
                 isStudent: true,//_user.accountType == "student",
                 updateComplete: (value) {
                   if(task.createdById == _user.id) {
-                    _deleteTask(task);
+                    _onDelete(task);
                   } else {
                     db.updateTaskCompletion(task.id, _user.id, value);
                   }
