@@ -2,25 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/User.dart';
+import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/TeacherAddGroup.dart';
 import 'package:provider/provider.dart';
 
 import 'MockDatabaseController.dart';
 
 User testUser = User(id: "CBHrubROTEaYnNwhrxpc3DBwhXx1", name: "Farrell");
+MockDatabaseController mockDB = MockDatabaseController();
+
+MaterialApp app = MaterialApp(
+    home: MultiProvider(
+      providers: [
+        Provider<User>(
+          create: (_) => testUser,
+        ),
+        Provider<DatabaseController>(
+          create: (_) => mockDB,
+        )
+      ],
+      child: TeacherAddGroup(),
+    )
+);
 
 void runTests() {
   testWidgets("Basic UI", (WidgetTester tester) async {
-    MockDatabaseController mockDB = MockDatabaseController();
 
     await mockDB.initialiseNewStudent(Student(id: 'P6IYsnpoAZZTdmy2aLBHYHrMf6E2', name: 'testing student'));
-
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherAddGroup(databaseController: mockDB,),
-        )
-    );
     await tester.pumpWidget(app);
     await tester.pumpAndSettle();
 
@@ -35,13 +43,8 @@ void runTests() {
   });
 
   testWidgets("No Input Validation", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherAddGroup(),
-        )
-    );
     await tester.pumpWidget(app);
+    await tester.pumpAndSettle();
 
     Finder formFinder = find.byType(Form);
     Form formWidget = tester.widget(formFinder) as Form;
@@ -53,16 +56,8 @@ void runTests() {
   });
 
   testWidgets("Valid Input Validation", (WidgetTester tester) async {
-    MockDatabaseController mockDB = MockDatabaseController();
 
     await mockDB.initialiseNewStudent(Student(id: 'P6IYsnpoAZZTdmy2aLBHYHrMf6E2', name: 'testing student'));
-
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherAddGroup(databaseController: mockDB,),
-        )
-    );
     await tester.pumpWidget(app);
     await tester.pumpAndSettle();
 
@@ -78,12 +73,20 @@ void runTests() {
 
   testWidgets("Image Input Validation", (WidgetTester tester) async {
     MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
+        home: MultiProvider(
+          providers: [
+            Provider<User>(
+              create: (_) => testUser,
+            ),
+            Provider<DatabaseController>(
+              create: (_) => mockDB,
+            )
+          ],
           child: TeacherAddGroup(),
         )
     );
     await tester.pumpWidget(app);
+    await tester.pumpAndSettle();
     //TODO
   });
 }

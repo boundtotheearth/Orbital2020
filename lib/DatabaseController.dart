@@ -8,7 +8,7 @@ import 'package:orbital2020/DataContainers/StudentWithStatus.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:rxdart/rxdart.dart';
 import 'DataContainers/TaskStatus.dart';
-import 'package:orbital2020/Teacher.dart';
+import 'package:orbital2020/DataContainers/Teacher.dart';
 
 import 'DataContainers/TaskWithStatus.dart';
 

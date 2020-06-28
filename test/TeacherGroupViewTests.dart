@@ -5,28 +5,57 @@ import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/DataContainers/User.dart';
+import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/TeacherGroupView.dart';
 import 'package:provider/provider.dart';
 
 import 'MockDatabaseController.dart';
 
 User testUser = User(id: "CBHrubROTEaYnNwhrxpc3DBwhXx1", name: "Farrell");
+MockDatabaseController mockDB = MockDatabaseController();
 Group mockGroup = Group(id: "AgRiWVNb2flktExYqpvN", name: "test Group 3", students: Set());
+MaterialApp app = MaterialApp(
+    home: MultiProvider(
+      providers: [
+        Provider<User>(
+          create: (_) => testUser,
+        ),
+        Provider<DatabaseController>(
+          create: (_) => mockDB,
+        )
+      ],
+      child: TeacherGroupView(group: mockGroup,),
+    )
+);
 
-void runTests() {
-  testWidgets("Basic UI", (WidgetTester tester) async {
-    MockDatabaseController mockDB = MockDatabaseController();
-    await mockDB.teacherCreateGroup(
+
+void runTests()  {
+   mockDB.teacherCreateGroup(
       teacherId: testUser.id,
       group: mockGroup
-    );
+  );
 
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherGroupView(databaseController: mockDB, group: mockGroup),
+   mockDB.teacherCreateTask(
+      task: Task(
+          name: 'testing task',
+          createdById: testUser.id,
+          createdByName: testUser.name
+      ),
+      group: mockGroup
+  );
+
+  mockDB.teacherAddStudentsToGroup(
+      teacherId: testUser.id,
+      group: mockGroup,
+      students: [
+        Student(
+            name: "testing student"
         )
-    );
+      ]
+  );
+
+  testWidgets("Basic UI", (WidgetTester tester) async {
+
     await tester.pumpWidget(app);
     await tester.pumpAndSettle();
 
@@ -44,26 +73,7 @@ void runTests() {
   });
 
   testWidgets("Tasks Tab UI", (WidgetTester tester) async {
-    MockDatabaseController mockDB = MockDatabaseController();
-    await mockDB.teacherCreateGroup(
-        teacherId: testUser.id,
-        group: mockGroup
-    );
-    await mockDB.teacherCreateTask(
-        task: Task(
-          name: 'testing task',
-          createdById: testUser.id,
-          createdByName: testUser.name
-        ),
-        group: mockGroup
-    );
 
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherGroupView(databaseController: mockDB, group: mockGroup),
-        )
-    );
     await tester.pumpWidget(app);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Tasks'));
@@ -77,27 +87,7 @@ void runTests() {
   });
 
   testWidgets("Students Tab UI", (WidgetTester tester) async {
-    MockDatabaseController mockDB = MockDatabaseController();
-    await mockDB.teacherCreateGroup(
-        teacherId: testUser.id,
-        group: mockGroup
-    );
-    await mockDB.teacherAddStudentsToGroup(
-      teacherId: testUser.id,
-      group: mockGroup,
-      students: [
-        Student(
-          name: "testing student"
-        )
-      ]
-    );
 
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherGroupView(databaseController: mockDB, group: mockGroup),
-        )
-    );
     await tester.pumpWidget(app);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Students'));
@@ -109,35 +99,7 @@ void runTests() {
   });
 
   testWidgets("Tab Swiping Transition", (WidgetTester tester) async {
-    MockDatabaseController mockDB = MockDatabaseController();
-    await mockDB.teacherCreateGroup(
-        teacherId: testUser.id,
-        group: mockGroup
-    );
-    await mockDB.teacherCreateTask(
-        task: Task(
-            name: 'testing task',
-            createdById: testUser.id,
-            createdByName: testUser.name
-        ),
-        group: mockGroup
-    );
-    await mockDB.teacherAddStudentsToGroup(
-        teacherId: testUser.id,
-        group: mockGroup,
-        students: [
-          Student(
-              name: "testing student"
-          )
-        ]
-    );
 
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherGroupView(databaseController: mockDB, group: mockGroup),
-        )
-    );
     await tester.pumpWidget(app);
     await tester.pumpAndSettle();
     await tester.fling(find.byType(ListView), Offset(-1000, 0), 1000);
@@ -156,26 +118,18 @@ void runTests() {
   });
 
   testWidgets("Drawer UI", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherGroupView(group: mockGroup),
-        )
-    );
+
     await tester.pumpWidget(app);
+    await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.menu));
     await tester.pump();
     expect(find.byType(AppDrawer), findsOneWidget);
   });
 
   testWidgets("Search UI", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherGroupView(group: mockGroup),
-        )
-    );
+
     await tester.pumpWidget(app);
+    await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.search));
     await tester.pump();
     expect(find.byType(TextField), findsOneWidget);

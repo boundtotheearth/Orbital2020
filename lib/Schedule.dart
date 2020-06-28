@@ -14,7 +14,7 @@ class Schedule extends StatefulWidget {
 }
 
 class _ScheduleState extends State<Schedule> {
-  final DatabaseController db = DatabaseController();
+  DatabaseController db;
   Map<DateTime, List> _scheduledTasks;
   List _selectedTasks;
   final CalendarController _calendarController = CalendarController();
@@ -25,6 +25,7 @@ class _ScheduleState extends State<Schedule> {
   @override
   void initState() {
     super.initState();
+    db = Provider.of<DatabaseController>(context, listen: false);
     _user = Provider.of<User>(context, listen: false);
     _selectedDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
     _scheduledTasks = {};

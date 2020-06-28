@@ -3,16 +3,30 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:orbital2020/AppDrawer.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/User.dart';
+import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/TeacherGroups.dart';
 import 'package:provider/provider.dart';
 
 import 'MockDatabaseController.dart';
 
 User testUser = User(id: "CBHrubROTEaYnNwhrxpc3DBwhXx1", name: "Farrell");
+MockDatabaseController mockDB = MockDatabaseController();
+MaterialApp app = MaterialApp(
+    home: MultiProvider(
+      providers: [
+        Provider<User>(
+          create: (_) => testUser,
+        ),
+        Provider<DatabaseController>(
+          create: (_) => mockDB,
+        )
+      ],
+      child: TeacherGroups(),
+    )
+);
 
 void runTests() {
   testWidgets("Basic UI", (WidgetTester tester) async {
-    MockDatabaseController mockDB = MockDatabaseController();
     mockDB.teacherCreateGroup(
       teacherId: testUser.id,
       group: Group(
@@ -21,12 +35,6 @@ void runTests() {
       )
     );
 
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherGroups(databaseController: mockDB,),
-        )
-    );
     await tester.pumpWidget(app);
     await tester.pumpAndSettle();
 
@@ -38,12 +46,7 @@ void runTests() {
   });
 
   testWidgets("Drawer UI", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherGroups(),
-        )
-    );
+
     await tester.pumpWidget(app);
     await tester.tap(find.byIcon(Icons.menu));
     await tester.pump();
@@ -51,12 +54,7 @@ void runTests() {
   });
 
   testWidgets("Search UI", (WidgetTester tester) async {
-    MaterialApp app = MaterialApp (
-        home: Provider<User>(
-          create: (_) => testUser,
-          child: TeacherGroups(),
-        )
-    );
+
     await tester.pumpWidget(app);
     await tester.tap(find.byIcon(Icons.search));
     await tester.pump();

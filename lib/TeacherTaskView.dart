@@ -9,6 +9,7 @@ import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/StudentStatusTile.dart';
 import 'package:orbital2020/TaskProgressIndicator.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'AppDrawer.dart';
 import 'DataContainers/StudentWithStatus.dart';
@@ -16,11 +17,10 @@ import 'Sort.dart';
 
 
 class TeacherTaskView extends StatefulWidget {
-  final DatabaseController databaseController;
   final Task task;
   final Group group;
 
-  TeacherTaskView({Key key, this.databaseController, @required this.task, @required this.group}) : super(key: key);
+  TeacherTaskView({Key key, @required this.task, @required this.group}) : super(key: key);
 
   @override
   _TeacherTaskViewState createState() => _TeacherTaskViewState();
@@ -53,7 +53,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
   @override
   void initState() {
     super.initState();
-    db = widget.databaseController ?? DatabaseController();
+    db = Provider.of<DatabaseController>(context, listen: false);
     _students = db.getStudentsWithTask(widget.task.id);
     _searchText = '';
     _searchBarActive = false;
