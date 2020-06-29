@@ -654,7 +654,7 @@ class DatabaseController {
     ]);
   }
 
-  Future<void> teacherDeleteGroup({String teacherId, Group group}) {
+  Future<void> teacherDeleteGroup({String teacherId, Group group}) async {
     DocumentReference groupDocument = db.collection('teachers')
         .document(teacherId)
         .collection('groups')
@@ -662,7 +662,7 @@ class DatabaseController {
 
     List<String> studentIds = [];
     //Unassign students from group
-    Future removeStudents = groupDocument.collection('students')
+    await groupDocument.collection('students')
       .getDocuments()
       .then((QuerySnapshot snapshot) {
         for(DocumentSnapshot doc in snapshot.documents) {
@@ -672,7 +672,7 @@ class DatabaseController {
     });
 
     //Unassign tasks from group
-    Future removeTasks = groupDocument.collection('tasks')
+    await groupDocument.collection('tasks')
         .getDocuments()
         .then((QuerySnapshot snapshot) {
       for(DocumentSnapshot doc in snapshot.documents) {
@@ -690,13 +690,7 @@ class DatabaseController {
     });
 
     //delete group
-    Future removeGroup = groupDocument.delete();
-
-    return Future.wait([
-      removeStudents,
-      removeTasks,
-      removeGroup
-    ]);
+    await groupDocument.delete();
   }
 
   Future<void> teacherRemoveStudentFromGroup({String teacherId, Group group, Student student}) {
