@@ -54,7 +54,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
     }
     if (_editable) {
       _selectedTask = widget.schedule.taskId;
-      _scheduledDateController.text = DateFormat("dd/MM/y").format(widget.schedule.scheduledDate);
+      _scheduledDateController.text = DateFormat("y-MM-dd").format(widget.schedule.scheduledDate);
       _startTime = TimeOfDay.fromDateTime(widget.schedule.startTime);
       _startTimeController.text = timeToString(_startTime);
       _endTime = TimeOfDay.fromDateTime(widget.schedule.endTime);
@@ -63,27 +63,27 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
     if (_editable && widget.schedule.startTime.isBefore(DateTime.now()) ) {
       _viewOnly = true;
     }
-    _scheduledDateController.text = DateFormat("dd/MM/y").format(_scheduledDate);
+    _scheduledDateController.text = DateFormat("y-MM-dd").format(_scheduledDate);
     _allUncompletedTasks = db.getUncompletedTasks(_user.id);
     super.initState();
   }
 
-  Future<TimeOfDay> _setTime(BuildContext context, Time timeType) async {
+  Future<TimeOfDay> _setTime(BuildContext context) async {
     return showTimePicker(
         context: context,
         initialTime: TimeOfDay.now(),
-        ).then((value) {
-          if (value != null) {
-            timeType == Time.start ? _startTime = value : _endTime = value;
-          }
-          return value;
-    });
+    );
   }
 
   String timeToString(TimeOfDay time) {
     return time == null
       ? ""
       : "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
+  }
+  
+  TimeOfDay stringToTime(String time) {
+    List<String> toArr = time.split(":");
+    return TimeOfDay(hour: int.parse(toArr[0]), minute: int.parse(toArr[1]));
   }
 
   Future<DateTime> _setDate(BuildContext context) async {
@@ -92,12 +92,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
         initialDate: _scheduledDate,
         firstDate: today,
         lastDate: DateTime(2100)
-    ).then((value) {
-      if (value != null) {
-        _scheduledDate = value;
-      }
-      return _scheduledDate;
-    });
+    );
   }
   
   bool isTimeAfter(String t1, String t2) {
@@ -105,6 +100,20 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
     List<String> second = t2.split(":");
     double diff = double.parse(first[0]) + double.parse(first[1]) / 60 - double.parse(second[0]) - double.parse(second[1]) / 60;
     return diff >= 0;
+  }
+
+  String validateScheduleDate(String value) {
+    String checkEmpty = RequiredValidator(errorText: "Scheduled Date cannot be empty!").call(value);
+    String checkFormat = DateValidator("y-MM-dd", errorText: "Invalid date format! Should be y-MM-dd.").call(value);
+    if (checkEmpty != null) {
+      return checkEmpty;
+    } else if (checkFormat != null){
+      return checkFormat;
+    } else if (DateTime.parse(value).isBefore(today)) {
+      return "Schedule date cannot be before today!";
+    } else {
+      return null;
+    }
   }
 
 
@@ -130,7 +139,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
     } else if (checkFormat != null){
       return checkFormat;
     }
-    else if (_scheduledDate == today && !isTimeAfter(value, DateFormat.Hm().format(DateTime.now()))) {
+    else if (DateTime.parse(_scheduledDateController.text) == today && !isTimeAfter(value, DateFormat.Hm().format(DateTime.now()))) {
       return "Start Time must be later than current time!";
     }
     else {
@@ -268,14 +277,15 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
             enabled: !_viewOnly,
             onTap: () {
               _setDate(context).then((value) {
-                _scheduledDateController.text = DateFormat("dd/MM/y").format(value);
+                if (value != null) {
+                  _scheduledDateController.text =
+                      DateFormat("y-MM-dd").format(value);
+                }
               });
             },
+            onSaved: (value) => _scheduledDate = DateTime.parse(value),
             controller: _scheduledDateController,
-            validator: MultiValidator([
-              RequiredValidator(errorText: "Scheduled Date cannot be empty!"),
-              DateValidator("dd/MM/y", errorText: "Invalid date format! Should be dd/MM/y.")
-            ]),
+            validator: validateScheduleDate
           ),
           TextFormField(
             key: Key("start"),
@@ -285,10 +295,13 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
             ),
             enabled: !_viewOnly,
             onTap: () {
-              _setTime(context, Time.start).then((value) {
-                _startTimeController.text = timeToString(value);
+              _setTime(context).then((value) {
+                if (value != null) {
+                  _startTimeController.text = timeToString(value);
+                }
               });
             },
+            onSaved: (value) => _startTime = stringToTime(value),
             controller: _startTimeController,
             validator: validateStartTime
           ),
@@ -300,10 +313,13 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
             ),
             enabled: !_viewOnly,
             onTap: () {
-              _setTime(context, Time.end).then((value) {
-                _endTimeController.text = timeToString(value);
+              _setTime(context).then((value) {
+                if (value != null) {
+                  _endTimeController.text = timeToString(value);
+                }
               });
             },
+            onSaved: (value) => _endTime = stringToTime(value),
             controller: _endTimeController,
             validator: validateEndTime
           ),
