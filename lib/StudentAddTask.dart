@@ -73,12 +73,6 @@ class _AddTaskFormState extends State<AddTaskForm> {
         firstDate: DateTime.now(),
         lastDate: DateTime(2101)
     );
-//        .then((date) {
-//      setState(() {
-//        _dueDate = date;
-//      });
-//      return date;
-//    });
   }
 
   void deleteTag(String tag) {

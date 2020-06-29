@@ -63,7 +63,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
     _nameController.text = widget.task.name;
     _descriptionController.text = widget.task.description;
     _dueDateController.text = widget.task.dueDate != null ?
-    DateFormat('dd/MM/y').format(widget.task.dueDate) :
+    DateFormat('y-MM-dd').format(widget.task.dueDate) :
     "";
     _sortBy = Sort.name;
   }
@@ -376,15 +376,11 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
   Future<DateTime> setDueDate(BuildContext context) async {
     return showDatePicker(
         context: context,
-        initialDate: DateTime.now().add(Duration(days: 1)),
+        initialDate: widget.task.dueDate == null ? DateTime.now().add(Duration(days: 1))
+            : widget.task.dueDate,
         firstDate: DateTime.now(),
         lastDate: DateTime(2101)
-    ).then((date) {
-      setState(() {
-        widget.task.dueDate = date;
-      });
-      return date;
-    });
+    );
   }
 
   List<Widget> getTagChips() {
@@ -444,6 +440,20 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
     return null;
   }
 
+  String validateDueDate(String value) {
+    if (value == "") {
+      return null;
+    }
+    String checkFormat = DateValidator("y-MM-dd", errorText: "Invalid date format! Should be y-MM-dd.").call(value);
+    if (checkFormat != null){
+      return checkFormat;
+    } else if (DateTime.parse(value).isBefore(DateTime.now())) {
+      return "Due date cannot be before today!";
+    } else {
+      return null;
+    }
+  }
+
   Future<bool> submit() {
     if (_mainFormKey.currentState.validate() && _nameFormKey.currentState.validate()) {
       _nameFormKey.currentState.save();
@@ -494,12 +504,20 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
                               setDueDate(context).then((value) {
                                 if(value != null) {
                                   _dueDateController.text =
-                                      DateFormat('dd/MM/y').format(value);
+                                      DateFormat('y-MM-dd').format(value);
                                 }
                               });
                             },
+                            onSaved: (value) {
+                              print(value);
+                              if (value != "") {
+                                widget.task.dueDate = DateTime.parse(value);
+                              } else {
+                                widget.task.dueDate = null;
+                              }
+                            },
                             controller: _dueDateController,
-                            validator: DateValidator('dd/MM/y', errorText: 'Invalid date format!'),
+                            validator: validateDueDate,
                           )
                       ),
                     ],

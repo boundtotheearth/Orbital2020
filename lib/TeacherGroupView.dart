@@ -105,7 +105,7 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
                 return ListTile(
                   title: Text(task.name),
                   subtitle: task.dueDate != null
-                      ? Text("Due: " + DateFormat('dd/MM/y').format(task.dueDate))
+                      ? Text("Due: " + DateFormat('y-MM-dd').format(task.dueDate))
                       : Container(width: 0, height: 0,),
                   onTap: () {
                     Map<String, dynamic> arguments = {
