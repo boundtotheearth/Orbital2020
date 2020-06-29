@@ -894,9 +894,16 @@ class DatabaseController {
 //  }
 
   Future<void> _updateTaskDetails(Task task) {
+    Map<String, dynamic> map = task.toKeyValuePair();
+    if (task.dueDate == null) {
+      map["dueDate"] = FieldValue.delete();
+    }
+    if (task.tags.isEmpty) {
+      map["tags"] = FieldValue.delete();
+    }
     return db.collection('tasks')
         .document(task.id)
-        .updateData(task.toKeyValuePair());
+        .updateData(map);
   }
 
   Future<void> _updateTaskCompletion(String taskId, String studentId, bool completed) {

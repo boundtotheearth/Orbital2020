@@ -72,12 +72,13 @@ class _AddTaskFormState extends State<AddTaskForm> {
         initialDate: DateTime.now().add(Duration(days: 1)),
         firstDate: DateTime.now(),
         lastDate: DateTime(2101)
-    ).then((date) {
-      setState(() {
-        _dueDate = date;
-      });
-      return date;
-    });
+    );
+//        .then((date) {
+//      setState(() {
+//        _dueDate = date;
+//      });
+//      return date;
+//    });
   }
 
   void deleteTag(String tag) {
@@ -103,6 +104,20 @@ class _AddTaskFormState extends State<AddTaskForm> {
       ));
     }
     return tagChips;
+  }
+
+  String validateDueDate(String value) {
+    if (value == "") {
+      return null;
+    }
+    String checkFormat = DateValidator("y-MM-dd", errorText: "Invalid date format! Should be y-MM-dd.").call(value);
+    if (checkFormat != null){
+      return checkFormat;
+    } else if (DateTime.parse(value).isBefore(DateTime.now())) {
+      return "Due date cannot be before today!";
+    } else {
+      return null;
+    }
   }
 
   void submit() {
@@ -173,12 +188,19 @@ class _AddTaskFormState extends State<AddTaskForm> {
                 setDueDate(context).then((value) {
                   if(value != null) {
                     _dueDateController.text =
-                        DateFormat('dd/MM/y').format(value);
+                        DateFormat('y-MM-dd').format(value);
                   }
                 });
               },
+              onSaved: (value) {
+                if (value == "") {
+                  _dueDate = null;
+                } else {
+                  _dueDate = DateTime.parse(value);
+                }
+              },
               controller: _dueDateController,
-              validator: DateValidator('dd/MM/y', errorText: 'Invalid date format!'),
+              validator: validateDueDate,
             ),
             TextFormField(
               key: Key('tags'),

@@ -40,27 +40,23 @@ class _StudentTaskViewState extends State<StudentTaskView> {
     _createdByController.text = editable ? "Me" : widget.task.createdByName;
     _descriptionController.text = widget.task.description;
     _dueDateController.text = widget.task.dueDate != null ?
-        DateFormat('dd/MM/y').format(widget.task.dueDate) :
+        DateFormat('y-MM-dd').format(widget.task.dueDate) :
         "";
   }
 
   Future<DateTime> setDueDate(BuildContext context) async {
     return showDatePicker(
         context: context,
-        initialDate: DateTime.now().add(Duration(days: 1)),
+        initialDate: widget.task.dueDate == null ? DateTime.now().add(Duration(days: 1))
+          : widget.task.dueDate,
         firstDate: DateTime.now(),
         lastDate: DateTime(2101)
-    ).then((date) {
-      setState(() {
-        widget.task.dueDate = date;
-      });
-      return date;
-    });
+    );
   }
 
   List<Widget> getTagChips() {
     List<Widget> tagChips = <Widget>[];
-    for(String tag in widget.task.tags) {
+    for (String tag in widget.task.tags) {
       tagChips.add(Chip(
         label: Text(tag),
         onDeleted: editable ? () {
@@ -74,6 +70,7 @@ class _StudentTaskViewState extends State<StudentTaskView> {
   void deleteTag(String tag) {
     setState(() {
       widget.task.tags.remove(tag);
+      print(widget.task.tags);
     });
   }
 
@@ -155,6 +152,20 @@ class _StudentTaskViewState extends State<StudentTaskView> {
       return "";
     }
     return null;
+  }
+
+  String validateDueDate(String value) {
+    if (value == "") {
+      return null;
+    }
+    String checkFormat = DateValidator("y-MM-dd", errorText: "Invalid date format! Should be y-MM-dd.").call(value);
+    if (checkFormat != null){
+      return checkFormat;
+    } else if (DateTime.parse(value).isBefore(DateTime.now())) {
+      return "Due date cannot be before today!";
+    } else {
+      return null;
+    }
   }
 
   Future<bool> submit() {
@@ -313,12 +324,20 @@ class _StudentTaskViewState extends State<StudentTaskView> {
                               setDueDate(context).then((value) {
                                 if(value != null) {
                                   _dueDateController.text =
-                                      DateFormat('dd/MM/y').format(value);
+                                      DateFormat('y-MM-dd').format(value);
                                 }
                               });
                             },
+                            onSaved: (value) {
+                              print(value);
+                              if (value != "") {
+                                widget.task.dueDate = DateTime.parse(value);
+                              } else {
+                                widget.task.dueDate = null;
+                              }
+                            },
                             controller: _dueDateController,
-                            validator: DateValidator('dd/MM/y', errorText: 'Invalid date format!'),
+                            validator: validateDueDate,
                             enabled: editable,
                           )
                       ),
