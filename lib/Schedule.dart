@@ -78,6 +78,12 @@ class _ScheduleState extends State<Schedule> {
               calendarController: _calendarController,
               events: _scheduledTasks,
               onDaySelected: _onDateSelected,
+              rowHeight: 42,
+              headerStyle: HeaderStyle(
+                headerPadding: EdgeInsets.only(top: 5),
+                formatButtonVisible: false,
+                centerHeaderTitle: true,
+              ),
               builders: CalendarBuilders(
                 markersBuilder: (context, date, events, holidays) {
                   final children = <Widget>[];

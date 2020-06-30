@@ -58,7 +58,7 @@ class _TaskStatusTileState extends State<TaskStatusTile> {
         } else {
           //Completed, not verified
           return RaisedButton(
-            child: const Text('Waiting for Verification...'),
+            child: const Text('Verifying...'),
             onPressed: () => widget.updateComplete(false),
           );
         }
@@ -115,7 +115,7 @@ class _TaskStatusTileState extends State<TaskStatusTile> {
         subtitle: Column(
           children: [
             widget.task.dueDate != null
-              ? Text("Due: " + DateFormat('dd/MM/y').format(widget.task.dueDate))
+              ? Text("Due: " + DateFormat('y-MM-dd').format(widget.task.dueDate))
               : Container(width: 0, height: 0,),
             buildCreatedBy(),
             Wrap(children: widget.isStudent ? getTagChips() : [])
