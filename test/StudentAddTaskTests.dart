@@ -57,7 +57,7 @@ void runTests() {
     await tester.tap(find.byType(RaisedButton));
     await tester.pump();
 
-    expect(find.text("Invalid date format!"), findsOneWidget);
+    expect(find.text("Invalid date format! Should be y-MM-dd."), findsOneWidget);
 
     Finder formFinder = find.byType(Form);
     Form formWidget = tester.widget(formFinder) as Form;

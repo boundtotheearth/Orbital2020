@@ -32,7 +32,7 @@ MaterialApp getApp(TaskWithStatus task) {
     description: 'selfDescription',
     createdByName: 'FarrellStu',
     createdById: 'P6IYsnpoAZZTdmy2aLBHYHrMf6E2',
-    dueDate: DateTime.now(),
+    dueDate: DateTime.now().add(Duration(days: 1)),
     tags: ['tag1', 'tag2'],
   );
 
@@ -72,7 +72,7 @@ MaterialApp getApp(TaskWithStatus task) {
       expect(find.text(selfTaskIncomplete.name), findsOneWidget);
       expect(find.text('Me'), findsOneWidget);
       expect(find.text(selfTaskIncomplete.description), findsOneWidget);
-      expect(find.text(DateFormat('dd/MM/y').format(selfTaskIncomplete.dueDate)), findsOneWidget);
+      expect(find.text(DateFormat('y-MM-dd').format(selfTaskIncomplete.dueDate)), findsOneWidget);
       for(String tag in selfTaskIncomplete.tags) {
         expect(find.text(tag), findsOneWidget);
       }

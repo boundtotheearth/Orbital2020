@@ -21,7 +21,7 @@ Task mockTask = Task(
   description: 'mockDescription',
   createdByName: 'Farrell',
   createdById: 'CBHrubROTEaYnNwhrxpc3DBwhXx1',
-  dueDate: DateTime.now(),
+  dueDate: DateTime.now().add(Duration(days: 1)),
   tags: ['tag1', 'tag2'],
 );
 
@@ -72,7 +72,7 @@ void runTests() {
     await tester.pumpAndSettle();
     expect(find.text(mockTask.name), findsOneWidget);
     expect(find.text(mockTask.description), findsOneWidget);
-    expect(find.text(DateFormat('dd/MM/y').format(mockTask.dueDate)), findsOneWidget);
+    expect(find.text(DateFormat('y-MM-dd').format(mockTask.dueDate)), findsOneWidget);
     for(String tag in mockTask.tags) {
       expect(find.text(tag), findsOneWidget);
     }
