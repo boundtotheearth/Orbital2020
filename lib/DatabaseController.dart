@@ -37,6 +37,19 @@ class DatabaseController {
     Future.wait([a, b]).then((value) => print("Done"));
   }
 
+  Future<String> getToken({@required String uid}) {
+    return db.collection("accountTypes")
+        .document(uid)
+        .get()
+        .then((doc) => doc["token"]);
+  }
+
+  Future<void> setToken({@required String uid, @required String token}) {
+    return db.collection("accountTypes")
+        .document(uid)
+        .updateData({"token" : token});
+  }
+
   //Get the type of the account, student or teacher
   Future<String> getAccountType({String userId}) {
     return db.collection('accountTypes')
