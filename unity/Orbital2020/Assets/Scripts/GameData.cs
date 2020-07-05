@@ -10,6 +10,7 @@ public class GameData
     public List<InventoryItem> inventory = new List<InventoryItem>();
     public List<CollectionItem> collection = new List<CollectionItem>();
     public List<GamePlant> plants = new List<GamePlant>();
+    public long lastActiveUTC;
 
     public GameData()
     {

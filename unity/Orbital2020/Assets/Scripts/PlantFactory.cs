@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -58,8 +59,18 @@ public class PlantFactory : MonoBehaviour
         return plantTypeDict[id].portraitSprite;
     }
 
-    public Sprite[] GetGameSprites(string id)
+    public Sprite GetGameSprites(string id, int growthStage)
     {
-        return plantTypeDict[id].gameSprites;
+        return plantTypeDict[id].gameSprites[growthStage];
+    }
+
+    public TimeSpan GetGrowthTime(string id, int growthStage)
+    {
+        return TimeSpan.FromSeconds(plantTypeDict[id].growthTimes[growthStage]);
+    }
+
+    public int GetGrowthStages(string id)
+    {
+        return plantTypeDict[id].growthTimes.Length;
     }
 }

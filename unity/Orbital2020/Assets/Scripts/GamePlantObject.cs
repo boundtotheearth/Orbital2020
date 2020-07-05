@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -32,7 +33,7 @@ public class GamePlantObject : MonoBehaviour, IPointerClickHandler, IDragHandler
     {
         if (!eventData.dragging && !moveDeleting)
         {
-            Grow();
+            Grow(new TimeSpan(0, 0, 6));
         }
     }
 
@@ -83,20 +84,37 @@ public class GamePlantObject : MonoBehaviour, IPointerClickHandler, IDragHandler
         }
     }
 
-    void Grow()
+    public void Grow(TimeSpan duration)
     {
-        data.growthStage++;
-        if(data.growthStage > 2)
+        //data.growthStage++;
+        //if(data.growthStage > 2)
+        //{
+        //    data.growthStage = 0;
+        //}
+        if(data.growthStage >= PlantFactory.Instance().GetGrowthStages(data.plantType))
         {
-            data.growthStage = 0;
+            //Cannot grow any more
+            return;
         }
-        UpdateSprite();
+
+        TimeSpan growthTime = PlantFactory.Instance().GetGrowthTime(data.plantType, data.growthStage);
+        double totalGrowth = data.growthProgress + duration.TotalSeconds;
+
+        if(totalGrowth >= growthTime.TotalSeconds)
+        {
+            data.growthStage++;
+            UpdateSprite();
+        }
+        else
+        {
+            data.growthProgress = totalGrowth;
+        }
     }
 
     void UpdateSprite()
     {
         spriteRenderer.sprite = PlantFactory.Instance()
-            .GetGameSprites(data.plantType)[data.growthStage];
+            .GetGameSprites(data.plantType, data.growthStage);
     }
 
     public void startMoveDelete()
