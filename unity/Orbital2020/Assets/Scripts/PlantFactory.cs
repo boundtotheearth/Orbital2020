@@ -20,6 +20,8 @@ public class PlantFactory : MonoBehaviour
     public List<PlantType> plantTypes = new List<PlantType>();
     Dictionary<string, PlantType> plantTypeDict = new Dictionary<string, PlantType>();
 
+    public GameObject[] gemObjects;
+
     public void Awake()
     {
         //Construct the reference dictionary
@@ -72,5 +74,15 @@ public class PlantFactory : MonoBehaviour
     public int GetGrowthStages(string id)
     {
         return plantTypeDict[id].growthTimes.Length;
+    }
+
+    public int GetGemDrop(string id, int growthStage)
+    {
+        return plantTypeDict[id].gemDrops[growthStage];
+    }
+
+    public GameObject GetGemObject(int index)
+    {
+        return gemObjects[index];
     }
 }

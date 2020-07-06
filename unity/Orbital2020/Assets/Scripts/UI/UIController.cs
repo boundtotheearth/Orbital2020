@@ -10,6 +10,7 @@ public class UIController : MonoBehaviour
     public RewardsController rewardsScreen;
     public CollectionController collectionScreen;
     public InventoryController inventoryScreen;
+    public GemDisplayController gemDisplay;
 
     public void ToggleMoveDelete()
     {
@@ -50,5 +51,10 @@ public class UIController : MonoBehaviour
             currentScreen.Close();
             currentScreen = null;
         }
+    }
+
+    public void UpdateGemDisplay(int amount)
+    {
+        gemDisplay.UpdateDisplay(amount);
     }
 }

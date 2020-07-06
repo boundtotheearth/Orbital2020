@@ -74,8 +74,14 @@ public class GameController : MonoBehaviour
             tile.setPlant(plantScript);
         }
 
+        TimeSpan duration = DateTime.Now.ToUniversalTime() - DateTime.FromFileTimeUtc(gameData.lastActiveUTC);
+        Debug.Log("Duration: " + duration.ToString());
         //Process plant growth
-        GrowPlants(DateTime.Now.ToUniversalTime() - DateTime.FromFileTimeUtc(gameData.lastActiveUTC));
+        GrowPlants(duration);
+
+        DropGems(duration);
+
+        uiController.UpdateGemDisplay(gameData.gemTotal);
 
         SaveGame();
     }
@@ -255,20 +261,8 @@ public class GameController : MonoBehaviour
         FlutterMessageManager.Instance().sendGameData(data);
     }
 
-    public void StartGrow()
-    {
-        //Save?
-        SaveGame();
-    }
-
-    public void StopGrow()
-    {
-        SetGameData(testData);
-    }
-
     public void GrowPlants(TimeSpan duration)
     {
-        Debug.Log("growing" + duration.ToString());
         foreach (PlantableTile tile in plantableTiles)
         {
             if (tile.plant)
@@ -276,5 +270,22 @@ public class GameController : MonoBehaviour
                 tile.plant.Grow(duration);
             }
         }
+    }
+
+    public void DropGems(TimeSpan duration)
+    {
+        foreach (PlantableTile tile in plantableTiles)
+        {
+            if (tile.plant)
+            {
+                tile.plant.DropGems(duration);
+            }
+        }
+    }
+
+    public void AddGem(int amount)
+    {
+        gameData.gemTotal += amount;
+        uiController.UpdateGemDisplay(gameData.gemTotal);
     }
 }
