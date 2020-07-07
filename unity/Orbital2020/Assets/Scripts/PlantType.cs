@@ -14,4 +14,5 @@ public class PlantType : MonoBehaviour
     public Sprite[] gameSprites;
     public double[] growthTimes;
     public int[] gemDrops;
+    public int gemDropLimit;
 }

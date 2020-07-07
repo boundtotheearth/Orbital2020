@@ -58,3 +58,4 @@ MonoBehaviour:
   - 60
   - 60
   gemDrops: 050000000a00000014000000
+  gemDropLimit: 100

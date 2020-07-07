@@ -85,4 +85,9 @@ public class PlantFactory : MonoBehaviour
     {
         return gemObjects[index];
     }
+
+    public int GetGemDropLimit(string id)
+    {
+        return plantTypeDict[id].gemDropLimit;
+    }
 }

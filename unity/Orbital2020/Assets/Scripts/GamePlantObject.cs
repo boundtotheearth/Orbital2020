@@ -111,6 +111,12 @@ public class GamePlantObject : MonoBehaviour, IPointerClickHandler, IDragHandler
     {
         int dropRate = PlantFactory.Instance().GetGemDrop(data.plantType, data.growthStage);
         int totalDrop = Mathf.RoundToInt((float) duration.TotalMinutes) * dropRate;
+        int dropLimit = PlantFactory.Instance().GetGemDropLimit(data.plantType);
+        if (totalDrop > dropLimit)
+        {
+            totalDrop = dropLimit;
+        }
+
         Debug.Log("Drop " + totalDrop.ToString() + "Gems");
         int[] gemNumbers = AmountToGemNumber(totalDrop);
         for(int i = 0; i < gemNumbers.Length; i++)
