@@ -98,6 +98,7 @@ crashlytics-build.properties
 .pub-cache/
 .pub/
 /build/
+orbital2020-7fce8-bb88e5f5dd81.json
 
 # Android related
 **/android/**/gradle-wrapper.jar

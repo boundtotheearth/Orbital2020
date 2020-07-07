@@ -98,11 +98,11 @@ class DatabaseController {
   }
 
   //Student deletes schedule
-  Future<void> deleteScheduleByTask(String studentId, Task task) {
+  Future<void> deleteScheduleByTask(String studentId, String taskId) {
     return db.collection("students")
         .document(studentId)
         .collection("scheduledTasks")
-        .where('taskId', isEqualTo: task.id)
+        .where('taskId', isEqualTo: taskId)
         .getDocuments()
         .then((snapshot) {
           for(DocumentSnapshot doc in snapshot.documents) {
@@ -662,8 +662,9 @@ class DatabaseController {
 
   Future<void> studentDeleteTask({Task task, String studentId}) {
     return Future.wait([
-      deleteScheduleByTask(studentId, task),
+      deleteScheduleByTask(studentId, task.id),
       _unassignTaskFromStudent(task.id, studentId),
+      _unassignStudentFromTask(task.id, studentId),
       _deleteTask(task.id),
     ]);
   }
@@ -698,7 +699,9 @@ class DatabaseController {
       for(DocumentSnapshot doc in snapshot.documents) {
         //unassign from students
         for(String studentId in studentIds) {
+          deleteScheduleByTask(studentId, doc.documentID);
           _unassignTaskFromStudent(doc.documentID, studentId);
+          _unassignStudentFromTask(doc.documentID, studentId);
         }
 
         //Also delete the task
@@ -724,6 +727,7 @@ class DatabaseController {
       .getDocuments()
       .then((snapshot) {
         for(DocumentSnapshot taskDoc in snapshot.documents) {
+          deleteScheduleByTask(student.id, taskDoc.documentID);
           _unassignStudentFromTask(taskDoc.documentID, student.id);
           _unassignTaskFromStudent(taskDoc.documentID, student.id);
         }
@@ -741,11 +745,9 @@ class DatabaseController {
     ]);
   }
 
-  Future<void> teacherDeleteTask({Task task, Group group}) {
-    return Future.wait([
-      _unassignTaskFromGroup(task, group),
-      _deleteTask(task.id),
-      db.collection('teachers')
+  Future<void> teacherDeleteTask({Task task, Group group}) async {
+
+      await db.collection('teachers')
           .document(task.createdById)
           .collection('groups')
           .document(group.id)
@@ -755,10 +757,11 @@ class DatabaseController {
             snapshot.documents.forEach((stuDoc) {
               _unassignTaskFromStudent(task.id, stuDoc.documentID);
               _unassignStudentFromTask(task.id, stuDoc.documentID);
-              deleteScheduleByTask(stuDoc.documentID, task);
+              deleteScheduleByTask(stuDoc.documentID, task.id);
             });
-          })
-    ]);
+          });
+      await _unassignTaskFromGroup(task, group);
+      return _deleteTask(task.id);
   }
 
   //Saving Game Data

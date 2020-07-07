@@ -44,10 +44,8 @@ class _MessageHandlerState extends State<MessageHandler> {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            content: ListTile(
-              title: Text(message['notification']['title']),
-              subtitle: Text(message['notification']['body']),
-            ),
+            title: Text(message['notification']['title']),
+            content: Text(message['notification']['body']),
             actions: <Widget>[
               FlatButton(
                 child: Text('View Changes'),
@@ -103,9 +101,9 @@ class _MessageHandlerState extends State<MessageHandler> {
   }
 
   /// Subscribe the user to a topic
-  _subscribeToTopic() async {
+  _subscribeToTopic(String docPath) async {
     // Subscribe the user to a topic
-    _fcm.subscribeToTopic('puppies');
+    _fcm.subscribeToTopic(docPath);
   }
 }
 
