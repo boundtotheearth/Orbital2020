@@ -713,9 +713,11 @@ class DatabaseController {
       for(DocumentSnapshot doc in snapshot.documents) {
         //unassign from students
         for(String studentId in studentIds) {
-          deleteScheduleByTask(studentId, doc.documentID);
-          _unassignTaskFromStudent(taskId: doc.documentID, studentId: studentId);
-          _unassignStudentFromTask(doc.documentID, studentId);
+          Future.wait([
+          deleteScheduleByTask(studentId, doc.documentID),
+          _unassignTaskFromStudent(taskId: doc.documentID, studentId: studentId),
+          _unassignStudentFromTask(doc.documentID, studentId)
+          ]);
         }
 
         //Also delete the task
@@ -898,8 +900,8 @@ class DatabaseController {
       final HttpsCallable callable = CloudFunctions.instance.getHttpsCallable(
         functionName: 'unassignTask',
       );
-      Map<String, dynamic> data = task.toKeyValuePair();
-      data["studentId"] = studentId;
+      Map<String, dynamic> data = {"task" : task.toKeyValuePair(), "studentId" : studentId};
+//      data["studentId"] = studentId;
       callable.call(data);
     }
     //unassign task on db
@@ -945,8 +947,8 @@ class DatabaseController {
       final HttpsCallable callable = CloudFunctions.instance.getHttpsCallable(
         functionName: 'assignTask',
       );
-      Map<String, dynamic> data = task.toKeyValuePair();
-      data["studentId"] = studentId;
+      Map<String, dynamic> data = {"task" : task.toKeyValuePair(), "studentId" : studentId};
+//      data["studentId"] = studentId;
       callable.call(data);
     }
     return db.collection('students')

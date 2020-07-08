@@ -9,8 +9,8 @@ export const assignTask = functions.https
     .onCall(async (data, context) => {
 
         const studentId = data.studentId;
-        const createdByName = data.createdByName;
-        const taskName = data.name
+        const createdByName = data.task.createdByName;
+        const taskName = data.task.name
         
         
         const device_token = await db.collection("accountTypes")
@@ -28,6 +28,8 @@ export const assignTask = functions.https
                 sound: "default"
             },
             data: {
+                title: "You have a new task!",
+                body: `${createdByName} has assigned you a new task: ${taskName}`,
                 click_action: "FLUTTER_NOTIFICATION_CLICK"
             }
         }
@@ -81,6 +83,8 @@ export const updatedTask = functions.firestore
                 sound: "default"
             },
             data: {
+                title: "You have a task update!",
+                body: `${task.createdByName} has updated your task: ${task.name}`,
                 click_action: "FLUTTER_NOTIFICATION_CLICK"
             }
         }
@@ -95,15 +99,9 @@ export const updatedTask = functions.firestore
 
 
 export const unassignTask = functions.https.onCall(async (data, context) => {
-    const taskName = data.name;
-    const taskCreatedById = data.createdById;
-    const taskCreatedByName = data.createdByName;
+    const taskName = data.task.name;
+    const taskCreatedByName = data.task.createdByName;
     const studentId = data.studentId;
-
-    if (taskCreatedById === studentId) {
-        console.log("self-created task");
-        return ;
-    }
 
     const device_token = await db.collection("accountTypes")
             .doc(studentId)
@@ -117,6 +115,8 @@ export const unassignTask = functions.https.onCall(async (data, context) => {
             sound: "default"
         },
         data: {
+            title: "Task removed",
+            body: `${taskCreatedByName} has unassigned you the task: ${taskName}`,
             click_action: "FLUTTER_NOTIFICATION_CLICK"
         }
     }
@@ -185,6 +185,8 @@ export const updatedCompletionStatus = functions.https
                 sound: "default"
             },
             data: {
+                title: title,
+                body: body,
                 click_action: "FLUTTER_NOTIFICATION_CLICK"
             }
         }
@@ -236,11 +238,13 @@ export const updatedCompletionStatus = functions.https
 
         const payload: admin.messaging.MessagingPayload = {
             notification: {
-                title: title,
+                itle: title,
                 body: body,
                 sound: "default"
             },
             data: {
+                title: title,
+                body: body,
                 click_action: "FLUTTER_NOTIFICATION_CLICK"
             }
         }

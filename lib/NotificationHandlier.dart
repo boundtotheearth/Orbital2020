@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+//import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:io';
 import 'package:orbital2020/DataContainers/User.dart';
@@ -16,6 +16,7 @@ class MessageHandler extends StatefulWidget {
 }
 
 class _MessageHandlerState extends State<MessageHandler> {
+//  static FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   final FirebaseMessaging _fcm = FirebaseMessaging();
   User _user;
   DatabaseController _db;
@@ -27,6 +28,12 @@ class _MessageHandlerState extends State<MessageHandler> {
     super.initState();
     _db = Provider.of<DatabaseController>(context, listen: false);
     _user = Provider.of<User>(context, listen: false);
+    _initFirebaseMessaging();
+//    _initLocalNotifications();
+
+  }
+
+  void _initFirebaseMessaging() {
     if (Platform.isIOS) {
       iosSubscription = _fcm.onIosSettingsRegistered.listen((data) {
         print(data);
@@ -44,32 +51,67 @@ class _MessageHandlerState extends State<MessageHandler> {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text(message['notification']['title']),
-            content: Text(message['notification']['body']),
+            title: Text(message['data']['title']),
+            content: Text(message['data']['body']),
             actions: <Widget>[
               FlatButton(
-                child: Text('View Changes'),
+                child: Text('Ok'),
                 onPressed: () => Navigator.of(context).pop(),
               ),
-              FlatButton(
-                child: Text("Later"),
-                onPressed: () => Navigator.of(context).pop(),
-              )
-
             ],
           ),
         );
       },
       onLaunch: (Map<String, dynamic> message) async {
         print("onLaunch: $message");
+//        _showNotification(message["data"]);
         // TODO optional
       },
       onResume: (Map<String, dynamic> message) async {
         print("onResume: $message");
-        // TODO optional
+//        _showNotification(message["data"]);
       },
     );
   }
+
+//  void _initLocalNotifications() {
+//    var initializationSettingsAndroid = new AndroidInitializationSettings('@mipmap/ic_launcher');
+//    var initializationSettingsIOS = new IOSInitializationSettings();
+//    var initializationSettings = new InitializationSettings(initializationSettingsAndroid, initializationSettingsIOS);
+//    _flutterLocalNotificationsPlugin.initialize(initializationSettings);
+//  }
+
+
+//  Future<void> _showNotification(Map<String, dynamic> message) async {
+//
+//    String pushTitle = message['title'];
+//    String pushText = message['body'];
+//
+//    print("AppPushs params pushTitle : $pushTitle");
+//    print("AppPushs params pushText : $pushText");
+//
+//    var platformChannelSpecificsAndroid = new AndroidNotificationDetails(
+//        'your channel id',
+//        'your channel name',
+//        'your channel description',
+//        playSound: false,
+//        enableVibration: true,
+//        importance: Importance.Max,
+//        priority: Priority.High);
+//
+//    var platformChannelSpecificsIos = new IOSNotificationDetails(presentSound: false);
+//    var platformChannelSpecifics = new NotificationDetails(platformChannelSpecificsAndroid, platformChannelSpecificsIos);
+//
+//    _flutterLocalNotificationsPlugin.show(
+//        0,
+//        pushTitle,
+//        pushText,
+//        platformChannelSpecifics,
+//        payload: 'No_Sound',
+//      );
+//    return Future<void>.value();
+//  }
+
 
   @override
   void dispose() {
@@ -85,9 +127,6 @@ class _MessageHandlerState extends State<MessageHandler> {
 
   /// Get the token, save it to the database for current user
   _saveDeviceToken() async {
-    // Get the current user
-
-    // FirebaseUser user = await _auth.currentUser();
 
     // Get the token for this device
     String fcmToken = await _fcm.getToken();
