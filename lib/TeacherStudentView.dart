@@ -104,8 +104,8 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
                   return TaskStatusTile(
                     task: task,
                     isStudent: false,//_user.accountType == "student",
-                    updateComplete: (value) {
-                      db.updateTaskCompletion(task.id, widget.student.id, value);
+                    updateComplete: (value, isTeacher) {
+                      db.updateTaskCompletion(task.id, widget.student.id, value, isTeacher);
                     },
                     updateVerify: (value) {
                       db.updateTaskVerification(task.id, widget.student.id, value);

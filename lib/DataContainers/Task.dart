@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 
 //Contains data on a specific task and operations to convert the data into a database friendly format.
@@ -30,6 +31,16 @@ class Task {
     if(tags.isNotEmpty) map['tags'] = tags;
     return map;
   }
+
+  Task.fromSnapshot(DocumentSnapshot snapshot)
+    : this.id = snapshot.documentID,
+      this.name = snapshot["name"],
+      this.description = snapshot["description"],
+      this.createdByName = snapshot["createdByName"],
+      this.createdById = snapshot["createdById"],
+      this.dueDate = snapshot["dueDate"]?.toDate(),
+      this.tags = snapshot["tags"]?.cast<String>() ?? [];
+
 
   TaskWithStatus addStatus(bool completed, bool verified) {
     return TaskWithStatus(

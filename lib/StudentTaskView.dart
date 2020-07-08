@@ -89,7 +89,7 @@ class _StudentTaskViewState extends State<StudentTaskView> {
           if(widget.task.createdById == _user.id) {
             _onDelete();
           } else {
-            db.updateTaskCompletion(widget.task.id, _user.id, true)
+            db.updateTaskCompletion(widget.task.id, _user.id, true, false)
                 .then((value) =>
                 setState(() {
                   widget.task.completed = true;
@@ -110,7 +110,7 @@ class _StudentTaskViewState extends State<StudentTaskView> {
         return RaisedButton(
           child: const Text('Waiting for Verification...'),
           onPressed: () {
-            db.updateTaskCompletion(widget.task.id, _user.id, false)
+            db.updateTaskCompletion(widget.task.id, _user.id, false, false)
               .then((value) =>
               setState(() {
                 widget.task.completed = false;

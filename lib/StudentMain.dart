@@ -193,7 +193,7 @@ class _StudentMainState extends State<StudentMain> {
                 return TaskStatusTile(
                   task: task,
                   isStudent: true,//_user.accountType == "student",
-                  updateComplete: (value) {
+                  updateComplete: (value, isTeacher) {
                     if(task.createdById == _user.id) {
                       _onDelete(task).then((value) {
                         if (value) {
@@ -201,7 +201,7 @@ class _StudentMainState extends State<StudentMain> {
                         }
                       });
                     } else {
-                      db.updateTaskCompletion(task.id, _user.id, value);
+                      db.updateTaskCompletion(task.id, _user.id, value, isTeacher);
                     }
                   },
                   updateVerify: (value) {},
