@@ -117,7 +117,6 @@ public class GamePlantObject : MonoBehaviour, IPointerClickHandler, IDragHandler
             totalDrop = dropLimit;
         }
 
-        Debug.Log("Drop " + totalDrop.ToString() + "Gems");
         int[] gemNumbers = AmountToGemNumber(totalDrop);
         for(int i = 0; i < gemNumbers.Length; i++)
         {

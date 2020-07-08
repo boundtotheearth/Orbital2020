@@ -24,7 +24,7 @@ public class GameData
         collection.Add(new CollectionItem("testplant2"));
 
         //Mock Gem Total
-        gemTotal = 1000;
+        gemTotal = 0;
 
         //Mock LastActive
         lastActiveUTC = DateTime.Now.AddMinutes(-1).ToFileTimeUtc();

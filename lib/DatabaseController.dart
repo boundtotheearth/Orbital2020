@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
+import 'package:orbital2020/DataContainers/LeaderboardData.dart';
 import 'package:orbital2020/DataContainers/ScheduleDetails.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/StudentWithStatus.dart';
@@ -742,19 +743,16 @@ class DatabaseController {
   }
 
   //Saving Game Data
-  Future<void> saveGameData({String data, String studentId}) {
+  Future<void> saveGameData({Map<String, dynamic> data, String studentId}) {
     DocumentReference newDoc = db.collection("students")
         .document(studentId)
         .collection("gameData")
         .document();
-    return newDoc.setData({
-      'data': data,
-      'timestamp': DateTime.now()
-    });
+    return newDoc.setData(data);
   }
 
   //Fetching Game Data
-  Future<String> fetchGameData({String studentId}) {
+  Future<Map<String, dynamic>> fetchGameData({String studentId}) {
     return db.collection('students')
         .document(studentId)
         .collection('gameData')
@@ -764,12 +762,34 @@ class DatabaseController {
         .then((snapshot) {
           if(snapshot.documents.length > 0) {
             DocumentSnapshot document = snapshot.documents[0];
-            return document['data'];
+            return document.data;
           } else {
-            return "";
+            return null;
           }
         }
     );
+  }
+
+  Stream<List<LeaderboardData>> getLeaderboardData() {
+    return db.collection('students')
+        .snapshots()
+        .asyncMap((stuSnapshot) async {
+          List<Future<LeaderboardData>> futures = [];
+          for(DocumentSnapshot documentSnapshot in stuSnapshot.documents) {
+            String name = documentSnapshot['name'];
+            print(name);
+
+            Future<LeaderboardData> future = fetchGameData(studentId: documentSnapshot.documentID).then((data) {
+              return LeaderboardData(
+                id: documentSnapshot.documentID,
+                name: name,
+                gemTotal: data != null ? data['gemTotal'] : 0,
+              );
+            });
+            futures.add(future);
+          }
+          return Future.wait(futures);
+    });
   }
 
   Future<Group> _createGroup(String teacherId, Group group) {

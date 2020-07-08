@@ -43,7 +43,13 @@ class AppDrawer extends StatelessWidget {
               title: const Text('Home'),
               onTap: () {
                 print('Tapped Home');
+                User user = Provider.of<User>(context, listen: false);
                 Navigator.pop(context);
+                if(user.accountType == 'student') {
+                  Navigator.pushNamed(context, 'student_main');
+                } else {
+                  Navigator.pushNamed(context, 'teacher_gruops');
+                }
               },
             ),
             ListTile(
@@ -67,6 +73,13 @@ class AppDrawer extends StatelessWidget {
                 Navigator.pop(context);
                 Navigator.of(context).pushNamed("schedule");
               }
+            ),
+            ListTile(
+                title: const Text("Leaderboard"),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.of(context).pushNamed("leaderboard");
+                }
             ),
             ListTile(
               title: const Text('Settings'),

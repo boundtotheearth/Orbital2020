@@ -75,7 +75,6 @@ public class GameController : MonoBehaviour
         }
 
         TimeSpan duration = DateTime.Now.ToUniversalTime() - DateTime.FromFileTimeUtc(gameData.lastActiveUTC);
-        Debug.Log("Duration: " + duration.ToString());
         //Process plant growth
         GrowPlants(duration);
 
@@ -257,7 +256,6 @@ public class GameController : MonoBehaviour
     {
         gameData.lastActiveUTC = DateTime.Now.ToFileTimeUtc();
         string data = gameData.ToJson();
-        Debug.Log(data);
         FlutterMessageManager.Instance().sendGameData(data);
     }
 

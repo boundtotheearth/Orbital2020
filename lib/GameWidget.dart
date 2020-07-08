@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_unity_widget/flutter_unity_widget.dart';
@@ -38,19 +40,22 @@ class GameWidgetState extends State<GameWidget> {
 
   void _onUnityMessage(controller, message) async {
     latestGameData = message;
-    print(latestGameData);
+    //print(latestGameData);
     //db.saveGameData(data: message, studentId: _user.id);
   }
 
   void _setGameData() async {
-    String gameData = await db.fetchGameData(studentId: _user.id) ?? "";
-    _unityWidgetController.postMessage("GameField", "setGameData", gameData );
+    Map<String, dynamic> data = await db.fetchGameData(studentId: _user.id);
+    String gameData = data != null ? jsonEncode(data) : "";
+    _unityWidgetController.postMessage("GameField", "setGameData", gameData);
     latestGameData = gameData;
   }
 
   void _saveGameData() {
-    db.saveGameData(data: latestGameData, studentId: _user.id);
-    print(latestGameData);
+    Map<String, dynamic> data = jsonDecode(latestGameData);
+    data['timestamp'] = DateTime.now().millisecondsSinceEpoch;
+    db.saveGameData(data: data, studentId: _user.id);
+    print("SAVED " + latestGameData);
   }
 
   void giveReward(int amount) {
