@@ -202,12 +202,25 @@ public class GameController : MonoBehaviour
     public void obtainSeedPack(int amount)
     {
         //Generate
+        //List<SeedPack> seedPacks = new List<SeedPack>();
+        //seedPacks.Add(new SeedPack("testplant1"));
+        //seedPacks.Add(new SeedPack("testplant2"));
+        //seedPacks.Add(new SeedPack("testplant1"));
+        //seedPacks.Add(new SeedPack("testplant2"));
+        //seedPacks.Add(new SeedPack("testplant1"));
+
+        //Test
         List<SeedPack> seedPacks = new List<SeedPack>();
-        seedPacks.Add(new SeedPack("testplant1"));
-        seedPacks.Add(new SeedPack("testplant2"));
-        seedPacks.Add(new SeedPack("testplant1"));
-        seedPacks.Add(new SeedPack("testplant2"));
-        seedPacks.Add(new SeedPack("testplant1"));
+        seedPacks.Add(new SeedPack("chrysanthemum"));
+        seedPacks.Add(new SeedPack("daisy"));
+        seedPacks.Add(new SeedPack("hydrangea"));
+        seedPacks.Add(new SeedPack("lavender"));
+        seedPacks.Add(new SeedPack("marigold"));
+        //seedPacks.Add(new SeedPack("morning_glory"));
+        //seedPacks.Add(new SeedPack("poppy"));
+        //seedPacks.Add(new SeedPack("rose"));
+        //seedPacks.Add(new SeedPack("shitake_mushroom"));
+        //seedPacks.Add(new SeedPack("tulip"));
 
 
         //Activate UI

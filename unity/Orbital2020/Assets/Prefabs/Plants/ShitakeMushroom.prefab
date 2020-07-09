@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2371243761274308655
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2371243761274308653}
+  - component: {fileID: 2371243761274308654}
+  m_Layer: 0
+  m_Name: ShitakeMushroom
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2371243761274308653
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2371243761274308655}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2371243761274308654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2371243761274308655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db79b65d516704d71858aea2abd17eed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: shitake_mushroom
+  plantName: Shitake Mushroom
+  description: The second most important cultivated mushroom worldwide. Our spongy,
+    rich brown cap is approximately 4-5cm wide and our gills are a greyish-cream
+    colour. We have a distinct flavour and spongy-meaty texture with a typical mushroom
+    shape.
+  rarity: 2
+  iconSprite: {fileID: -1328729012206468535, guid: 41f9866fd12534959893f72bbc62ef87,
+    type: 3}
+  portraitSprite: {fileID: 21300000, guid: 1ad03df47a2604a56b1d8021243aa5d0, type: 3}
+  gameSprites:
+  - {fileID: -1596490060309807714, guid: 41f9866fd12534959893f72bbc62ef87, type: 3}
+  - {fileID: 1003972469152949633, guid: 41f9866fd12534959893f72bbc62ef87, type: 3}
+  - {fileID: -1328729012206468535, guid: 41f9866fd12534959893f72bbc62ef87, type: 3}
+  growthTimes:
+  - 691200
+  - 691200
+  gemDrops: 010000000500000008000000
+  gemDropLimit: 100
