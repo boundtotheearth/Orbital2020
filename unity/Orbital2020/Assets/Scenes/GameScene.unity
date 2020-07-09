@@ -460,7 +460,7 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 3
+          m_IntArgument: 5
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
@@ -986,21 +986,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c65dd17879484f07a16ac3a575c85b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  plantTypes:
-  - {fileID: 2371243761274308654, guid: 80b1e606112a444bcadf57844685b9d3, type: 3}
-  - {fileID: 2371243761274308654, guid: e8295508ae1fc41f7a6de9002489e7af, type: 3}
-  - {fileID: 2371243761274308654, guid: 779a70b5dc8ca413badb1507bfdd9916, type: 3}
-  - {fileID: 2371243761274308654, guid: efe1a0fe4992b4fd297e1eae11f3e59c, type: 3}
-  - {fileID: 2371243761274308654, guid: a1036148c6f1a41009f1696a421c8dce, type: 3}
-  - {fileID: 2371243761274308654, guid: 6a52c674905544ccd8ca2d050c84e260, type: 3}
-  - {fileID: 2371243761274308654, guid: cb571bf2ff63246a59e6dcccf0ba8cfd, type: 3}
-  - {fileID: 2371243761274308654, guid: cf079a62c0b1c4c20a465baa47c56b65, type: 3}
-  - {fileID: 2371243761274308654, guid: 6d9d499cea6264949aca12761f2dd20d, type: 3}
+  commonPlantTypes:
   - {fileID: 2371243761274308654, guid: 847026b759e71423191f99caef648104, type: 3}
+  - {fileID: 2371243761274308654, guid: efe1a0fe4992b4fd297e1eae11f3e59c, type: 3}
+  - {fileID: 2371243761274308654, guid: e8295508ae1fc41f7a6de9002489e7af, type: 3}
+  - {fileID: 2371243761274308654, guid: cb571bf2ff63246a59e6dcccf0ba8cfd, type: 3}
+  - {fileID: 2371243761274308654, guid: a1036148c6f1a41009f1696a421c8dce, type: 3}
+  uncommonPlantTypes:
+  - {fileID: 2371243761274308654, guid: 779a70b5dc8ca413badb1507bfdd9916, type: 3}
+  - {fileID: 2371243761274308654, guid: 80b1e606112a444bcadf57844685b9d3, type: 3}
+  - {fileID: 2371243761274308654, guid: 6a52c674905544ccd8ca2d050c84e260, type: 3}
+  rarePlantTypes:
+  - {fileID: 2371243761274308654, guid: 6d9d499cea6264949aca12761f2dd20d, type: 3}
+  - {fileID: 2371243761274308654, guid: cf079a62c0b1c4c20a465baa47c56b65, type: 3}
   gemObjects:
   - {fileID: 1843437632710288419, guid: fd974a0888808468bbf2fe7c1d9937bd, type: 3}
   - {fileID: 2361056033117551845, guid: 840143e4c75694efe883b3fd43ba375c, type: 3}
   - {fileID: 6875904046856174523, guid: 2e68dcfb61b4742dc9d17fd294eb6d24, type: 3}
+  uncommonRate: 0.2
+  rareRate: 0.05
 --- !u!114 &491494884
 MonoBehaviour:
   m_ObjectHideFlags: 0
