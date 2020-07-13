@@ -1,11 +1,12 @@
 import 'dart:async';
 
-//import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:io';
 import 'package:orbital2020/DataContainers/User.dart';
 import 'package:flutter/material.dart';
 import 'package:orbital2020/DatabaseController.dart';
+import 'package:orbital2020/LocalNotificationHandler.dart';
 import 'package:provider/provider.dart';
 
 import 'HomePage.dart';
@@ -16,7 +17,6 @@ class MessageHandler extends StatefulWidget {
 }
 
 class _MessageHandlerState extends State<MessageHandler> {
-//  static FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   final FirebaseMessaging _fcm = FirebaseMessaging();
   User _user;
   DatabaseController _db;
@@ -29,7 +29,7 @@ class _MessageHandlerState extends State<MessageHandler> {
     _db = Provider.of<DatabaseController>(context, listen: false);
     _user = Provider.of<User>(context, listen: false);
     _initFirebaseMessaging();
-//    _initLocalNotifications();
+//    LocalNotificationHandler.initLocalNotifications();
 
   }
 
@@ -121,7 +121,6 @@ class _MessageHandlerState extends State<MessageHandler> {
 
   @override
   Widget build(BuildContext context) {
-    // _handleMessages(context);
     return HomePage();
   }
 
@@ -131,18 +130,11 @@ class _MessageHandlerState extends State<MessageHandler> {
     // Get the token for this device
     String fcmToken = await _fcm.getToken();
 
-
       // Save it to Firestore
     if (fcmToken != null) {
       _db.setToken(uid: _user.id, token: fcmToken);
     }
 
-  }
-
-  /// Subscribe the user to a topic
-  _subscribeToTopic(String docPath) async {
-    // Subscribe the user to a topic
-    _fcm.subscribeToTopic(docPath);
   }
 }
 
