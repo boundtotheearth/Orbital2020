@@ -685,7 +685,7 @@ class DatabaseController {
 
   Future<void> studentClaimReward({Task task, String studentId}) {
     return Future.wait([
-      _unassignTaskFromStudent(task.id, studentId),
+      _unassignTaskFromStudent(task: task, studentId: studentId),
     ]);
   }
 
