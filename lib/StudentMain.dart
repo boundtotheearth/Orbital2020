@@ -98,9 +98,10 @@ class _StudentMainState extends State<StudentMain> {
     }
   }
 
-  Future<void> _onDelete(Task task) {
+  Future<bool> _onDelete(Task task) {
     return showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text('Do you want to complete and delete the task?'),
@@ -116,20 +117,57 @@ class _StudentMainState extends State<StudentMain> {
                 child: Text('YES'),
                 onPressed: () {
                   _deleteTask(task).then((value) {
-                    Navigator.of(context).pop();
+                    Navigator.of(context).pop(true);
                   });
                 },
               ),
               FlatButton(
                 child: Text('NO'),
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(false);
                 },
               ),
             ],
           );
         }
     );
+  }
+
+  Future<bool> _onClaim(Task task) {
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Do you want to claim rewards and delete the task?'),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text('This action is permanent!'),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('YES'),
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+              ),
+              FlatButton(
+                child: Text('NO'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+              ),
+            ],
+          );
+        }
+    );
+  }
+
+  Future<void> _claimReward(Task task) {
+    return db.studentClaimReward(task: task, studentId: _user.id);
   }
 
   Future<void> _deleteTask(Task task) {
@@ -158,7 +196,9 @@ class _StudentMainState extends State<StudentMain> {
                   updateComplete: (value) {
                     if(task.createdById == _user.id) {
                       _onDelete(task).then((value) {
-                        unityWidgetKey.currentState.giveReward(1);
+                        if (value) {
+                          unityWidgetKey.currentState.giveReward(1);
+                        }
                       });
                     } else {
                       db.updateTaskCompletion(task.id, _user.id, value);
@@ -166,8 +206,10 @@ class _StudentMainState extends State<StudentMain> {
                   },
                   updateVerify: (value) {},
                   onFinish: () {
-                    _onDelete(task).then((value) {
-                      unityWidgetKey.currentState.giveReward(5);
+                    _onClaim(task).then((value) {
+                      if (value) {
+                        unityWidgetKey.currentState.giveReward(5);
+                      }
                     });
                   },
                   onTap: () {

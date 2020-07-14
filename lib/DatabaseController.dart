@@ -655,6 +655,12 @@ class DatabaseController {
     ]);
   }
 
+  Future<void> studentClaimReward({Task task, String studentId}) {
+    return Future.wait([
+      _unassignTaskFromStudent(task.id, studentId),
+    ]);
+  }
+
   Future<void> teacherDeleteGroup({String teacherId, Group group}) async {
     DocumentReference groupDocument = db.collection('teachers')
         .document(teacherId)
