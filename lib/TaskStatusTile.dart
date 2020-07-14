@@ -53,7 +53,7 @@ class _TaskStatusTileState extends State<TaskStatusTile> {
           //Completed, verified
           return RaisedButton(
             child: const Text('Claim Reward'),
-            onPressed: () => widget.onFinish,
+            onPressed: () => widget.onFinish(),
           );
         } else {
           //Completed, not verified

@@ -166,7 +166,9 @@ class _StudentMainState extends State<StudentMain> {
                   },
                   updateVerify: (value) {},
                   onFinish: () {
-                    unityWidgetKey.currentState.giveReward(1);
+                    _onDelete(task).then((value) {
+                      unityWidgetKey.currentState.giveReward(5);
+                    });
                   },
                   onTap: () {
                     Navigator.of(context).pushNamed('student_taskView', arguments: task);
