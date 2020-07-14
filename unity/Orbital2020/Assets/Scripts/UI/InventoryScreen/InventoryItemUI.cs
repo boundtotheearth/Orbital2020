@@ -23,11 +23,8 @@ public class InventoryItemUI : MonoBehaviour
 
     public void Select()
     {
-        if (!isSelected)
-        {
-            selectionBar.SetActive(true);
-            isSelected = true;
-        }
+        selectionBar.SetActive(true);
+        isSelected = true;
     }
 
     public void UnSelect()

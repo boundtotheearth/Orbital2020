@@ -1,7 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Random = UnityEngine.Random;
 
 public class GamePlantObject : MonoBehaviour, IPointerClickHandler, IDragHandler, IEndDragHandler
 {
@@ -32,7 +34,7 @@ public class GamePlantObject : MonoBehaviour, IPointerClickHandler, IDragHandler
     {
         if (!eventData.dragging && !moveDeleting)
         {
-            Grow();
+            Grow(new TimeSpan(0, 0, 6));
         }
     }
 
@@ -83,20 +85,54 @@ public class GamePlantObject : MonoBehaviour, IPointerClickHandler, IDragHandler
         }
     }
 
-    void Grow()
+    public void Grow(TimeSpan duration)
     {
-        data.growthStage++;
-        if(data.growthStage > 2)
+        if(data.growthStage >= PlantFactory.Instance().GetGrowthStages(data.plantType))
         {
-            data.growthStage = 0;
+            //Cannot grow any more
+            return;
         }
-        UpdateSprite();
+
+        TimeSpan growthTime = PlantFactory.Instance().GetGrowthTime(data.plantType, data.growthStage);
+        double totalGrowth = data.growthProgress + duration.TotalSeconds;
+
+        if(totalGrowth >= growthTime.TotalSeconds)
+        {
+            data.growthStage++;
+            UpdateSprite();
+        }
+        else
+        {
+            data.growthProgress = totalGrowth;
+        }
+    }
+
+    public void DropGems(TimeSpan duration)
+    {
+        int dropRate = PlantFactory.Instance().GetGemDrop(data.plantType, data.growthStage);
+        int totalDrop = Mathf.RoundToInt((float) duration.TotalHours) * dropRate;
+        int dropLimit = PlantFactory.Instance().GetGemDropLimit(data.plantType);
+        if (totalDrop > dropLimit)
+        {
+            totalDrop = dropLimit;
+        }
+
+        int[] gemNumbers = AmountToGemNumber(totalDrop);
+        for(int i = 0; i < gemNumbers.Length; i++)
+        {
+            for(int j = 0; j < gemNumbers[i]; j++)
+            {
+                GameObject gemPrefab = PlantFactory.Instance().GetGemObject(i);
+                Vector3 posOffset = Random.insideUnitCircle * 10;
+                Instantiate(gemPrefab, transform.position + posOffset, Quaternion.identity, tile.transform);
+            }
+        }
     }
 
     void UpdateSprite()
     {
         spriteRenderer.sprite = PlantFactory.Instance()
-            .GetGameSprites(data.plantType)[data.growthStage];
+            .GetGameSprites(data.plantType, data.growthStage);
     }
 
     public void startMoveDelete()
@@ -146,5 +182,16 @@ public class GamePlantObject : MonoBehaviour, IPointerClickHandler, IDragHandler
     public override string ToString()
     {
         return base.ToString();
+    }
+
+    private int[] AmountToGemNumber(int amount)
+    {
+        int bigGem = Mathf.FloorToInt(amount / 10);
+        amount = amount % 10;
+        int gem = Mathf.FloorToInt(amount / 5);
+        amount = amount % 5;
+        int coin = amount;
+        int[] gemNumbers = { coin, gem, bigGem};
+        return gemNumbers;
     }
 }

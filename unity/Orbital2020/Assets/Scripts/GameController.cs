@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using System;
 using UnityEngine;
 
 public class GameController : MonoBehaviour
@@ -19,6 +20,7 @@ public class GameController : MonoBehaviour
 
     public GameData gameData;
 
+    public bool testing;
     public string testData;
 
     //List<PlantableTile> plantableTiles = new List<PlantableTile>();
@@ -27,13 +29,6 @@ public class GameController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //Find all plantable tiles
-        //plantableTiles = new List<PlantableTile>();
-        //for(int i = 0; i < plantableField.transform.childCount; i++)
-        //{
-        //    plantableTiles.Add(plantableField.transform.GetChild(i).GetComponent<PlantableTile>());
-        //}
-
         //Initialize plantable tiles
         plantableTiles = new PlantableTile[fieldSize.x,fieldSize.y];
         for(int x = 0; x < fieldSize.x; x++)
@@ -50,8 +45,11 @@ public class GameController : MonoBehaviour
             }
         }
 
-        //Uncomment for testing only
-        //SetGameData(testData);
+        //For testing only
+        if(testing)
+        {
+            SetGameData(testData);
+        }
     }
 
     // Update is called once per frame
@@ -64,6 +62,7 @@ public class GameController : MonoBehaviour
     {
         this.gameData = GameData.From(json);
 
+        //Instantiate plant objects
         foreach (GamePlant plant in gameData.plants)
         {
             PlantableTile tile = plantableTiles[plant.gridX, plant.gridY];
@@ -75,6 +74,15 @@ public class GameController : MonoBehaviour
             tile.setPlant(plantScript);
         }
 
+        TimeSpan duration = DateTime.Now.ToUniversalTime() - DateTime.FromFileTimeUtc(gameData.lastActiveUTC);
+        //Process plant growth
+        GrowPlants(duration);
+
+        DropGems(duration);
+
+        uiController.UpdateGemDisplay(gameData.gemTotal);
+
+        SaveGame();
     }
 
     public void OnTileClick(PlantableTile tile)
@@ -194,13 +202,31 @@ public class GameController : MonoBehaviour
     public void obtainSeedPack(int amount)
     {
         //Generate
-        List<SeedPack> seedPacks = new List<SeedPack>();
-        seedPacks.Add(new SeedPack("testplant1"));
-        seedPacks.Add(new SeedPack("testplant2"));
-        seedPacks.Add(new SeedPack("testplant1"));
-        seedPacks.Add(new SeedPack("testplant2"));
-        seedPacks.Add(new SeedPack("testplant1"));
+        //List<SeedPack> seedPacks = new List<SeedPack>();
+        //seedPacks.Add(new SeedPack("testplant1"));
+        //seedPacks.Add(new SeedPack("testplant2"));
+        //seedPacks.Add(new SeedPack("testplant1"));
+        //seedPacks.Add(new SeedPack("testplant2"));
+        //seedPacks.Add(new SeedPack("testplant1"));
 
+        //Test
+        //List<SeedPack> seedPacks = new List<SeedPack>();
+        //seedPacks.Add(new SeedPack("chrysanthemum"));
+        //seedPacks.Add(new SeedPack("daisy"));
+        //seedPacks.Add(new SeedPack("hydrangea"));
+        //seedPacks.Add(new SeedPack("lavender"));
+        //seedPacks.Add(new SeedPack("marigold"));
+        //seedPacks.Add(new SeedPack("morning_glory"));
+        //seedPacks.Add(new SeedPack("poppy"));
+        //seedPacks.Add(new SeedPack("rose"));
+        //seedPacks.Add(new SeedPack("shitake_mushroom"));
+        //seedPacks.Add(new SeedPack("tulip"));
+
+        List<SeedPack> seedPacks = new List<SeedPack>();
+        for (int i = 0; i < amount; i++)
+        {
+            seedPacks.Add(PlantFactory.Instance().GenerateSeedPack());
+        }
 
         //Activate UI
         uiController.OpenRewardsScreen(seedPacks);
@@ -246,7 +272,36 @@ public class GameController : MonoBehaviour
 
     public void SaveGame()
     {
+        gameData.lastActiveUTC = DateTime.Now.ToFileTimeUtc();
         string data = gameData.ToJson();
         FlutterMessageManager.Instance().sendGameData(data);
+    }
+
+    public void GrowPlants(TimeSpan duration)
+    {
+        foreach (PlantableTile tile in plantableTiles)
+        {
+            if (tile.plant)
+            {
+                tile.plant.Grow(duration);
+            }
+        }
+    }
+
+    public void DropGems(TimeSpan duration)
+    {
+        foreach (PlantableTile tile in plantableTiles)
+        {
+            if (tile.plant)
+            {
+                tile.plant.DropGems(duration);
+            }
+        }
+    }
+
+    public void AddGem(int amount)
+    {
+        gameData.gemTotal += amount;
+        uiController.UpdateGemDisplay(gameData.gemTotal);
     }
 }

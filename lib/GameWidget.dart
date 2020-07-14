@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_unity_widget/flutter_unity_widget.dart';
@@ -9,10 +11,10 @@ class GameWidget extends StatefulWidget {
   GameWidget({Key key}) : super(key: key);
 
   @override
-  _GameWidgetState createState() => _GameWidgetState();
+  GameWidgetState createState() => GameWidgetState();
 }
 
-class _GameWidgetState extends State<GameWidget> {
+class GameWidgetState extends State<GameWidget> {
 
   final DatabaseController db = DatabaseController();
   User _user;
@@ -27,26 +29,37 @@ class _GameWidgetState extends State<GameWidget> {
       detachedCallBack: () => _saveGameData(),
       inactiveCallback: () => {},
       pauseCallback: () => _saveGameData(),
-      resumeCallBack: () => {},
+      resumeCallBack: () => _setGameData(),
     ));
   }
 
   void _onUnityCreated(controller) async {
     this._unityWidgetController = controller;
-    String gameData = await db.fetchGameData(studentId: _user.id) ?? "";
-    _unityWidgetController.postMessage("GameField", "setGameData", gameData );
-    latestGameData = gameData;
+    _setGameData();
   }
 
   void _onUnityMessage(controller, message) async {
     latestGameData = message;
-    print(latestGameData);
+    //print(latestGameData);
     //db.saveGameData(data: message, studentId: _user.id);
   }
 
+  void _setGameData() async {
+    Map<String, dynamic> data = await db.fetchGameData(studentId: _user.id);
+    String gameData = data != null ? jsonEncode(data) : "";
+    _unityWidgetController.postMessage("GameField", "setGameData", gameData);
+    latestGameData = gameData;
+  }
+
   void _saveGameData() {
-    db.saveGameData(data: latestGameData, studentId: _user.id);
-    print(latestGameData);
+    Map<String, dynamic> data = jsonDecode(latestGameData);
+    data['timestamp'] = DateTime.now().millisecondsSinceEpoch;
+    db.saveGameData(data: data, studentId: _user.id);
+    print("SAVED " + latestGameData);
+  }
+
+  void giveReward(int amount) {
+    _unityWidgetController.postMessage('GameField', 'giveReward', amount.toString());
   }
 
   Future<Widget> _unityWidgetBuilder() async {

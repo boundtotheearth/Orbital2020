@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2371243761274308655
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2371243761274308653}
+  - component: {fileID: 2371243761274308654}
+  m_Layer: 0
+  m_Name: Lavender
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2371243761274308653
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2371243761274308655}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2371243761274308654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2371243761274308655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db79b65d516704d71858aea2abd17eed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: lavender
+  plantName: Lavender
+  description: The scent of lavender is commonly used in many perfumes. The scent
+    also deters mice, flies, mosquitoes and other pests from the area.
+  rarity: 0
+  iconSprite: {fileID: -8201533819833317410, guid: 41f9866fd12534959893f72bbc62ef87,
+    type: 3}
+  portraitSprite: {fileID: 21300000, guid: cee663c5c1c2d4dfb9d449b2ccc13b0c, type: 3}
+  gameSprites:
+  - {fileID: 1447142054169800622, guid: 41f9866fd12534959893f72bbc62ef87, type: 3}
+  - {fileID: 6277420030458715215, guid: 41f9866fd12534959893f72bbc62ef87, type: 3}
+  - {fileID: -8201533819833317410, guid: 41f9866fd12534959893f72bbc62ef87, type: 3}
+  growthTimes:
+  - 172800
+  - 86400
+  gemDrops: 020000000500000001000000
+  gemDropLimit: 30

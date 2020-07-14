@@ -37,6 +37,11 @@ public class InventoryController : MonoBehaviour, UIScreen
             inventoryItemUIs.Add(uiScript);
         }
 
+        foreach(InventoryItemUI ui in inventoryItemUIs)
+        {
+
+        }
+
         //Initialize ui elements
         for (int i = 0; i < inventoryItems.Count; i++)
         {
@@ -46,9 +51,16 @@ public class InventoryController : MonoBehaviour, UIScreen
         }
 
         //Set first item as default selected
-        if(inventoryItemUIs.Count > 0)
+        if(inventoryItems.Count > 0)
         {
             onSelectPlant(inventoryItemUIs[0]);
+        }
+        else
+        {
+            nameText.text = "No Plant Selected";
+            descriptionText.text = "";
+            rarityText.text = "";
+            propertyText.text = "";
         }
     }
 
@@ -89,6 +101,7 @@ public class InventoryController : MonoBehaviour, UIScreen
         if (selectedPlant)
         {
             gameController.startPlant(selectedPlant.data);
+            selectedPlant = null;
             Close();
         } else
         {

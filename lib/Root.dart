@@ -26,28 +26,8 @@ class RootPage extends StatelessWidget {
             ],
             child: HomePage(),
           );
-            Provider<User>(
-            create: (_) => snapshot.data,
-            child: HomePage(),
-          );
         } else if(snapshot.hasError) {
           return LoginPage();
-        } else {
-          return _buildLoading();
-        }
-      },
-    );
-    return StreamBuilder<User>(
-      stream: auth.onAuthStateChanged,
-      builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
-        if (snapshot.connectionState == ConnectionState.active) {
-          final bool isLoggedIn = snapshot.hasData;
-          return isLoggedIn
-            ? Provider<User>(
-                create: (_) => snapshot.data,
-                child: HomePage()
-              )
-            : LoginPage();
         } else {
           return _buildLoading();
         }

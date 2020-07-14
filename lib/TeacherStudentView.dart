@@ -117,8 +117,8 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
             );
           } else {
             return SizedBox(
-              width: 50,
-              height: 50,
+              width: 30,
+              height: 30,
               child: CircularProgressIndicator(),
             );
           }
