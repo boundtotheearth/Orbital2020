@@ -99,6 +99,10 @@ crashlytics-build.properties
 .pub/
 /build/
 orbital2020-7fce8-bb88e5f5dd81.json
+gradle/
+gradlew
+gradlew.bat
+local.properties
 
 # Android related
 **/android/**/gradle-wrapper.jar
