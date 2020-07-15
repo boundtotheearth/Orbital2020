@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
+import 'package:orbital2020/DeviceUseTracker.dart';
 import 'package:orbital2020/GameWidget.dart';
 import 'package:orbital2020/TaskStatusTile.dart';
 import 'package:provider/provider.dart';
@@ -274,49 +275,53 @@ class _StudentMainState extends State<StudentMain> {
       appBar: buildAppBar(),
       drawer: AppDrawer(),
       body: SafeArea(
+        child: DeviceUseTracker(
+          studentId: _user.id,
           child: Column(
             children: <Widget>[
               AspectRatio(
                 aspectRatio: 3/2,
-                child: GameWidget(key: unityWidgetKey),
+                child: GameWidget(),
               ),
               Container(
                 color: Colors.green,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: DropdownButtonFormField(
-                          items: _options,
-                          decoration: InputDecoration(
-                            labelText: "Sort By: "
-                          ),
-                          onChanged: (value) => setState(() => _sortBy = value),
-                          value: _sortBy,
-                      ),
-                )
+                    items: _options,
+                    decoration: InputDecoration(
+                        labelText: "Sort By: "
+                    ),
+                    onChanged: (value) => setState(() => _sortBy = value),
+                    value: _sortBy,
+                  ),
+                ),
               ),
               StreamBuilder<Set<TaskStatus>>(
-                  stream: _tasks,
-                  builder: (context, snapshot) {
-                    if(snapshot.hasData) {
-                      print(snapshot.data);
-                      if(snapshot.data.length > 0) {
-                        return _buildTaskList(snapshot.data);
-                      } else {
-                        return Text('No tasks!');
-                      }
+                stream: _tasks,
+                builder: (context, snapshot) {
+                  if(snapshot.hasData) {
+                    print(snapshot.data);
+                    if(snapshot.data.length > 0) {
+                      return _buildTaskList(snapshot.data);
                     } else {
-                      return CircularProgressIndicator();
+                      return Text('No tasks!');
                     }
-                  },
-                )
+                  } else {
+                    return CircularProgressIndicator();
+                  }
+                },
+              )
             ],
           ),
-        ),
+        )
+      ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         tooltip: 'Add',
         onPressed: () {
           Navigator.of(context).pushNamed('student_addTask');
+          db.test();
         },
       ),
     );

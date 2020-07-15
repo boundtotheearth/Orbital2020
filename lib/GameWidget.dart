@@ -46,6 +46,8 @@ class GameWidgetState extends State<GameWidget> {
 
   void _setGameData() async {
     Map<String, dynamic> data = await db.fetchGameData(studentId: _user.id);
+    //data['idle'] = await _calculateIdleTime(data['timestamp'].toDate()).then((value) => value.inSeconds);
+    data.remove('timestamp');
     String gameData = data != null ? jsonEncode(data) : "";
     _unityWidgetController.postMessage("GameField", "setGameData", gameData);
     latestGameData = gameData;
@@ -53,10 +55,43 @@ class GameWidgetState extends State<GameWidget> {
 
   void _saveGameData() {
     Map<String, dynamic> data = jsonDecode(latestGameData);
-    data['timestamp'] = DateTime.now().millisecondsSinceEpoch;
+    data['timestamp'] = DateTime.now();
     db.saveGameData(data: data, studentId: _user.id);
-    print("SAVED " + latestGameData);
   }
+
+//  Future<Duration> _calculateIdleTime(DateTime lastActive) async {
+//    DateTime currentTime = DateTime.now();
+//    Duration totalIdle = currentTime.difference(lastActive);
+//    print("last active " + lastActive.toString());
+//    print("before " + totalIdle.toString());
+//
+//
+//    if(totalIdle.inSeconds < (15 * 60)) {
+//      return Future.value(Duration(seconds: 0));
+//    }
+//
+//    AppUsage appUsage = new AppUsage();
+//    try {
+//      Map<String, double> usage = await appUsage.fetchUsage(lastActive, currentTime);
+//      usage.removeWhere((key,val) => val == 0);
+//
+//      print(usage);
+//
+//      for(MapEntry<String, double> entry in usage.entries) {
+//        Duration appDuration = Duration(seconds: entry.value.toInt());
+//        totalIdle = totalIdle - appDuration;
+//        print(entry.key);
+//        print('app ' + appDuration.toString());
+//        print('step ' + totalIdle.toString());
+//      }
+//      print("after " + totalIdle.toString());
+//      return totalIdle;
+//    }
+//    on AppUsageException catch (exception) {
+//      print(exception);
+//      return Future.error(exception);
+//    }
+//  }
 
   void giveReward(int amount) {
     _unityWidgetController.postMessage('GameField', 'giveReward', amount.toString());

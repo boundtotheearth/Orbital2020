@@ -110,7 +110,7 @@ public class GamePlantObject : MonoBehaviour, IPointerClickHandler, IDragHandler
     public void DropGems(TimeSpan duration)
     {
         int dropRate = PlantFactory.Instance().GetGemDrop(data.plantType, data.growthStage);
-        int totalDrop = Mathf.RoundToInt((float) duration.TotalHours) * dropRate;
+        int totalDrop = Mathf.RoundToInt((float) duration.Hours) * dropRate;
         int dropLimit = PlantFactory.Instance().GetGemDropLimit(data.plantType);
         if (totalDrop > dropLimit)
         {

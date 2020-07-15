@@ -17,24 +17,13 @@ class DatabaseController {
   Firestore db = Firestore.instance;
 
   void test() async {
-    Future<void> a = db.collection('students').getDocuments().then((query) {
-      List<DocumentSnapshot> documents = query.documents;
-      for(DocumentSnapshot document in documents) {
-        db.collection('accountTypes')
-            .document(document.documentID)
-            .setData({'type': 'student'});
-      }
+    db.collection('test')
+        .document('BackgroundCounter')
+        .get()
+        .then((snapshot) {
+          int value = snapshot['value'];
+          snapshot.reference.updateData({'value': value+1});
     });
-    Future<void> b = db.collection('teachers').getDocuments().then((query) {
-      List<DocumentSnapshot> documents = query.documents;
-      for(DocumentSnapshot document in documents) {
-        db.collection('accountTypes')
-            .document(document.documentID)
-            .setData({'type': 'teacher'});
-      }
-    });
-
-    Future.wait([a, b]).then((value) => print("Done"));
   }
 
   //Get the type of the account, student or teacher
@@ -796,6 +785,25 @@ class DatabaseController {
           }
           return Future.wait(futures);
     });
+  }
+
+  Future<void> setStudentIdle(String studentId) {
+    return db.collection('students')
+        .document(studentId)
+        .collection('gameData')
+        .orderBy('timestamp', descending: true)
+        .limit(1)
+        .getDocuments()
+        .then((snapshot) {
+          if(snapshot.documents.length > 0) {
+            DocumentSnapshot document = snapshot.documents[0];
+            int idleCount =  document['idleCount'] ?? 0;
+            document.reference.updateData({'idleCount': idleCount+1});
+          } else {
+            return null;
+          }
+        }
+    );
   }
 
   Future<Group> _createGroup(String teacherId, Group group) {
