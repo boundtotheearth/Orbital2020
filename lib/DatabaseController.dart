@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/LeaderboardData.dart';
@@ -35,6 +36,19 @@ class DatabaseController {
     });
 
     Future.wait([a, b]).then((value) => print("Done"));
+  }
+
+  Future<String> getToken({@required String uid}) {
+    return db.collection("accountTypes")
+        .document(uid)
+        .get()
+        .then((doc) => doc["token"]);
+  }
+
+  Future<void> setToken({@required String uid, @required String token}) {
+    return db.collection("accountTypes")
+        .document(uid)
+        .updateData({"token" : token});
   }
 
   //Get the type of the account, student or teacher
@@ -85,11 +99,11 @@ class DatabaseController {
   }
 
   //Student deletes schedule
-  Future<void> deleteScheduleByTask(String studentId, Task task) {
+  Future<void> deleteScheduleByTask(String studentId, String taskId) {
     return db.collection("students")
         .document(studentId)
         .collection("scheduledTasks")
-        .where('taskId', isEqualTo: task.id)
+        .where('taskId', isEqualTo: taskId)
         .getDocuments()
         .then((snapshot) {
           for(DocumentSnapshot doc in snapshot.documents) {
@@ -229,8 +243,8 @@ class DatabaseController {
   Future<void> selfCreateAndAssignTask({Task task, Student student}) {
     return _createTask(task).then((task) =>
         Future.wait([
-          _assignTaskToStudent(task, task.id, student.id),
-          _assignStudentToTask(student, student.id, task.id)
+          _assignTaskToStudent(task, student.id),
+          _assignStudentToTask(student, task.id)
       ])
     );
   }
@@ -251,70 +265,83 @@ class DatabaseController {
     });
   }
 
-  //Method to be called when a teacher assigns a task to list of students
+  //Method to be called when a teacher assigns a student to list of tasks
   Future<void> teacherAssignTasksToStudent(Iterable<Task> tasks, Student student) {
     WriteBatch batch = db.batch();
 
     for(Task task in tasks) {
-      DocumentReference taskDoc = db.collection('students')
-          .document(student.id)
-          .collection('tasks')
-          .document(task.id);
-      DocumentReference stuDoc = db.collection('tasks')
-          .document(task.id)
-          .collection('students')
-          .document(student.id);
-
-      batch.setData(taskDoc, {"completed" : false, "verified" : false});
-      batch.setData(stuDoc, student.toKeyValuePair());
+      _assignStudentToTask(student, task.id);
+      _assignTaskToStudent(task, student.id);
+//      DocumentReference taskDoc = db.collection('students')
+//          .document(student.id)
+//          .collection('tasks')
+//          .document(task.id);
+//      DocumentReference stuDoc = db.collection('tasks')
+//          .document(task.id)
+//          .collection('students')
+//          .document(student.id);
+//
+//      batch.setData(taskDoc, {"completed" : false, "verified" : false});
+//      batch.setData(stuDoc, student.toKeyValuePair());
     }
 
     return batch.commit();
   }
-
+  //assigns a group of students of a task
   Future<void> teacherAssignStudentsToTask(Iterable<Student> students, Task task) {
     WriteBatch batch = db.batch();
 
     for(Student student in students) {
-      DocumentReference taskDoc = db.collection('students')
-          .document(student.id)
-          .collection('tasks')
-          .document(task.id);
-      DocumentReference stuDoc = db.collection('tasks')
-          .document(task.id)
-          .collection('students')
-          .document(student.id);
-
-//      batch.setData(taskDoc, task.addStatus(false, false).toKeyValuePair());
-      batch.setData(taskDoc, {"completed" : false, "verified" : false});
-      //batch.setData(stuDoc, student.addStatus(false, false).toKeyValuePair());
-      batch.setData(stuDoc, student.toKeyValuePair());
+      _assignStudentToTask(student, task.id);
+      _assignTaskToStudent(task, student.id);
+//      DocumentReference taskDoc = db.collection('students')
+//          .document(student.id)
+//          .collection('tasks')
+//          .document(task.id);
+//      DocumentReference stuDoc = db.collection('tasks')
+//          .document(task.id)
+//          .collection('students')
+//          .document(student.id);
+//
+//      batch.setData(taskDoc, {"completed" : false, "verified" : false});
+//      batch.setData(stuDoc, student.toKeyValuePair());
     }
 
     return batch.commit();
   }
 
-  Future<void> createAndAssignTaskToGroup(Task task, String groupId) {
-    return Future(null);
-  }
+//  Future<void> createAndAssignTaskToGroup(Task task, String groupId) {
+//    return Future(null);
+//  }
 
   Future<void> updateTaskDetails({Task task}) {
     return _updateTaskDetails(task);
   }
 
-  Future<void> updateTaskCompletion(String taskId, String studentId, bool completed) {
-//    return Future.wait([
-//      _updateStudentCompletion(taskId, studentId, completed),
-//      _updateTaskCompletion(taskId, studentId, completed)
-//    ]);
+  Future<void> updateTaskCompletion(String taskId, String studentId, bool completed, bool byTeacher) {
+    final HttpsCallable callable = CloudFunctions.instance.getHttpsCallable(
+      functionName: 'updatedCompletionStatus',
+    );
+    Map<String, dynamic> data = {
+      "taskId" : taskId,
+      "studentId" : studentId,
+      "status" : completed,
+      "byTeacher" : byTeacher
+    };
+    callable.call(data);
     return _updateTaskCompletion(taskId, studentId, completed);
   }
 
   Future<void> updateTaskVerification(String taskId, String studentId, bool verified) {
-//    return Future.wait([
-//      _updateStudentVerification(taskId, studentId, verified),
-//      _updateTaskVerification(taskId, studentId, verified)
-//    ]);
+    final HttpsCallable callable = CloudFunctions.instance.getHttpsCallable(
+      functionName: 'updatedVerificationStatus',
+    );
+    Map<String, dynamic> data = {
+      "taskId" : taskId,
+      "studentId" : studentId,
+      "status" : verified
+    };
+    callable.call(data);
     return  _updateTaskVerification(taskId, studentId, verified);
 
   }
@@ -649,15 +676,16 @@ class DatabaseController {
 
   Future<void> studentDeleteTask({Task task, String studentId}) {
     return Future.wait([
-      deleteScheduleByTask(studentId, task),
-      _unassignTaskFromStudent(task.id, studentId),
+      deleteScheduleByTask(studentId, task.id),
+      _unassignTaskFromStudent(task: task, studentId: studentId), //changed test
+      _unassignStudentFromTask(task.id, studentId),
       _deleteTask(task.id),
     ]);
   }
 
   Future<void> studentClaimReward({Task task, String studentId}) {
     return Future.wait([
-      _unassignTaskFromStudent(task.id, studentId),
+      _unassignTaskFromStudent(task: task, studentId: studentId),
     ]);
   }
 
@@ -685,7 +713,11 @@ class DatabaseController {
       for(DocumentSnapshot doc in snapshot.documents) {
         //unassign from students
         for(String studentId in studentIds) {
-          _unassignTaskFromStudent(doc.documentID, studentId);
+          Future.wait([
+          deleteScheduleByTask(studentId, doc.documentID),
+          _unassignTaskFromStudent(taskId: doc.documentID, studentId: studentId),
+          _unassignStudentFromTask(doc.documentID, studentId)
+          ]);
         }
 
         //Also delete the task
@@ -697,7 +729,7 @@ class DatabaseController {
     });
 
     //delete group
-    await groupDocument.delete();
+    return groupDocument.delete();
   }
 
   Future<void> teacherRemoveStudentFromGroup({String teacherId, Group group, Student student}) {
@@ -711,8 +743,9 @@ class DatabaseController {
       .getDocuments()
       .then((snapshot) {
         for(DocumentSnapshot taskDoc in snapshot.documents) {
+          deleteScheduleByTask(student.id, taskDoc.documentID);
           _unassignStudentFromTask(taskDoc.documentID, student.id);
-          _unassignTaskFromStudent(taskDoc.documentID, student.id);
+          _unassignTaskFromStudent(taskId: taskDoc.documentID, studentId: student.id);
         }
     });
 
@@ -728,11 +761,9 @@ class DatabaseController {
     ]);
   }
 
-  Future<void> teacherDeleteTask({Task task, Group group}) {
-    return Future.wait([
-      _unassignTaskFromGroup(task, group),
-      _deleteTask(task.id),
-      db.collection('teachers')
+  Future<void> teacherDeleteTask({Task task, Group group}) async {
+
+      await db.collection('teachers')
           .document(task.createdById)
           .collection('groups')
           .document(group.id)
@@ -740,12 +771,13 @@ class DatabaseController {
           .getDocuments()
           .then((QuerySnapshot snapshot) {
             snapshot.documents.forEach((stuDoc) {
-              _unassignTaskFromStudent(task.id, stuDoc.documentID);
+              _unassignTaskFromStudent(task: task, studentId: stuDoc.documentID);
               _unassignStudentFromTask(task.id, stuDoc.documentID);
-              deleteScheduleByTask(stuDoc.documentID, task);
+              deleteScheduleByTask(stuDoc.documentID, task.id);
             });
-          })
-    ]);
+          });
+      await _unassignTaskFromGroup(task, group);
+      return _deleteTask(task.id);
   }
 
   //Saving Game Data
@@ -854,11 +886,29 @@ class DatabaseController {
         .delete();
   }
 
-  Future<void> _unassignTaskFromStudent(String taskId, String studentId) {
+  //changed test
+  Future<void> _unassignTaskFromStudent({Task task, String taskId, String studentId}) async {
+    //obtain task object
+    if (task == null) {
+      task = await db.collection("tasks")
+          .document(taskId)
+          .get()
+          .then((doc) => Task.fromSnapshot(doc));
+    }
+    //invoke notification if task not self created
+    if (task.createdById != studentId) {
+      final HttpsCallable callable = CloudFunctions.instance.getHttpsCallable(
+        functionName: 'unassignTask',
+      );
+      Map<String, dynamic> data = {"task" : task.toKeyValuePair(), "studentId" : studentId};
+//      data["studentId"] = studentId;
+      callable.call(data);
+    }
+    //unassign task on db
     return db.collection('students')
         .document(studentId)
         .collection('tasks')
-        .document(taskId)
+        .document(task.id)
         .delete();
   }
 
@@ -891,23 +941,31 @@ class DatabaseController {
   }
 
   //Assigns the task with taskID to the student with studentID, duplicating the task data
-  Future<void> _assignTaskToStudent(Task task, String taskId, String studentId) {
-    //TaskWithStatus taskWithStatus = task.addStatus(false, false);
+  Future<void> _assignTaskToStudent(Task task, String studentId) {
+    //send notif to student if not self-created
+    if (task.createdById != studentId) {
+      final HttpsCallable callable = CloudFunctions.instance.getHttpsCallable(
+        functionName: 'assignTask',
+      );
+      Map<String, dynamic> data = {"task" : task.toKeyValuePair(), "studentId" : studentId};
+//      data["studentId"] = studentId;
+      callable.call(data);
+    }
     return db.collection('students')
         .document(studentId)
         .collection('tasks')
-        .document(taskId)
+        .document(task.id)
         .setData({"completed" : false, "verified" : false});
-        //.setData(taskWithStatus.toKeyValuePair());
+
   }
 
   //Assigns the student with studentID to the task with taskId, duplicating the student data
-  Future<void> _assignStudentToTask(Student student, String studentId, String taskId) {
+  Future<void> _assignStudentToTask(Student student, String taskId) {
     //StudentWithStatus studentWithStatus = student.addStatus(false, false);
     return db.collection('tasks')
         .document(taskId)
         .collection('students')
-        .document(studentId)
+        .document(student.id)
         .setData(student.toKeyValuePair());
   }
 

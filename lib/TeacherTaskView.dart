@@ -112,7 +112,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
                   student: student,
                   isStudent: false,//_user.accountType == "student",
                   updateComplete: (value) {
-                    db.updateTaskCompletion(widget.task.id, student.id, value);
+                    db.updateTaskCompletion(widget.task.id, student.id, value, true);
                   },
                   updateVerify: (value) {
                     db.updateTaskVerification(widget.task.id, student.id, value);

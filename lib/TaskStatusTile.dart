@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 class TaskStatusTile extends StatefulWidget {
   final TaskWithStatus task;
   final bool isStudent;
-  final Function(bool) updateComplete;
+  final Function(bool, bool) updateComplete;
   final Function(bool) updateVerify;
   final VoidCallback onFinish;
   final VoidCallback onTap;
@@ -46,7 +46,7 @@ class _TaskStatusTileState extends State<TaskStatusTile> {
         //Not conpleted
         return RaisedButton(
           child: const Text('Complete'),
-          onPressed: () => widget.updateComplete(true),
+          onPressed: () => widget.updateComplete(true, false),
         );
       } else {
         if(widget.task.verified) {
@@ -59,7 +59,7 @@ class _TaskStatusTileState extends State<TaskStatusTile> {
           //Completed, not verified
           return RaisedButton(
             child: const Text('Verifying...'),
-            onPressed: () => widget.updateComplete(false),
+            onPressed: () => widget.updateComplete(false, false),
           );
         }
       }
@@ -81,7 +81,7 @@ class _TaskStatusTileState extends State<TaskStatusTile> {
             children: <Widget>[
               RaisedButton(
                 child: const Text('Redo'),
-                onPressed: () => widget.updateComplete(false),
+                onPressed: () => widget.updateComplete(false, true),
               ),
               RaisedButton(
                 child: const Text('Verify'),
