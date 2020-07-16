@@ -34,11 +34,11 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
   bool _editable;
   bool _viewOnly = false;
   User _user;
-  String _selectedTask;
+  Task _selectedTask;
   TimeOfDay _startTime;
   TimeOfDay _endTime;
   DateTime _scheduledDate;
-  Stream<Set<String>> _allUncompletedTasks;
+  Future<Set<String>> _allUncompletedTasks;
 
 
 
@@ -53,18 +53,23 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
       _scheduledDate = widget.scheduledDate;
     }
     if (_editable) {
-      _selectedTask = widget.schedule.taskId;
+      _selectedTask = Task(id: widget.schedule.taskId, name: widget.schedule.taskName);
       _scheduledDateController.text = DateFormat("y-MM-dd").format(widget.schedule.scheduledDate);
       _startTime = TimeOfDay.fromDateTime(widget.schedule.startTime);
       _startTimeController.text = timeToString(_startTime);
       _endTime = TimeOfDay.fromDateTime(widget.schedule.endTime);
       _endTimeController.text = timeToString(_endTime);
     }
-    if (_editable && widget.schedule.startTime.isBefore(DateTime.now()) ) {
-      _viewOnly = true;
-    }
     _scheduledDateController.text = DateFormat("y-MM-dd").format(_scheduledDate);
     _allUncompletedTasks = db.getUncompletedTasks(_user.id);
+    if (_editable && widget.schedule.startTime.isBefore(DateTime.now())) {
+      _viewOnly = true;
+    }
+    _allUncompletedTasks.then((value) {
+      if (!value.contains(widget.schedule.id)) {
+        _viewOnly = true;
+      }
+    });
     super.initState();
   }
 
@@ -154,7 +159,8 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
       print("TaskId: $_selectedTask, date: $_scheduledDate, start: $_startTime, end: $_endTime");
       ScheduleDetails task = ScheduleDetails(
           id: widget.schedule?.id,
-          taskId: _selectedTask,
+          taskId: _selectedTask.id,
+          taskName: _selectedTask.name,
           scheduledDate: _scheduledDate,
           startTime: _scheduledDate.add(Duration(hours: _startTime.hour, minutes: _startTime.minute)),
           endTime: _scheduledDate.add(Duration(hours: _endTime.hour, minutes: _endTime.minute)));
@@ -199,8 +205,8 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
 
   Widget _buildTaskDropDown() {
     if (!_viewOnly) {
-      return StreamBuilder<Set<String>>(
-          stream: _allUncompletedTasks,
+      return FutureBuilder<Set<String>>(
+          future: _allUncompletedTasks,
           builder: (context, snapshot)  {
             if (!snapshot.hasData) {
               return DropdownButtonFormField(
@@ -217,10 +223,10 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
                 stream: CombineLatestStream.list(streamList),
                 builder: (context, snapshot) {
                   print(snapshot.data);
-                  return DropdownButtonFormField(
+                  return DropdownButtonFormField<Task>(
                     items: snapshot.data?.map((task) => DropdownMenuItem(
                       child: Text(task.name),
-                      value: task.id,
+                      value: task,
                     )
                     )?.toList(),
                     onChanged: (selected) {
@@ -246,15 +252,10 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
           }
       );
     } else {
-      return StreamBuilder<Task>(
-        stream: db.getTaskName(widget.schedule.taskId),
-        builder: (context, snapshot) {
-          return DropdownButtonFormField(
-            items: [],
-            onChanged: null,
-            disabledHint: snapshot.hasData ? Text(snapshot.data.name) : Text("Loading..."),
-          );
-        },
+      return DropdownButtonFormField(
+        items: [],
+        onChanged: null,
+        disabledHint: Text(widget.schedule.taskName),
       );
     }
   }
@@ -263,7 +264,13 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
     return Form(
       key: _formKey,
       onWillPop: () async {
-        return _editable ? submit().then((value) => value) : true;
+        if (_viewOnly) {
+          return true;
+        } else if (_editable) {
+          return submit().then((value) => value);
+        } else {
+          return true;
+        }
       },
       child: ListView(
         children: <Widget>[

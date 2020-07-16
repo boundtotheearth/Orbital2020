@@ -229,6 +229,7 @@ class DatabaseController {
         .map((documents) => documents.map((document) {
           return ScheduleDetails(
             id: document.documentID,
+            taskName: document["taskName"],
             taskId: document["taskId"],
             scheduledDate: document["scheduledDate"].toDate(),
             startTime: document["startTime"].toDate(),
@@ -426,15 +427,17 @@ class DatabaseController {
     return tasks;
   }
 
-  Stream<Set<String>> getUncompletedTasks(String studentId) {
+  Future<Set<String>> getUncompletedTasks(String studentId) async {
     return db.collection("students")
         .document(studentId)
         .collection("tasks")
         .where("completed", isEqualTo: false)
-        .snapshots()
-        .map((snapshot) => snapshot.documents.map((document) => document.documentID)
-          .toSet()
-        );
+        .getDocuments()
+        .then((snapshot) => snapshot.documents.map((document) => document.documentID).toSet());
+//        .snapshots()
+//        .map((snapshot) => snapshot.documents.map((document) => document.documentID)
+//          .toSet()
+//        );
 
   }
 
@@ -676,7 +679,7 @@ class DatabaseController {
 
   Future<void> studentDeleteTask({Task task, String studentId}) {
     return Future.wait([
-      deleteScheduleByTask(studentId, task.id),
+//      deleteScheduleByTask(studentId, task.id),
       _unassignTaskFromStudent(task: task, studentId: studentId), //changed test
       _unassignStudentFromTask(task.id, studentId),
       _deleteTask(task.id),
@@ -714,7 +717,7 @@ class DatabaseController {
         //unassign from students
         for(String studentId in studentIds) {
           Future.wait([
-          deleteScheduleByTask(studentId, doc.documentID),
+//          deleteScheduleByTask(studentId, doc.documentID),
           _unassignTaskFromStudent(taskId: doc.documentID, studentId: studentId),
           _unassignStudentFromTask(doc.documentID, studentId)
           ]);
@@ -743,7 +746,7 @@ class DatabaseController {
       .getDocuments()
       .then((snapshot) {
         for(DocumentSnapshot taskDoc in snapshot.documents) {
-          deleteScheduleByTask(student.id, taskDoc.documentID);
+//          deleteScheduleByTask(student.id, taskDoc.documentID);
           _unassignStudentFromTask(taskDoc.documentID, student.id);
           _unassignTaskFromStudent(taskId: taskDoc.documentID, studentId: student.id);
         }
@@ -773,7 +776,7 @@ class DatabaseController {
             snapshot.documents.forEach((stuDoc) {
               _unassignTaskFromStudent(task: task, studentId: stuDoc.documentID);
               _unassignStudentFromTask(task.id, stuDoc.documentID);
-              deleteScheduleByTask(stuDoc.documentID, task.id);
+//              deleteScheduleByTask(stuDoc.documentID, task.id);
             });
           });
       await _unassignTaskFromGroup(task, group);
