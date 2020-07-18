@@ -21,16 +21,25 @@ class GameWidgetState extends State<GameWidget> {
   UnityWidgetController _unityWidgetController;
   String latestGameData;
 
+  WidgetsBindingObserver appObserver;
+
   @override
   void initState() {
     super.initState();
     _user = Provider.of<User>(context, listen: false);
-    WidgetsBinding.instance.addObserver(GameDataManager(
+    appObserver = GameDataManager(
       detachedCallBack: () => _saveGameData(),
-      inactiveCallback: () => {},
+      inactiveCallback: () => _saveGameData(),
       pauseCallback: () => _saveGameData(),
       resumeCallBack: () => _setGameData(),
-    ));
+    );
+    WidgetsBinding.instance.addObserver(appObserver);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(appObserver);
+    super.dispose();
   }
 
   void _onUnityCreated(controller) async {
@@ -40,13 +49,10 @@ class GameWidgetState extends State<GameWidget> {
 
   void _onUnityMessage(controller, message) async {
     latestGameData = message;
-    //print(latestGameData);
-    //db.saveGameData(data: message, studentId: _user.id);
   }
 
   void _setGameData() async {
     Map<String, dynamic> data = await db.fetchGameData(studentId: _user.id);
-    //data['idle'] = await _calculateIdleTime(data['timestamp'].toDate()).then((value) => value.inSeconds);
     data.remove('timestamp');
     String gameData = data != null ? jsonEncode(data) : "";
     _unityWidgetController.postMessage("GameField", "setGameData", gameData);
@@ -58,40 +64,6 @@ class GameWidgetState extends State<GameWidget> {
     data['timestamp'] = DateTime.now();
     db.saveGameData(data: data, studentId: _user.id);
   }
-
-//  Future<Duration> _calculateIdleTime(DateTime lastActive) async {
-//    DateTime currentTime = DateTime.now();
-//    Duration totalIdle = currentTime.difference(lastActive);
-//    print("last active " + lastActive.toString());
-//    print("before " + totalIdle.toString());
-//
-//
-//    if(totalIdle.inSeconds < (15 * 60)) {
-//      return Future.value(Duration(seconds: 0));
-//    }
-//
-//    AppUsage appUsage = new AppUsage();
-//    try {
-//      Map<String, double> usage = await appUsage.fetchUsage(lastActive, currentTime);
-//      usage.removeWhere((key,val) => val == 0);
-//
-//      print(usage);
-//
-//      for(MapEntry<String, double> entry in usage.entries) {
-//        Duration appDuration = Duration(seconds: entry.value.toInt());
-//        totalIdle = totalIdle - appDuration;
-//        print(entry.key);
-//        print('app ' + appDuration.toString());
-//        print('step ' + totalIdle.toString());
-//      }
-//      print("after " + totalIdle.toString());
-//      return totalIdle;
-//    }
-//    on AppUsageException catch (exception) {
-//      print(exception);
-//      return Future.error(exception);
-//    }
-//  }
 
   void giveReward(int amount) {
     _unityWidgetController.postMessage('GameField', 'giveReward', amount.toString());
@@ -128,12 +100,6 @@ class GameDataManager extends WidgetsBindingObserver {
   final FutureVoidCallback detachedCallBack;
   final FutureVoidCallback inactiveCallback;
   final FutureVoidCallback pauseCallback;
-
-//  @override
-//  Future<bool> didPopRoute()
-
-//  @override
-//  void didHaveMemoryPressure()
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {

@@ -941,12 +941,12 @@ MonoBehaviour:
     collection: []
     plants: []
     gemTotal: 0
-    idleTime: 0
-  testing: 1
+    idleCount: 0
+  testing: 0
   testData: '{"inventory":[{"plantType":"lavender","property":"Default Property"},{"plantType":"marigold","property":"Default
     Property"},{"plantType":"daisy","property":"Default Property"}],"collection":[{"plantType":"lavender"},{"plantType":"marigold"},{"plantType":"daisy"}],"plants":[{"plantType":"lavender","property":"Default
     Property","isWatered":false,"gridX":1,"gridY":2,"growthStage":1,"growthProgress":0.0},{"plantType":"marigold","property":"Default
-    Property","isWatered":false,"gridX":3,"gridY":2,"growthStage":1,"growthProgress":0.0}],"gemTotal":60,"idleTime":864000} '
+    Property","isWatered":false,"gridX":3,"gridY":2,"growthStage":1,"growthProgress":0.0}],"gemTotal":60,"idleCount":10000} '
 --- !u!4 &491494881
 Transform:
   m_ObjectHideFlags: 0

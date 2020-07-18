@@ -18,7 +18,7 @@ class DatabaseController {
 
   void test() async {
     db.collection('test')
-        .document('BackgroundCounter')
+        .document('lockbutton')
         .get()
         .then((snapshot) {
           int value = snapshot['value'];
@@ -785,6 +785,21 @@ class DatabaseController {
           }
           return Future.wait(futures);
     });
+  }
+
+  Stream<bool> getStudentFocus(String studentId) {
+    return db.collection('students')
+        .document(studentId)
+        .snapshots()
+        .map((snapshot) {
+          return snapshot['inFocus'] ?? false;
+    });
+  }
+
+  Future<void> setStudentFocus(String studentId, bool inFocus) {
+    return db.collection('students')
+        .document(studentId)
+        .setData({'inFocus': inFocus}, merge: true);
   }
 
   Future<void> setStudentIdle(String studentId) {

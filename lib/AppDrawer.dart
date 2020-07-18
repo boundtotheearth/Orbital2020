@@ -77,6 +77,14 @@ class AppDrawer extends StatelessWidget {
               }
             ),
             ListTile(
+                title: const Text("Focus Mode"),
+                onTap: () {
+                  print("Tapped Focus");
+                  Navigator.pop(context);
+                  Navigator.of(context).pushNamed("focus");
+                }
+            ),
+            ListTile(
                 title: const Text("Leaderboard"),
                 onTap: () {
                   Navigator.pop(context);

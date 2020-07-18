@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:orbital2020/AddTaskToSchedule.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
+import 'package:orbital2020/FocusMode.dart';
 import 'package:orbital2020/LeaderboardView.dart';
 import 'package:orbital2020/StudentAddTask.dart';
 import 'package:orbital2020/StudentMain.dart';
@@ -53,6 +54,9 @@ class HomePage extends StatelessWidget {
                         break;
                       case 'schedule':
                         builder = (_) => Schedule();
+                        break;
+                      case 'focus':
+                        builder = (_) => FocusMode();
                         break;
                       case 'leaderboard':
                         builder = (_) => LeaderBoardView();

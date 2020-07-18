@@ -39,7 +39,7 @@ class _LeaderboardViewState extends State<LeaderBoardView> {
                 itemCount: snapshot.data.length,
                 itemBuilder: (context, index) {
                   List<LeaderboardData> leaderboardList = snapshot.data;
-                  leaderboardList.sort((a, b) => b.gemTotal.compareTo(a.gemTotal));
+                  leaderboardList.sort((a, b) => b.gemTotal.compareTo(a.gemTotal ?? 0));
                   return ListTile(
                     leading: Text((index + 1).toString() + "."),
                     title: Text(leaderboardList[index].name),
