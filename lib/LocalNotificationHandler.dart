@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-import 'DatabaseController.dart';
 
 class LocalNotificationHandler {
   static FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();

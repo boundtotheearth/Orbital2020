@@ -25,7 +25,7 @@ class RootPage extends StatelessWidget {
                 create: (_) => DatabaseController(),
               )
             ],
-            child: MessageHandler(),
+            child: HomePage(),
           );
         } else if(snapshot.hasError) {
           return LoginPage();

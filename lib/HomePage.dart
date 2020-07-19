@@ -1,4 +1,8 @@
+import 'dart:async';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:orbital2020/AddTaskToSchedule.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
@@ -17,16 +21,90 @@ import 'package:orbital2020/TeacherStudentView.dart';
 import 'package:orbital2020/TeacherTaskView.dart';
 import 'package:provider/provider.dart';
 
+import 'LocalNotificationHandler.dart';
 import 'Schedule.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+
   final navigatorKey = GlobalKey<NavigatorState>();
+  final FirebaseMessaging _fcm = FirebaseMessaging();
+  User user;
+  DatabaseController db;
+  Future<String> accountType;
+  StreamSubscription iosSubscription;
+
+  @override
+  void initState() {
+    user = Provider.of<User>(context, listen: false);
+    db = Provider.of<DatabaseController>(context, listen: false);
+    accountType = db.getAccountType(userId: user.id);
+    _initFirebaseMessaging();
+    LocalNotificationHandler.initLocalNotifications();
+    super.initState();
+  }
+
+  void _initFirebaseMessaging() {
+    if (Platform.isIOS) {
+      iosSubscription = _fcm.onIosSettingsRegistered.listen((data) {
+        print(data);
+        _saveDeviceToken();
+      });
+      _fcm.requestNotificationPermissions(IosNotificationSettings());
+    } else {
+      _saveDeviceToken();
+    }
+
+    _fcm.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print("onMessage: $message");
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(message['data']['title']),
+            content: Text(message['data']['body']),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Ok'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
+        );
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print("onLaunch: $message");
+        // TODO optional
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print("onResume: $message");
+      },
+    );
+  }
+
+  /// Get the token, save it to the database for current user
+  _saveDeviceToken() async {
+    // Get the token for this device
+    String fcmToken = await _fcm.getToken();
+    // Save it to Firestore
+    if (fcmToken != null) {
+      db.setToken(uid: user.id, token: fcmToken);
+    }
+  }
+
+  @override
+  void dispose() {
+    if (iosSubscription != null) iosSubscription.cancel();
+    super.dispose();
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    final User user = Provider.of<User>(context);
-    final DatabaseController db = Provider.of<DatabaseController>(context);
-    final Future<String> accountType = db.getAccountType(userId: user.id);
-
     return WillPopScope(
       onWillPop: () async => !await navigatorKey.currentState.maybePop(),
       child: FutureBuilder(
