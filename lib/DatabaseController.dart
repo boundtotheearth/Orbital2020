@@ -82,15 +82,16 @@ class DatabaseController {
   }
 
   //Student schedules his task
-  Future<void> scheduleTask(String studentId, ScheduleDetails task) {
+  Future<String> scheduleTask(String studentId, ScheduleDetails task) {
     return db.collection('students')
         .document(studentId)
         .collection("scheduledTasks")
-        .add(task.toKeyValuePair());
+        .add(task.toKeyValuePair())
+        .then((doc) => doc.documentID);
   }
 
   //Student deletes schedule
-  Future<void> deleteScheduleById(String studentId, String scheduleId) {
+  Future<void> deleteScheduleById(String studentId, String scheduleId) async {
     return db.collection("students")
         .document(studentId)
         .collection("scheduledTasks")
@@ -120,6 +121,16 @@ class DatabaseController {
         .document(schedule.id)
         .updateData(schedule.toKeyValuePair());
   }
+
+
+//  Future<List<int>> getScheduleNotifId(String studentId, String scheduleId) {
+//    return db.collection("students")
+//        .document(studentId)
+//        .collection("scheduledTasks")
+//        .document(scheduleId)
+//        .get()
+//        .then((snapshot) => [snapshot["startId"], snapshot["endId"]]);
+//  }
 
   //Student gets all scheduled tasks
 //  Stream<List> getScheduledTasksSnapshots(String studentId) {
@@ -233,7 +244,9 @@ class DatabaseController {
             taskId: document["taskId"],
             scheduledDate: document["scheduledDate"].toDate(),
             startTime: document["startTime"].toDate(),
-            endTime: document["endTime"].toDate()
+            endTime: document["endTime"].toDate(),
+            startId: document["startId"],
+            endId: document["endId"]
           );
     })
     .toList()

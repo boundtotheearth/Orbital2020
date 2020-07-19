@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/Login.dart';
-import 'package:orbital2020/NotificationHandlier.dart';
+import 'package:orbital2020/NotificationHandler.dart';
 import 'package:provider/provider.dart';
 import 'Auth.dart';
 import 'AuthProvider.dart';

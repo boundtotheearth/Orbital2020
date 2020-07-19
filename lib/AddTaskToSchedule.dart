@@ -10,6 +10,7 @@ import 'DataContainers/Task.dart';
 import 'AppDrawer.dart';
 import 'DataContainers/User.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:orbital2020/LocalNotificationHandler.dart';
 
 class AddTaskToSchedule extends StatefulWidget {
   AddTaskToSchedule({this.scheduledDate, this.schedule});
@@ -66,7 +67,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
       _viewOnly = true;
     }
     _allUncompletedTasks.then((value) {
-      if (!value.contains(widget.schedule.id)) {
+      if (_editable && !value.contains(widget.schedule.taskId)) {
         _viewOnly = true;
       }
     });
@@ -156,18 +157,20 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
     if (_formKey.currentState.validate()) {
       print("Form is valid");
       _formKey.currentState.save();
-      print("TaskId: $_selectedTask, date: $_scheduledDate, start: $_startTime, end: $_endTime");
+      print("TaskId: ${_selectedTask.name}, date: $_scheduledDate, start: $_startTime, end: $_endTime");
       ScheduleDetails task = ScheduleDetails(
           id: widget.schedule?.id,
           taskId: _selectedTask.id,
           taskName: _selectedTask.name,
           scheduledDate: _scheduledDate,
           startTime: _scheduledDate.add(Duration(hours: _startTime.hour, minutes: _startTime.minute)),
-          endTime: _scheduledDate.add(Duration(hours: _endTime.hour, minutes: _endTime.minute)));
+          endTime: _scheduledDate.add(Duration(hours: _endTime.hour, minutes: _endTime.minute)),
+          startId: widget.schedule?.startId,
+          endId: widget.schedule?.endId);
       if (_editable) {
-        await db.updateSchedule(_user.id, task);
+        updateSchedule(_user.id, task);
       } else {
-        await db.scheduleTask(_user.id, task);
+        scheduleTask(_user.id, task);
       }
       Navigator.pop(context);
       return Future.value(true);
@@ -175,6 +178,24 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
       print("Form is invalid.");
       return Future.value(false);
     }
+  }
+
+  void scheduleTask(String studentId, ScheduleDetails task) {
+    Map<String, int> notifIds = LocalNotificationHandler.scheduleNewNotification(task.startTime, task.endTime, task.taskName);
+
+    db.scheduleTask(studentId, task.addNotifIds(notifIds["startId"], notifIds["endId"]));
+  }
+
+  void updateSchedule(String studentId, ScheduleDetails task) {
+    db.updateSchedule(studentId, task);
+    LocalNotificationHandler.replaceNotification(
+          task.startTime, task.endTime, task.taskName, task.startId, task.endId);
+
+  }
+
+  void deleteSchedule(String studentId, ScheduleDetails schedule) {
+    db.deleteScheduleById(studentId, schedule.id);
+    LocalNotificationHandler.cancelNotification(schedule.startId, schedule.endId, schedule.startTime, schedule.endTime);
   }
 
   void delete() {
@@ -187,7 +208,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
             FlatButton(
               child: Text("Yes"),
               onPressed: () {
-                db.deleteScheduleById(_user.id, widget.schedule.id);
+                deleteSchedule(_user.id, widget.schedule);
                 Navigator.of(context).pop();
                 Navigator.of(alertContext).pop();
               }
@@ -222,7 +243,6 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
               return StreamBuilder<List<Task>>(
                 stream: CombineLatestStream.list(streamList),
                 builder: (context, snapshot) {
-                  print(snapshot.data);
                   return DropdownButtonFormField<Task>(
                     items: snapshot.data?.map((task) => DropdownMenuItem(
                       child: Text(task.name),
@@ -230,12 +250,10 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
                     )
                     )?.toList(),
                     onChanged: (selected) {
-                      print(selected);
-                      setState(() {
-                        _selectedTask = selected;
-                      });
+                      print(selected.name);
                     },
                     value: _selectedTask,
+                    onSaved: (value) => _selectedTask = value,
                     hint: Text("Select Task"),
                     validator: (input) {
                       if (input == null) {
