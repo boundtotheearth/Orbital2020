@@ -11,7 +11,7 @@ public class GameData
     public List<CollectionItem> collection = new List<CollectionItem>();
     public List<GamePlant> plants = new List<GamePlant>();
     public int gemTotal;
-    public int idleCount;
+    public int focusDuration;
 
     public GameData()
     {
@@ -23,7 +23,7 @@ public class GameData
         gemTotal = 0;
 
         //Mock Idle Count
-        idleCount = 0;
+        focusDuration = 0;
     }
 
     public static GameData From(string json)

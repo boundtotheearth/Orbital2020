@@ -73,21 +73,24 @@ public class GameController : MonoBehaviour
             plantScript.setMoveCallback(() => onMovePlant(plantScript.data));
             tile.setPlant(plantScript);
         }
+        
+        uiController.UpdateGemDisplay(gameData.gemTotal);
 
-        int idleCount = gameData.idleCount;
-        TimeSpan duration = new TimeSpan(0, idleCount * 15, 0);
+        SaveGame();
+    }
+
+    public void GrowAndDrop(string focusTime)
+    {
+        gameData.focusDuration = int.Parse(focusTime);
+        TimeSpan duration = new TimeSpan(0, gameData.focusDuration, 0);
 
         //Process plant growth
         GrowPlants(duration);
 
         DropGems(duration);
 
-        uiController.UpdateGemDisplay(gameData.gemTotal);
-
         //Reset idle tracker after processing the previous one
-        gameData.idleCount = 0;
-
-        SaveGame();
+        gameData.focusDuration = 0;
     }
 
     public void OnTileClick(PlantableTile tile)

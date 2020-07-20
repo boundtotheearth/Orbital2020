@@ -94,9 +94,9 @@ public class GamePlantObject : MonoBehaviour, IPointerClickHandler, IDragHandler
         }
 
         TimeSpan growthTime = PlantFactory.Instance().GetGrowthTime(data.plantType, data.growthStage);
-        double totalGrowth = data.growthProgress + duration.TotalSeconds;
+        double totalGrowth = data.growthProgress + duration.TotalMinutes;
 
-        if(totalGrowth >= growthTime.TotalSeconds)
+        if(totalGrowth >= growthTime.TotalMinutes)
         {
             data.growthStage++;
             UpdateSprite();
@@ -110,7 +110,8 @@ public class GamePlantObject : MonoBehaviour, IPointerClickHandler, IDragHandler
     public void DropGems(TimeSpan duration)
     {
         int dropRate = PlantFactory.Instance().GetGemDrop(data.plantType, data.growthStage);
-        int totalDrop = Mathf.RoundToInt((float) duration.Hours) * dropRate;
+        int dropMultiplier = duration.Minutes / 15;
+        int totalDrop = dropMultiplier * dropRate;
         int dropLimit = PlantFactory.Instance().GetGemDropLimit(data.plantType);
         if (totalDrop > dropLimit)
         {

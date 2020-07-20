@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:orbital2020/AppDrawer.dart';
+import 'package:orbital2020/DataContainers/FocusSession.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
+import 'package:orbital2020/FocusHistoryChart.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_state/screen_state.dart';
 
@@ -17,16 +19,18 @@ class FocusMode extends StatefulWidget {
 class _FocusModeStatus extends State<FocusMode> {
 
   bool _inFocus;
-  Stream<bool> _prevInFocus;
+  Stream<FocusSession> _prevSession;
 
   WidgetsBindingObserver focusObserver;
   DatabaseController db;
   User _user;
 
-  String temp = "Nothing";
   Screen _screen;
   StreamSubscription _subscription;
   ScreenStateEvent screenStateEvent = ScreenStateEvent.SCREEN_ON;
+
+  FocusSession currentSession;
+  DateTime startTime;
 
   @override
   void initState() {
@@ -34,9 +38,9 @@ class _FocusModeStatus extends State<FocusMode> {
     print("initstate");
     _user = Provider.of<User>(context, listen: false);
     db = Provider.of<DatabaseController>(context, listen: false);
-    _prevInFocus = db.getStudentFocus(_user.id);
+    _prevSession = db.getPrevFocusSessionSnapshots(studentId: _user.id);
     focusObserver = FocusManager(
-      detachedCallBack: interruptFocus,
+      detachedCallBack: () => {},
       inactiveCallback: interruptFocus,
       pauseCallback: interruptFocus,
       resumeCallBack: () => {},
@@ -57,6 +61,15 @@ class _FocusModeStatus extends State<FocusMode> {
     setState(() {
       screenStateEvent = event;
     });
+    if(currentSession != null && currentSession.focusStatus == FocusStatus.ONGOING) {
+      if(event == ScreenStateEvent.SCREEN_ON) {
+        currentSession.onWake();
+        db.updateFocusSession(studentId: _user.id, focusSession: currentSession);
+      } else if(event == ScreenStateEvent.SCREEN_OFF) {
+        currentSession.onSleep();
+        db.updateFocusSession(studentId: _user.id, focusSession: currentSession);
+      }
+    }
   }
 
   @override
@@ -67,22 +80,44 @@ class _FocusModeStatus extends State<FocusMode> {
     super.dispose();
   }
 
+  void resumeFocus(FocusSession session) {
+    _inFocus = true;
+    currentSession = session;
+    currentSession.didSleep = false;
+    db.updateFocusSession(studentId: _user.id, focusSession: currentSession);
+  }
+
+  void startFocus() {
+    currentSession = FocusSession();
+    currentSession.start();
+    setState(() {
+        _inFocus = true;
+    });
+    db.addFocusSession(studentId: _user.id, focusSession: currentSession);
+  }
+
   void interruptFocus() {
-    Future.delayed(Duration(milliseconds: 4000), () {
+    Future.delayed(Duration(milliseconds: 5000), () {
       print("Checking: " + screenStateEvent.toString());
       if(screenStateEvent == ScreenStateEvent.SCREEN_ON) {
-        setState(() {
-          _inFocus = false;
-        });
+        immediateInterruptFocus();
       }
     });
   }
 
+  void immediateInterruptFocus() {
+    currentSession.interrupt();
+    endFocus();
+  }
+
   void stopFocus() {
-    setState(() {
-      _inFocus = false;
-    });
-    db.setStudentFocus(_user.id, false);
+    currentSession.stop();
+    endFocus();
+  }
+
+  void endFocus() {
+    _inFocus = false;
+    db.updateFocusSession(studentId: _user.id, focusSession: currentSession);
   }
 
   Widget buildFocusUI() {
@@ -95,27 +130,33 @@ class _FocusModeStatus extends State<FocusMode> {
     );
   }
 
-  Widget buildDefaultUI(bool prevFocusStatus) {
+  Widget buildDefaultUI(FocusSession prevFocusSession) {
     return Scaffold(
         drawer: AppDrawer(),
         appBar: AppBar(
           title: const Text('Focus Mode'),
         ),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+        body: ListView(
           children: <Widget>[
-            Text(prevFocusStatus
+            Text(prevFocusSession.focusStatus == FocusStatus.INTERRUPTED
                 ? 'Your previous focus session was interrupted!'
                 : 'In focus mode, your plants will grow and produce gems. Leaving the app or going to another page will end focus mode. You can lock your phone without interrupting focus mode'
             ),
+            Text('Go back to the game to claim your rewards!'),
+            StreamBuilder(
+              stream: db.getFocusSessionHistory(studentId: _user.id, days: 7),
+              builder: (context, snapshot) {
+                if(snapshot.hasData) {
+                  return FocusHistoryChart(snapshot.data);
+                } else {
+                  return CircularProgressIndicator();
+                }
+              },
+            ),
+            Text('Previous Focus Duration: ${prevFocusSession.durationMins}'),
             RaisedButton(
               child: const Text('Start Focus Mode', textAlign: TextAlign.center),
-              onPressed: () {
-                setState(() {
-                  _inFocus = true;
-                  db.setStudentFocus(_user.id, true);
-                });
-              },
+              onPressed: startFocus,
             ),
           ],
         )
@@ -125,14 +166,21 @@ class _FocusModeStatus extends State<FocusMode> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: _prevInFocus,
+      stream: _prevSession,
       builder: (context, snapshot) {
         if(snapshot.hasData) {
-          if(_inFocus) {
-            return buildFocusUI();
-          } else {
-            return buildDefaultUI(snapshot.data);
+          FocusSession session = snapshot.data;
+          if(session.focusStatus == FocusStatus.ONGOING) {
+            currentSession = session;
+            if(session.didSleep || _inFocus) {
+              resumeFocus(currentSession);
+              return buildFocusUI();
+            }
+            immediateInterruptFocus();
           }
+          return buildDefaultUI(snapshot.data);
+
+
         } else {
           return Container();
         }

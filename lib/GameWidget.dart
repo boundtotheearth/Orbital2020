@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_unity_widget/flutter_unity_widget.dart';
+import 'package:orbital2020/DataContainers/FocusSession.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:provider/provider.dart';
@@ -21,48 +23,66 @@ class GameWidgetState extends State<GameWidget> {
   UnityWidgetController _unityWidgetController;
   String latestGameData;
 
+  Stream<Map<String, dynamic>> gameDataStream;
+  StreamSubscription gameDataSub;
+  Stream<List<FocusSession>> focusSessionStream;
+  StreamSubscription focusSessionSub;
+
   WidgetsBindingObserver appObserver;
 
   @override
   void initState() {
     super.initState();
     _user = Provider.of<User>(context, listen: false);
-    appObserver = GameDataManager(
-      detachedCallBack: () => _saveGameData(),
-      inactiveCallback: () => _saveGameData(),
-      pauseCallback: () => _saveGameData(),
-      resumeCallBack: () => _setGameData(),
-    );
-    WidgetsBinding.instance.addObserver(appObserver);
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(appObserver);
+    gameDataSub?.cancel();
+    focusSessionSub?.cancel();
     super.dispose();
   }
 
   void _onUnityCreated(controller) async {
     this._unityWidgetController = controller;
-    _setGameData();
+    _setGameData(await db.fetchGameData(studentId: _user.id));
+    focusSessionStream = db.getUnclaimedFocusSession(studentId: _user.id);
+    focusSessionSub = focusSessionStream.listen(_handleFocusTime);
+    //_setGameData();
   }
 
   void _onUnityMessage(controller, message) async {
     latestGameData = message;
+    _saveGameData();
   }
 
-  void _setGameData() async {
-    Map<String, dynamic> data = await db.fetchGameData(studentId: _user.id);
+  void _setGameData(Map<String, dynamic> data) {
+    print("Start loading game data");
     data.remove('timestamp');
     String gameData = data != null ? jsonEncode(data) : "";
-    _unityWidgetController.postMessage("GameField", "setGameData", gameData);
+    _unityWidgetController?.postMessage("GameField", "setGameData", gameData);
     latestGameData = gameData;
   }
 
+  void _handleFocusTime(List<FocusSession> sessions) {
+    int totalFocus = 0;
+    for(FocusSession session in sessions) {
+      if(session.focusStatus != FocusStatus.ONGOING) {
+        totalFocus += session.durationMins;
+        session.claimed = true;
+        db.updateFocusSession(studentId: _user.id, focusSession: session);
+      }
+    }
+    _unityWidgetController?.postMessage("GameField", "handleFocusTime", totalFocus.toString());
+  }
+
   void _saveGameData() {
-    Map<String, dynamic> data = jsonDecode(latestGameData);
-    data['timestamp'] = DateTime.now();
-    db.saveGameData(data: data, studentId: _user.id);
+    if(latestGameData != null) {
+      print("saving...");
+      Map<String, dynamic> data = jsonDecode(latestGameData);
+      data['timestamp'] = DateTime.now();
+      db.saveGameData(data: data, studentId: _user.id);
+    }
   }
 
   void giveReward(int amount) {
@@ -88,34 +108,5 @@ class GameWidgetState extends State<GameWidget> {
         }
       },
     );
-  }
-}
-
-typedef FutureVoidCallback();
-
-class GameDataManager extends WidgetsBindingObserver {
-  GameDataManager({this.resumeCallBack, this.detachedCallBack, this.inactiveCallback, this.pauseCallback});
-
-  final FutureVoidCallback resumeCallBack;
-  final FutureVoidCallback detachedCallBack;
-  final FutureVoidCallback inactiveCallback;
-  final FutureVoidCallback pauseCallback;
-
-  @override
-  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    switch (state) {
-      case AppLifecycleState.inactive:
-        await inactiveCallback();
-        break;
-      case AppLifecycleState.paused:
-        await pauseCallback();
-        break;
-      case AppLifecycleState.detached:
-        await detachedCallBack();
-        break;
-      case AppLifecycleState.resumed:
-        await resumeCallBack();
-        break;
-    }
   }
 }

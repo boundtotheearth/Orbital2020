@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:orbital2020/DataContainers/FocusSession.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/LeaderboardData.dart';
 import 'package:orbital2020/DataContainers/ScheduleDetails.dart';
@@ -759,7 +760,7 @@ class DatabaseController {
             DocumentSnapshot document = snapshot.documents[0];
             return document.data;
           } else {
-            return null;
+            return {};
           }
         }
     );
@@ -787,38 +788,93 @@ class DatabaseController {
     });
   }
 
-  Stream<bool> getStudentFocus(String studentId) {
+  Future<void> addFocusSession({String studentId, FocusSession focusSession}) {
+    return _addFocusSessionToHistory(studentId, focusSession);
+  }
+
+  Future<void> updateFocusSession({String studentId, FocusSession focusSession}) {
     return db.collection('students')
         .document(studentId)
+        .collection('focusSessions')
+        .document(focusSession.id)
+        .updateData(focusSession.toKeyValuePair());
+  }
+
+  Stream<List<FocusSession>> getFocusSessionHistory({String studentId, int days}) {
+    DateTime cutoff = DateTime.now().subtract(Duration(days: days));
+    return db.collection('students')
+        .document(studentId)
+        .collection('focusSessions')
+        .where('startTime', isGreaterThanOrEqualTo: cutoff)
+        .orderBy('startTime', descending: true)
         .snapshots()
-        .map((snapshot) {
-          return snapshot['inFocus'] ?? false;
+        .map((QuerySnapshot snapshot) {
+          List<DocumentSnapshot> docSnapshots = snapshot.documents;
+          return docSnapshots.map((document) {
+            return FocusSession.fromKeyValuePair(document.data);
+          }).toList();
     });
   }
 
-  Future<void> setStudentFocus(String studentId, bool inFocus) {
+  Stream<FocusSession> getPrevFocusSessionSnapshots({String studentId}) {
     return db.collection('students')
         .document(studentId)
-        .setData({'inFocus': inFocus}, merge: true);
+        .collection('focusSessions')
+        .orderBy('startTime', descending: true)
+        .snapshots()
+        .map((QuerySnapshot snapshot) {
+          if(snapshot.documents.length > 0) {
+            DocumentSnapshot doc = snapshot.documents[0];
+            return FocusSession.fromKeyValuePair(doc.data);
+          } else {
+            return FocusSession();
+          }
+    });
   }
 
-  Future<void> setStudentIdle(String studentId) {
+  Future<FocusSession> getPrevFocusSession({String studentId}) {
     return db.collection('students')
         .document(studentId)
-        .collection('gameData')
-        .orderBy('timestamp', descending: true)
-        .limit(1)
+        .collection('focusSessions')
+        .orderBy('startTime', descending: true)
         .getDocuments()
-        .then((snapshot) {
+        .then((QuerySnapshot snapshot) {
           if(snapshot.documents.length > 0) {
-            DocumentSnapshot document = snapshot.documents[0];
-            int idleCount =  document['idleCount'] ?? 0;
-            document.reference.updateData({'idleCount': idleCount+1});
+            DocumentSnapshot doc = snapshot.documents[0];
+            return FocusSession.fromKeyValuePair(doc.data);
           } else {
-            return null;
+            return FocusSession();
           }
-        }
-    );
+    });
+  }
+
+  Stream<List<FocusSession>> getUnclaimedFocusSession({String studentId}) {
+    return db.collection('students')
+        .document(studentId)
+        .collection('focusSessions')
+        .where('claimed', isEqualTo: false)
+        .orderBy('startTime', descending: true)
+        .snapshots()
+        .map((QuerySnapshot snapshot) {
+          if(snapshot.documents.length > 0) {
+            return snapshot.documents.map((document) {
+              FocusSession session = FocusSession.fromKeyValuePair(document.data);
+              session.id = document.documentID;
+              return session;
+            }).toList();
+          } else {
+            return [];
+          }
+    });
+  }
+
+  Future<void> _addFocusSessionToHistory(String studentId, FocusSession focusSession) {
+    DocumentReference newDoc = db.collection("students")
+        .document(studentId)
+        .collection("focusSessions")
+        .document();
+    focusSession.id = newDoc.documentID;
+    return newDoc.setData(focusSession.toKeyValuePair());
   }
 
   Future<Group> _createGroup(String teacherId, Group group) {
