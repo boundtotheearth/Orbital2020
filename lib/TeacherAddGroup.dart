@@ -10,6 +10,7 @@ import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 
 import 'package:orbital2020/DatabaseController.dart';
+import 'package:orbital2020/ImageHandler.dart';
 import 'package:provider/provider.dart';
 
 //View shown when teacher is assigning a task to a student
@@ -111,13 +112,17 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
   }
 
   Future<File> selectImage() {
-    return ImagePicker().getImage(source: ImageSource.gallery)
-        .then((pickedFile) {
-          File file = File(pickedFile.path);
-          setState(() {
-            _groupImage = file;
-          });
-          return file;
+//    return ImageHandler.pickImage().then((file) {
+//      setState(() {
+//        _groupImage = file;
+//      });
+//      return file;
+//    });
+    return ImageHandler.pickCropCompress().then((file) {
+      setState(() {
+        _groupImage = file;
+      });
+      return file;
     });
   }
 
