@@ -199,7 +199,8 @@ class DatabaseController {
         createdByName: document["createdByName"] ?? "",
         tags: document["tags"]?.cast<String>() ?? [],
         completed: task.completed,
-        verified: task.verified
+        verified: task.verified,
+        claimed: task.claimed
     ));
   }
 
@@ -433,7 +434,8 @@ class DatabaseController {
             TaskStatus t = TaskStatus(
                 id: document.documentID,
                 completed: document['completed'],
-                verified: document['verified']);
+                verified: document['verified'],
+                claimed: document['claimed']);
             return t;
           }).toSet();
         });
@@ -671,7 +673,8 @@ class DatabaseController {
               id: student.id,
               name: student.name,
               completed: status.completed,
-              verified: status.verified)
+              verified: status.verified,
+              claimed: status.claimed)
     );
   }
 
@@ -686,7 +689,8 @@ class DatabaseController {
         .map((document) => TaskStatus(
           id: document.documentID,
           completed: document['completed'],
-          verified: document['verified'])
+          verified: document['verified'],
+          claimed: document["claimed"])
     );
   }
 

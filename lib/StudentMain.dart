@@ -68,7 +68,7 @@ class _StudentMainState extends State<StudentMain> {
   }
 
   List<TaskWithStatus> sortAndFilter(List<TaskWithStatus> originalTasks) {
-    List<TaskWithStatus> filtered = originalTasks.where((task) => filteredTask(task)).toList();
+    List<TaskWithStatus> filtered = originalTasks.where((task) => filteredTask(task) && !task.claimed).toList();
     switch (_sortBy) {
       case Sort.name:
         filtered.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
@@ -139,7 +139,7 @@ class _StudentMainState extends State<StudentMain> {
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Do you want to claim rewards and delete the task?'),
+            title: Text('Do you want to claim rewards and remove the task?'),
             content: SingleChildScrollView(
               child: ListBody(
                 children: <Widget>[
@@ -151,6 +151,7 @@ class _StudentMainState extends State<StudentMain> {
               FlatButton(
                 child: Text('YES'),
                 onPressed: () {
+                  _claimReward(task);
                   Navigator.of(context).pop(true);
                 },
               ),

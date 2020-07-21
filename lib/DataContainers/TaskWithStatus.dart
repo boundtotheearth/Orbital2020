@@ -4,6 +4,7 @@ import 'package:orbital2020/DataContainers/Task.dart';
 class TaskWithStatus extends Task{
   bool completed;
   bool verified;
+  bool claimed;
 
   TaskWithStatus({
     String id,
@@ -14,16 +15,19 @@ class TaskWithStatus extends Task{
     DateTime dueDate,
     List<String> tags = const [],
     bool completed,
-    bool verified
+    bool verified,
+    bool claimed
   }) :
     this.completed = completed ?? false,
     this.verified = verified ?? false,
+    this.claimed = claimed ?? false,
     super(id: id, name: name, description: description, createdByName: createdByName, createdById: createdById, dueDate: dueDate, tags: tags);
 
   Map<String, dynamic> toKeyValuePair() {
     Map<String, dynamic> map = super.toKeyValuePair();
     if(completed != null) map['completed'] = completed;
     if(verified != null) map['verified'] = verified;
+    if (claimed != null) map['claimed'] = claimed;
     return map;
   }
 
@@ -32,8 +36,10 @@ class TaskWithStatus extends Task{
       return 0;
     } else if (!verified) {
       return 1;
-    } else {
+    } else if (!claimed) {
       return 2;
+    } else {
+      return 3;
     }
   }
 

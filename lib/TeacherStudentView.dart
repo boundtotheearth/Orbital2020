@@ -56,7 +56,7 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
   }
 
   List<TaskWithStatus> sortAndFilter(List<TaskWithStatus> originalTasks) {
-    List<TaskWithStatus> filteredTask = originalTasks.where((task) => filtered(task)).toList();
+    List<TaskWithStatus> filteredTask = originalTasks.where((task) => filtered(task) && !task.claimed).toList();
     switch (_sortBy) {
       case Sort.name:
         filteredTask.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
