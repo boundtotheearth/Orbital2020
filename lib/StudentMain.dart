@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:orbital2020/DataContainers/FocusSession.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
@@ -268,55 +269,66 @@ class _StudentMainState extends State<StudentMain> {
     }));
   }
 
+  void checkFocus() {
+    db.getPrevFocusSession(studentId: _user.id).then((session) {
+      if(session.focusStatus == FocusStatus.ONGOING) {
+        Navigator.of(context).pushNamed('focus');
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    checkFocus();
+
     return Scaffold(
       appBar: buildAppBar(),
       drawer: AppDrawer(),
       body: SafeArea(
-          child: Column(
-            children: <Widget>[
-              AspectRatio(
-                aspectRatio: 3/2,
-                child: GameWidget(key: unityWidgetKey),
+        child: Column(
+          children: <Widget>[
+            AspectRatio(
+              aspectRatio: 3/2,
+              child: GameWidget(),
+            ),
+            Container(
+              color: Colors.green,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: DropdownButtonFormField(
+                  items: _options,
+                  decoration: InputDecoration(
+                      labelText: "Sort By: "
+                  ),
+                  onChanged: (value) => setState(() => _sortBy = value),
+                  value: _sortBy,
+                ),
               ),
-              Container(
-                color: Colors.green,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: DropdownButtonFormField(
-                          items: _options,
-                          decoration: InputDecoration(
-                            labelText: "Sort By: "
-                          ),
-                          onChanged: (value) => setState(() => _sortBy = value),
-                          value: _sortBy,
-                      ),
-                )
-              ),
-              StreamBuilder<Set<TaskStatus>>(
-                  stream: _tasks,
-                  builder: (context, snapshot) {
-                    if(snapshot.hasData) {
-                      print(snapshot.data);
-                      if(snapshot.data.length > 0) {
-                        return _buildTaskList(snapshot.data);
-                      } else {
-                        return Text('No tasks!');
-                      }
-                    } else {
-                      return CircularProgressIndicator();
-                    }
-                  },
-                )
-            ],
-          ),
+            ),
+            StreamBuilder<Set<TaskStatus>>(
+              stream: _tasks,
+              builder: (context, snapshot) {
+                if(snapshot.hasData) {
+                  print(snapshot.data);
+                  if(snapshot.data.length > 0) {
+                    return _buildTaskList(snapshot.data);
+                  } else {
+                    return Text('No tasks!');
+                  }
+                } else {
+                  return CircularProgressIndicator();
+                }
+              },
+            )
+          ],
         ),
+      ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         tooltip: 'Add',
         onPressed: () {
           Navigator.of(context).pushNamed('student_addTask');
+          db.test();
         },
       ),
     );

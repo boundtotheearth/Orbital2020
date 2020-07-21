@@ -73,16 +73,24 @@ public class GameController : MonoBehaviour
             plantScript.setMoveCallback(() => onMovePlant(plantScript.data));
             tile.setPlant(plantScript);
         }
+        
+        uiController.UpdateGemDisplay(gameData.gemTotal);
 
-        TimeSpan duration = DateTime.Now.ToUniversalTime() - DateTime.FromFileTimeUtc(gameData.lastActiveUTC);
+        SaveGame();
+    }
+
+    public void GrowAndDrop(string focusTime)
+    {
+        gameData.focusDuration = int.Parse(focusTime);
+        TimeSpan duration = new TimeSpan(0, gameData.focusDuration, 0);
+
         //Process plant growth
         GrowPlants(duration);
 
         DropGems(duration);
 
-        uiController.UpdateGemDisplay(gameData.gemTotal);
-
-        SaveGame();
+        //Reset idle tracker after processing the previous one
+        gameData.focusDuration = 0;
     }
 
     public void OnTileClick(PlantableTile tile)
@@ -272,9 +280,9 @@ public class GameController : MonoBehaviour
 
     public void SaveGame()
     {
-        gameData.lastActiveUTC = DateTime.Now.ToFileTimeUtc();
         string data = gameData.ToJson();
         FlutterMessageManager.Instance().sendGameData(data);
+        Debug.Log(data);
     }
 
     public void GrowPlants(TimeSpan duration)
@@ -303,5 +311,6 @@ public class GameController : MonoBehaviour
     {
         gameData.gemTotal += amount;
         uiController.UpdateGemDisplay(gameData.gemTotal);
+        SaveGame();
     }
 }

@@ -99,7 +99,7 @@ public class PlantFactory : MonoBehaviour
 
     public TimeSpan GetGrowthTime(string id, int growthStage)
     {
-        return TimeSpan.FromSeconds(plantTypeDict[id].growthTimes[growthStage]);
+        return TimeSpan.FromMinutes(plantTypeDict[id].growthTimes[growthStage]);
     }
 
     public int GetGrowthStages(string id)
