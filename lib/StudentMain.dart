@@ -317,7 +317,7 @@ class _StudentMainState extends State<StudentMain> {
         tooltip: 'Add',
         onPressed: () {
           Navigator.of(context).pushNamed('student_addTask');
-        },
+        }
       ),
     );
   }

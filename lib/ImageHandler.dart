@@ -9,7 +9,7 @@ class ImageHandler {
   static Future<File> pickImage() {
     return ImagePicker().getImage(source: ImageSource.gallery)
         .then((pickedFile) {
-      File file = File(pickedFile.path);
+      File file = File(pickedFile?.path);
       return file;
     });
   }
@@ -44,11 +44,7 @@ class ImageHandler {
         iosUiSettings: IOSUiSettings(
           title: 'Cropper',
         )).then((croppedFile) {
-          if (croppedFile != null) {
-            return croppedFile;
-          } else {
-            return null;
-          }
+          return croppedFile ?? null;
     });
 
   }
