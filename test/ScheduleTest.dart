@@ -8,7 +8,7 @@ import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/Schedule.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:orbital2020/AppDrawer.dart';
+import 'package:orbital2020/StudentAppDrawer.dart';
 
 import 'MockDatabaseController.dart';
 
@@ -88,7 +88,7 @@ MaterialApp app = MaterialApp(
       await tester.pumpAndSettle();
       await tester.tap(find.byIcon(Icons.menu));
       await tester.pump();
-      expect(find.byType(AppDrawer), findsOneWidget);
+      expect(find.byType(StudentAppDrawer), findsOneWidget);
     });
 
   }

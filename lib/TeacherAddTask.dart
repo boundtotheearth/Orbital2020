@@ -9,7 +9,7 @@ import 'package:orbital2020/DataContainers/User.dart';
 
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
-import 'package:orbital2020/AppDrawer.dart';
+import 'package:orbital2020/TeacherAppDrawer.dart';
 import 'package:provider/provider.dart';
 
 
@@ -35,7 +35,7 @@ class _TeacherAddTaskState extends State<TeacherAddTask> {
         appBar: AppBar(
           title: const Text('Add Task'),
         ),
-        drawer: AppDrawer(),
+        drawer: TeacherAppDrawer(),
         body: AddTaskForm(group: widget.group)
     );
   }

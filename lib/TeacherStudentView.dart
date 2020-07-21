@@ -6,10 +6,10 @@ import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/TaskStatusTile.dart';
+import 'package:orbital2020/TeacherAppDrawer.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
-import 'AppDrawer.dart';
 import 'DataContainers/Task.dart';
 import 'DataContainers/TaskStatus.dart';
 import 'Sort.dart';
@@ -239,7 +239,7 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(),
-      drawer: AppDrawer(),
+      drawer: TeacherAppDrawer(),
       body: SafeArea(
           child: Column(
             children: <Widget>[

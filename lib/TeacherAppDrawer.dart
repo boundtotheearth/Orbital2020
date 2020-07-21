@@ -7,8 +7,8 @@ import 'package:provider/provider.dart';
 import 'Auth.dart';
 import 'DataContainers/User.dart';
 
-class AppDrawer extends StatelessWidget {
-  AppDrawer({ Key key }) : super(key: key);
+class TeacherAppDrawer extends StatelessWidget {
+  TeacherAppDrawer({ Key key }) : super(key: key);
 
   Future<void> signOut(BuildContext context, User _user) async {
     print("Tapped Logout");
@@ -17,7 +17,7 @@ class AppDrawer extends StatelessWidget {
       await auth.signOut();
       print("Signed out: ${_user.id}");
       Navigator.of(context, rootNavigator: true).pushReplacement(
-        MaterialPageRoute(builder: (context) => RootPage())
+          MaterialPageRoute(builder: (context) => RootPage())
       );
     } catch (error) {
       print("$error");
@@ -34,14 +34,14 @@ class AppDrawer extends StatelessWidget {
               accountEmail: Text(_user.email),
               accountName: Text(_user.name),
               currentAccountPicture: _user.photoUrl != null ?
-                CircleAvatar(
-                  backgroundImage: NetworkImage(_user.photoUrl),
-                  radius: 40,
-                ) :
-                CircleAvatar(
-                  child: const Text("U"),
-                  radius: 40,
-                ),
+              CircleAvatar(
+                backgroundImage: NetworkImage(_user.photoUrl),
+                radius: 40,
+              ) :
+              CircleAvatar(
+                child: const Text("U"),
+                radius: 40,
+              ),
             ),
             ListTile(
               title: const Text('Home'),
@@ -57,23 +57,8 @@ class AppDrawer extends StatelessWidget {
               },
             ),
             ListTile(
-              title: const Text("Schedule"),
-              onTap: () {
-                print("Tapped Schedule");
-                Navigator.pop(context);
-                Navigator.of(context).pushNamed("schedule");
-              }
-            ),
-            ListTile(
-                title: const Text("Leaderboard"),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.of(context).pushNamed("leaderboard");
-                }
-            ),
-            ListTile(
-              title: Text('Logout'),
-              onTap: () => signOut(context, _user)
+                title: Text('Logout'),
+                onTap: () => signOut(context, _user)
             )
           ],
         )

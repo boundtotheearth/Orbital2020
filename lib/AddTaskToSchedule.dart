@@ -7,7 +7,7 @@ import 'package:orbital2020/DataContainers/ScheduleDetails.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:provider/provider.dart';
 import 'DataContainers/Task.dart';
-import 'AppDrawer.dart';
+import 'StudentAppDrawer.dart';
 import 'DataContainers/User.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -343,7 +343,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
           ),
         ],
       ),
-      drawer: AppDrawer(),
+      drawer: StudentAppDrawer(),
       body: Container(
         padding: EdgeInsets.symmetric(horizontal: 17.0),
         child: _buildForm()
