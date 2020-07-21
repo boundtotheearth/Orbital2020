@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:io';
 import 'package:orbital2020/DataContainers/User.dart';
@@ -29,7 +28,7 @@ class _MessageHandlerState extends State<MessageHandler> {
     _db = Provider.of<DatabaseController>(context, listen: false);
     _user = Provider.of<User>(context, listen: false);
     _initFirebaseMessaging();
-//    LocalNotificationHandler.initLocalNotifications();
+    LocalNotificationHandler.initLocalNotifications();
 
   }
 
@@ -73,45 +72,6 @@ class _MessageHandlerState extends State<MessageHandler> {
       },
     );
   }
-
-//  void _initLocalNotifications() {
-//    var initializationSettingsAndroid = new AndroidInitializationSettings('@mipmap/ic_launcher');
-//    var initializationSettingsIOS = new IOSInitializationSettings();
-//    var initializationSettings = new InitializationSettings(initializationSettingsAndroid, initializationSettingsIOS);
-//    _flutterLocalNotificationsPlugin.initialize(initializationSettings);
-//  }
-
-
-//  Future<void> _showNotification(Map<String, dynamic> message) async {
-//
-//    String pushTitle = message['title'];
-//    String pushText = message['body'];
-//
-//    print("AppPushs params pushTitle : $pushTitle");
-//    print("AppPushs params pushText : $pushText");
-//
-//    var platformChannelSpecificsAndroid = new AndroidNotificationDetails(
-//        'your channel id',
-//        'your channel name',
-//        'your channel description',
-//        playSound: false,
-//        enableVibration: true,
-//        importance: Importance.Max,
-//        priority: Priority.High);
-//
-//    var platformChannelSpecificsIos = new IOSNotificationDetails(presentSound: false);
-//    var platformChannelSpecifics = new NotificationDetails(platformChannelSpecificsAndroid, platformChannelSpecificsIos);
-//
-//    _flutterLocalNotificationsPlugin.show(
-//        0,
-//        pushTitle,
-//        pushText,
-//        platformChannelSpecifics,
-//        payload: 'No_Sound',
-//      );
-//    return Future<void>.value();
-//  }
-
 
   @override
   void dispose() {
