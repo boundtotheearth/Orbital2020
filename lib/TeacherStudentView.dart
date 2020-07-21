@@ -5,6 +5,7 @@ import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/TaskWithStatus.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
+import 'package:orbital2020/LoadingDialog.dart';
 import 'package:orbital2020/TaskStatusTile.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
@@ -151,7 +152,7 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Are you sure you want to delete the task?'),
+            title: Text('Are you sure you want to remove the student?'),
             content: SingleChildScrollView(
               child: ListBody(
                 children: <Widget>[
@@ -163,9 +164,13 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
               FlatButton(
                 child: Text('YES'),
                 onPressed: () {
+                  Navigator.of(context).pop();
+                  LoadingDialog loadingDialog = LoadingDialog(context: context, text: 'Removing Student...');
+                  loadingDialog.show();
+
                   return db.teacherRemoveStudentFromGroup(teacherId: _user.id, group: widget.group, student: widget.student)
                       .then((value) {
-                    Navigator.of(context).pop();
+                    loadingDialog.close();
                     Navigator.of(viewContext).pop();
                   });
                 },

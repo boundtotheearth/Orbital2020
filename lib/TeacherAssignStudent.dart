@@ -5,6 +5,7 @@ import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
+import 'package:orbital2020/LoadingDialog.dart';
 import 'package:provider/provider.dart';
 
 //View shown when teacher is assigning students to a task
@@ -31,9 +32,6 @@ class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
     super.initState();
     db = Provider.of<DatabaseController>(context, listen: false);
     _user = Provider.of<User>(context, listen: false);
-//    _allStudents = db.getGroupStudentSnapshots(teacherId: _user.id, groupId: widget.group.id);
-//    _alreadyAssigned = db.getTaskStudentSnapshots(taskId: widget.task.id);
-//    _alreadyAssigned = db.getStudentsWithTask(widget.task.id);
     _students = Set();
     _searchText = "";
   }
@@ -97,7 +95,10 @@ class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
   }
 
   Future<void> submitAssignment() {
-    return db.teacherAssignStudentsToTask(_students, widget.task);
+    LoadingDialog loadingDialog = LoadingDialog(context: context, text: 'Assigning...');
+    loadingDialog.show();
+
+    return db.teacherAssignStudentsToTask(_students, widget.task).then((value) => loadingDialog.close());
   }
 
   @override

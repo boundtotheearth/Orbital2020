@@ -6,6 +6,7 @@ import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/DataContainers/TaskStatus.dart';
 import 'package:orbital2020/DatabaseController.dart';
+import 'package:orbital2020/LoadingDialog.dart';
 import 'package:orbital2020/StudentStatusTile.dart';
 import 'package:orbital2020/TaskProgressIndicator.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
@@ -166,9 +167,13 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
               FlatButton(
                 child: Text('YES'),
                 onPressed: () {
+                  Navigator.of(context).pop();
+                  LoadingDialog loadingDialog = LoadingDialog(context: context, text: 'Deleting Task...');
+                  loadingDialog.show();
+
                   db.teacherDeleteTask(task: widget.task, group: widget.group)
                       .then((value) {
-                    Navigator.of(context).pop();
+                    loadingDialog.close();
                     Navigator.of(viewContext).pop();
                   });
                 },

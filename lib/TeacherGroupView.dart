@@ -6,6 +6,7 @@ import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
+import 'package:orbital2020/LoadingDialog.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -304,9 +305,13 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
               FlatButton(
                 child: Text('YES'),
                 onPressed: () {
+                  Navigator.of(context).pop();
+                  LoadingDialog loadingDialog = LoadingDialog(context: context, text: 'Deleting Group...');
+                  loadingDialog.show();
+
                   db.teacherDeleteGroup(teacherId: _user.id, group: widget.group)
                       .then((value) {
-                    Navigator.of(context).pop();
+                    loadingDialog.close();
                     Navigator.of(viewContext).pop();
                   });
                 },
