@@ -7,10 +7,10 @@ import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/LoadingDialog.dart';
+import 'package:orbital2020/TeacherAppDrawer.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
-import 'AppDrawer.dart';
 import 'Sort.dart';
 
 class TeacherGroupView extends StatefulWidget {
@@ -338,7 +338,7 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(),
-      drawer: AppDrawer(),
+      drawer: TeacherAppDrawer(),
       body: TabBarView(
         controller: _tabController,
         children: <Widget>[

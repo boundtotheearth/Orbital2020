@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:orbital2020/AuthProvider.dart';
+import 'package:orbital2020/CloudStorageController.dart';
+import 'package:orbital2020/ImageHandler.dart';
 import 'package:orbital2020/Root.dart';
 import 'package:orbital2020/DataContainers/Teacher.dart';
 import 'Auth.dart';
@@ -28,9 +32,11 @@ class _LoginPageState extends State<LoginPage> {
   String _name;
   String _email;
   String _password;
+  File _profileImage;
   AccountType _accountType = AccountType.student;
   DisplayType _displayType = DisplayType.login;
 
+  final CloudStorageController storage = CloudStorageController();
   final DatabaseController db = DatabaseController();
   final formKey = new GlobalKey<FormState>();
   final passwordController = new TextEditingController();
@@ -66,29 +72,53 @@ class _LoginPageState extends State<LoginPage> {
           );
         }
       } else {
+        showDialog(
+            context: context,
+            builder: (context) {
+              return SimpleDialog(
+                title: ListTile(
+                  leading: CircularProgressIndicator(),
+                  title: const Text("Registering..."),
+                ),
+                titlePadding: EdgeInsets.all(16),
+              );
+            }
+        );
+
         String userId = await auth.createAccWithEmailPassword(_name, _email, _password);
         if (userId == null) {
+          Navigator.of(context).pop();
           showDialog(
               context: context,
               builder: (_) => _alert("Register failed", "Please try again."),
               barrierDismissible: false
           );
         } else {
+          if(_profileImage != null) {
+            await storage.uploadProfileImage(image: _profileImage, name: _name + DateTime.now().toString()).then((photoUrl) {
+              auth.updatePhoto(photoUrl);
+            });
+          }
+
           if(_accountType == AccountType.student) {
             Student newStudent = new Student(id: userId, name: _name);
             db.initialiseNewStudent(newStudent).then((value) {
+              Navigator.of(context).pop();
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (context) => RootPage())
               );
             });
+
             print("New Student Account created: $userId");
           } else if(_accountType == AccountType.teacher) {
             Teacher newTeacher = new Teacher(id: userId, name: _name);
             db.initialiseNewTeacher(newTeacher).then((value) {
+              Navigator.of(context).pop();
               Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (context) => RootPage())
               );
             });
+
             print("New Teacher Account created: $userId");
           }
         }
@@ -184,41 +214,54 @@ class _LoginPageState extends State<LoginPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
-              new Padding(
-                padding: EdgeInsets.only(top: 10),
-                child: new Text("I am a:",
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
               new Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  Expanded(
-                    child: new RadioListTile(
-                      title: new Text("Student", style: TextStyle(fontSize: 16)),
-                      value: AccountType.student,
-                      groupValue: _accountType,
-                      onChanged: (value) {
-                        setState(() {
-                          _accountType = value;
-                        });
-                      },
-                    ),
+                  new Container(
+                    width: 100,
+                    child: new AspectRatio(
+                      aspectRatio: 1,
+                      child: new InkWell(
+                          onTap: selectImage,
+                          child: _profileImage != null ?
+                          CircleAvatar(
+                            backgroundImage: FileImage(_profileImage),
+                            radius: 40,
+                          ) :
+                          CircleAvatar(
+                            child: const Text("U"),
+                            radius: 40,
+                          )
+                      ),
+                    )
                   ),
-                  Expanded(
-                    child: new RadioListTile(
-                      title: new Text("Teacher", style: TextStyle(fontSize: 16)),
-                      value: AccountType.teacher,
-                      groupValue: _accountType,
-                      onChanged: (value) {
-                        setState(() {
-                          _accountType = value;
-                        });
-                      },
-                    ),
+                  new Container(
+                    width: 200,
+                    child: new Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        new RadioListTile(
+                          title: new Text("Student", style: TextStyle(fontSize: 16)),
+                          value: AccountType.student,
+                          groupValue: _accountType,
+                          onChanged: (value) {
+                            setState(() {
+                              _accountType = value;
+                            });
+                          },
+                        ),
+                        new RadioListTile(
+                          title: new Text("Teacher", style: TextStyle(fontSize: 16)),
+                          value: AccountType.teacher,
+                          groupValue: _accountType,
+                          onChanged: (value) {
+                            setState(() {
+                              _accountType = value;
+                            });
+                          },
+                        ),
+                      ],
+                    )
                   ),
                 ],
               ),
@@ -267,6 +310,9 @@ class _LoginPageState extends State<LoginPage> {
                 validator: (value) => MatchValidator(errorText: "Passwords do not match!")
                     .validateMatch(value, passwordController.text),
               ),
+              new SizedBox(
+                height: 30.0,
+              ),
               new RaisedButton(
                 onPressed: submit,
                 color: Colors.white,
@@ -276,6 +322,15 @@ class _LoginPageState extends State<LoginPage> {
             ]
         )
     );
+  }
+
+  Future<File> selectImage() {
+    return ImageHandler.pickCropCompress().then((file) {
+      setState(() {
+        _profileImage = file;
+      });
+      return file;
+    });
   }
 
   Widget _redirectText() {

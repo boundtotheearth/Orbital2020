@@ -56,7 +56,7 @@ MonoBehaviour:
   - {fileID: 6277420030458715215, guid: 41f9866fd12534959893f72bbc62ef87, type: 3}
   - {fileID: -8201533819833317410, guid: 41f9866fd12534959893f72bbc62ef87, type: 3}
   growthTimes:
-  - 172800
-  - 86400
+  - 240
+  - 120
   gemDrops: 020000000500000001000000
   gemDropLimit: 30

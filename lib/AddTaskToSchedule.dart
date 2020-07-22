@@ -7,9 +7,10 @@ import 'package:orbital2020/DataContainers/ScheduleDetails.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:provider/provider.dart';
 import 'DataContainers/Task.dart';
-import 'AppDrawer.dart';
+import 'StudentAppDrawer.dart';
 import 'DataContainers/User.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:orbital2020/LocalNotificationHandler.dart';
 
 class AddTaskToSchedule extends StatefulWidget {
   AddTaskToSchedule({this.scheduledDate, this.schedule});
@@ -34,11 +35,11 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
   bool _editable;
   bool _viewOnly = false;
   User _user;
-  String _selectedTask;
+  Task _selectedTask;
   TimeOfDay _startTime;
   TimeOfDay _endTime;
   DateTime _scheduledDate;
-  Stream<Set<String>> _allUncompletedTasks;
+  Future<Set<String>> _allUncompletedTasks;
 
 
 
@@ -53,18 +54,23 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
       _scheduledDate = widget.scheduledDate;
     }
     if (_editable) {
-      _selectedTask = widget.schedule.taskId;
+      _selectedTask = Task(id: widget.schedule.taskId, name: widget.schedule.taskName);
       _scheduledDateController.text = DateFormat("y-MM-dd").format(widget.schedule.scheduledDate);
       _startTime = TimeOfDay.fromDateTime(widget.schedule.startTime);
       _startTimeController.text = timeToString(_startTime);
       _endTime = TimeOfDay.fromDateTime(widget.schedule.endTime);
       _endTimeController.text = timeToString(_endTime);
     }
-    if (_editable && widget.schedule.startTime.isBefore(DateTime.now()) ) {
-      _viewOnly = true;
-    }
     _scheduledDateController.text = DateFormat("y-MM-dd").format(_scheduledDate);
     _allUncompletedTasks = db.getUncompletedTasks(_user.id);
+    if (_editable && widget.schedule.startTime.isBefore(DateTime.now())) {
+      _viewOnly = true;
+    }
+    _allUncompletedTasks.then((value) {
+      if (_editable && !value.contains(widget.schedule.taskId)) {
+        _viewOnly = true;
+      }
+    });
     super.initState();
   }
 
@@ -151,17 +157,20 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
     if (_formKey.currentState.validate()) {
       print("Form is valid");
       _formKey.currentState.save();
-      print("TaskId: $_selectedTask, date: $_scheduledDate, start: $_startTime, end: $_endTime");
+      print("TaskId: ${_selectedTask.name}, date: $_scheduledDate, start: $_startTime, end: $_endTime");
       ScheduleDetails task = ScheduleDetails(
           id: widget.schedule?.id,
-          taskId: _selectedTask,
+          taskId: _selectedTask.id,
+          taskName: _selectedTask.name,
           scheduledDate: _scheduledDate,
           startTime: _scheduledDate.add(Duration(hours: _startTime.hour, minutes: _startTime.minute)),
-          endTime: _scheduledDate.add(Duration(hours: _endTime.hour, minutes: _endTime.minute)));
+          endTime: _scheduledDate.add(Duration(hours: _endTime.hour, minutes: _endTime.minute)),
+          startId: widget.schedule?.startId,
+          endId: widget.schedule?.endId);
       if (_editable) {
-        await db.updateSchedule(_user.id, task);
+        updateSchedule(_user.id, task);
       } else {
-        await db.scheduleTask(_user.id, task);
+        scheduleTask(_user.id, task);
       }
       Navigator.pop(context);
       return Future.value(true);
@@ -169,6 +178,24 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
       print("Form is invalid.");
       return Future.value(false);
     }
+  }
+
+  void scheduleTask(String studentId, ScheduleDetails task) {
+    Map<String, int> notifIds = LocalNotificationHandler.scheduleNewNotification(task.startTime, task.endTime, task.taskName);
+
+    db.scheduleTask(studentId, task.addNotifIds(notifIds["startId"], notifIds["endId"]));
+  }
+
+  void updateSchedule(String studentId, ScheduleDetails task) {
+    db.updateSchedule(studentId, task);
+    LocalNotificationHandler.replaceNotification(
+          task.startTime, task.endTime, task.taskName, task.startId, task.endId);
+
+  }
+
+  void deleteSchedule(String studentId, ScheduleDetails schedule) {
+    db.deleteScheduleById(studentId, schedule.id);
+    LocalNotificationHandler.cancelNotification(schedule.startId, schedule.endId, schedule.startTime, schedule.endTime);
   }
 
   void delete() {
@@ -181,7 +208,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
             FlatButton(
               child: Text("Yes"),
               onPressed: () {
-                db.deleteScheduleById(_user.id, widget.schedule.id);
+                deleteSchedule(_user.id, widget.schedule);
                 Navigator.of(context).pop();
                 Navigator.of(alertContext).pop();
               }
@@ -199,8 +226,8 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
 
   Widget _buildTaskDropDown() {
     if (!_viewOnly) {
-      return StreamBuilder<Set<String>>(
-          stream: _allUncompletedTasks,
+      return FutureBuilder<Set<String>>(
+          future: _allUncompletedTasks,
           builder: (context, snapshot)  {
             if (!snapshot.hasData) {
               return DropdownButtonFormField(
@@ -216,20 +243,17 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
               return StreamBuilder<List<Task>>(
                 stream: CombineLatestStream.list(streamList),
                 builder: (context, snapshot) {
-                  print(snapshot.data);
-                  return DropdownButtonFormField(
+                  return DropdownButtonFormField<Task>(
                     items: snapshot.data?.map((task) => DropdownMenuItem(
                       child: Text(task.name),
-                      value: task.id,
+                      value: task,
                     )
                     )?.toList(),
                     onChanged: (selected) {
-                      print(selected);
-                      setState(() {
-                        _selectedTask = selected;
-                      });
+                      print(selected.name);
                     },
                     value: _selectedTask,
+                    onSaved: (value) => _selectedTask = value,
                     hint: Text("Select Task"),
                     validator: (input) {
                       if (input == null) {
@@ -246,15 +270,10 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
           }
       );
     } else {
-      return StreamBuilder<Task>(
-        stream: db.getTaskName(widget.schedule.taskId),
-        builder: (context, snapshot) {
-          return DropdownButtonFormField(
-            items: [],
-            onChanged: null,
-            disabledHint: snapshot.hasData ? Text(snapshot.data.name) : Text("Loading..."),
-          );
-        },
+      return DropdownButtonFormField(
+        items: [],
+        onChanged: null,
+        disabledHint: Text(widget.schedule.taskName),
       );
     }
   }
@@ -263,7 +282,13 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
     return Form(
       key: _formKey,
       onWillPop: () async {
-        return _editable ? submit().then((value) => value) : true;
+        if (_viewOnly) {
+          return true;
+        } else if (_editable) {
+          return submit().then((value) => value);
+        } else {
+          return true;
+        }
       },
       child: ListView(
         children: <Widget>[
@@ -343,7 +368,7 @@ class AddTaskToScheduleState extends State<AddTaskToSchedule> {
           ),
         ],
       ),
-      drawer: AppDrawer(),
+      drawer: StudentAppDrawer(),
       body: Container(
         padding: EdgeInsets.symmetric(horizontal: 17.0),
         child: _buildForm()

@@ -7,10 +7,10 @@ import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/LoadingDialog.dart';
 import 'package:orbital2020/TaskStatusTile.dart';
+import 'package:orbital2020/TeacherAppDrawer.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
-import 'AppDrawer.dart';
 import 'DataContainers/Task.dart';
 import 'DataContainers/TaskStatus.dart';
 import 'Sort.dart';
@@ -57,7 +57,7 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
   }
 
   List<TaskWithStatus> sortAndFilter(List<TaskWithStatus> originalTasks) {
-    List<TaskWithStatus> filteredTask = originalTasks.where((task) => filtered(task)).toList();
+    List<TaskWithStatus> filteredTask = originalTasks.where((task) => filtered(task) && !task.claimed).toList();
     switch (_sortBy) {
       case Sort.name:
         filteredTask.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
@@ -244,7 +244,7 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(),
-      drawer: AppDrawer(),
+      drawer: TeacherAppDrawer(),
       body: SafeArea(
           child: Column(
             children: <Widget>[

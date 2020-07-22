@@ -98,17 +98,9 @@ class _StudentTaskViewState extends State<StudentTaskView> {
           }
         },
       );
-    } else {
-      if(widget.task.verified) {
-        //Completed, verified
-        return RaisedButton(
-          child: const Text('Claim Reward'),
-          onPressed: () {},
-        );
-      } else {
-        //Completed, not verified
-        return RaisedButton(
-          child: const Text('Waiting for Verification...'),
+    } else if (!widget.task.verified) {
+      return RaisedButton(
+          child: const Text('Verifying...'),
           onPressed: () {
             db.updateTaskCompletion(widget.task.id, _user.id, false, false)
               .then((value) =>
@@ -118,7 +110,8 @@ class _StudentTaskViewState extends State<StudentTaskView> {
             );
           },
         );
-      }
+    } else {
+      return Text("");
     }
   }
 

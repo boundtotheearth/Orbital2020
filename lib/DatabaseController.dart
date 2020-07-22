@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:orbital2020/DataContainers/FocusSession.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/LeaderboardData.dart';
 import 'package:orbital2020/DataContainers/ScheduleDetails.dart';
@@ -18,24 +19,13 @@ class DatabaseController {
   Firestore db = Firestore.instance;
 
   void test() async {
-    Future<void> a = db.collection('students').getDocuments().then((query) {
-      List<DocumentSnapshot> documents = query.documents;
-      for(DocumentSnapshot document in documents) {
-        db.collection('accountTypes')
-            .document(document.documentID)
-            .setData({'type': 'student'});
-      }
+    db.collection('test')
+        .document('lockbutton')
+        .get()
+        .then((snapshot) {
+          int value = snapshot['value'];
+          snapshot.reference.updateData({'value': value+1});
     });
-    Future<void> b = db.collection('teachers').getDocuments().then((query) {
-      List<DocumentSnapshot> documents = query.documents;
-      for(DocumentSnapshot document in documents) {
-        db.collection('accountTypes')
-            .document(document.documentID)
-            .setData({'type': 'teacher'});
-      }
-    });
-
-    Future.wait([a, b]).then((value) => print("Done"));
   }
 
   Future<String> getToken({@required String uid}) {
@@ -82,15 +72,16 @@ class DatabaseController {
   }
 
   //Student schedules his task
-  Future<void> scheduleTask(String studentId, ScheduleDetails task) {
+  Future<String> scheduleTask(String studentId, ScheduleDetails task) {
     return db.collection('students')
         .document(studentId)
         .collection("scheduledTasks")
-        .add(task.toKeyValuePair());
+        .add(task.toKeyValuePair())
+        .then((doc) => doc.documentID);
   }
 
   //Student deletes schedule
-  Future<void> deleteScheduleById(String studentId, String scheduleId) {
+  Future<void> deleteScheduleById(String studentId, String scheduleId) async {
     return db.collection("students")
         .document(studentId)
         .collection("scheduledTasks")
@@ -120,6 +111,16 @@ class DatabaseController {
         .document(schedule.id)
         .updateData(schedule.toKeyValuePair());
   }
+
+
+//  Future<List<int>> getScheduleNotifId(String studentId, String scheduleId) {
+//    return db.collection("students")
+//        .document(studentId)
+//        .collection("scheduledTasks")
+//        .document(scheduleId)
+//        .get()
+//        .then((snapshot) => [snapshot["startId"], snapshot["endId"]]);
+//  }
 
   //Student gets all scheduled tasks
 //  Stream<List> getScheduledTasksSnapshots(String studentId) {
@@ -188,7 +189,8 @@ class DatabaseController {
         createdByName: document["createdByName"] ?? "",
         tags: document["tags"]?.cast<String>() ?? [],
         completed: task.completed,
-        verified: task.verified
+        verified: task.verified,
+        claimed: task.claimed
     ));
   }
 
@@ -229,10 +231,13 @@ class DatabaseController {
         .map((documents) => documents.map((document) {
           return ScheduleDetails(
             id: document.documentID,
+            taskName: document["taskName"],
             taskId: document["taskId"],
             scheduledDate: document["scheduledDate"].toDate(),
             startTime: document["startTime"].toDate(),
-            endTime: document["endTime"].toDate()
+            endTime: document["endTime"].toDate(),
+            startId: document["startId"],
+            endId: document["endId"]
           );
     })
     .toList()
@@ -419,22 +424,25 @@ class DatabaseController {
             TaskStatus t = TaskStatus(
                 id: document.documentID,
                 completed: document['completed'],
-                verified: document['verified']);
+                verified: document['verified'],
+                claimed: document['claimed']);
             return t;
           }).toSet();
         });
     return tasks;
   }
 
-  Stream<Set<String>> getUncompletedTasks(String studentId) {
+  Future<Set<String>> getUncompletedTasks(String studentId) async {
     return db.collection("students")
         .document(studentId)
         .collection("tasks")
         .where("completed", isEqualTo: false)
-        .snapshots()
-        .map((snapshot) => snapshot.documents.map((document) => document.documentID)
-          .toSet()
-        );
+        .getDocuments()
+        .then((snapshot) => snapshot.documents.map((document) => document.documentID).toSet());
+//        .snapshots()
+//        .map((snapshot) => snapshot.documents.map((document) => document.documentID)
+//          .toSet()
+//        );
 
   }
 
@@ -655,7 +663,8 @@ class DatabaseController {
               id: student.id,
               name: student.name,
               completed: status.completed,
-              verified: status.verified)
+              verified: status.verified,
+              claimed: status.claimed)
     );
   }
 
@@ -670,13 +679,14 @@ class DatabaseController {
         .map((document) => TaskStatus(
           id: document.documentID,
           completed: document['completed'],
-          verified: document['verified'])
+          verified: document['verified'],
+          claimed: document["claimed"])
     );
   }
 
   Future<void> studentDeleteTask({Task task, String studentId}) {
     return Future.wait([
-      deleteScheduleByTask(studentId, task.id),
+//      deleteScheduleByTask(studentId, task.id),
       _unassignTaskFromStudent(task: task, studentId: studentId), //changed test
       _unassignStudentFromTask(task.id, studentId),
       _deleteTask(task.id),
@@ -714,7 +724,7 @@ class DatabaseController {
         //unassign from students
         for(String studentId in studentIds) {
           Future.wait([
-          deleteScheduleByTask(studentId, doc.documentID),
+//          deleteScheduleByTask(studentId, doc.documentID),
           _unassignTaskFromStudent(taskId: doc.documentID, studentId: studentId),
           _unassignStudentFromTask(doc.documentID, studentId)
           ]);
@@ -743,7 +753,7 @@ class DatabaseController {
       .getDocuments()
       .then((snapshot) {
         for(DocumentSnapshot taskDoc in snapshot.documents) {
-          deleteScheduleByTask(student.id, taskDoc.documentID);
+//          deleteScheduleByTask(student.id, taskDoc.documentID);
           _unassignStudentFromTask(taskDoc.documentID, student.id);
           _unassignTaskFromStudent(taskId: taskDoc.documentID, studentId: student.id);
         }
@@ -773,7 +783,7 @@ class DatabaseController {
             snapshot.documents.forEach((stuDoc) {
               _unassignTaskFromStudent(task: task, studentId: stuDoc.documentID);
               _unassignStudentFromTask(task.id, stuDoc.documentID);
-              deleteScheduleByTask(stuDoc.documentID, task.id);
+//              deleteScheduleByTask(stuDoc.documentID, task.id);
             });
           });
       await _unassignTaskFromGroup(task, group);
@@ -802,7 +812,7 @@ class DatabaseController {
             DocumentSnapshot document = snapshot.documents[0];
             return document.data;
           } else {
-            return null;
+            return {};
           }
         }
     );
@@ -828,6 +838,95 @@ class DatabaseController {
           }
           return Future.wait(futures);
     });
+  }
+
+  Future<void> addFocusSession({String studentId, FocusSession focusSession}) {
+    return _addFocusSessionToHistory(studentId, focusSession);
+  }
+
+  Future<void> updateFocusSession({String studentId, FocusSession focusSession}) {
+    return db.collection('students')
+        .document(studentId)
+        .collection('focusSessions')
+        .document(focusSession.id)
+        .updateData(focusSession.toKeyValuePair());
+  }
+
+  Stream<List<FocusSession>> getFocusSessionHistory({String studentId, int days}) {
+    DateTime cutoff = DateTime.now().subtract(Duration(days: days));
+    return db.collection('students')
+        .document(studentId)
+        .collection('focusSessions')
+        .where('startTime', isGreaterThanOrEqualTo: cutoff)
+        .orderBy('startTime', descending: true)
+        .snapshots()
+        .map((QuerySnapshot snapshot) {
+          List<DocumentSnapshot> docSnapshots = snapshot.documents;
+          return docSnapshots.map((document) {
+            return FocusSession.fromKeyValuePair(document.data);
+          }).toList();
+    });
+  }
+
+  Stream<FocusSession> getPrevFocusSessionSnapshots({String studentId}) {
+    return db.collection('students')
+        .document(studentId)
+        .collection('focusSessions')
+        .orderBy('startTime', descending: true)
+        .snapshots()
+        .map((QuerySnapshot snapshot) {
+          if(snapshot.documents.length > 0) {
+            DocumentSnapshot doc = snapshot.documents[0];
+            return FocusSession.fromKeyValuePair(doc.data);
+          } else {
+            return FocusSession();
+          }
+    });
+  }
+
+  Future<FocusSession> getPrevFocusSession({String studentId}) {
+    return db.collection('students')
+        .document(studentId)
+        .collection('focusSessions')
+        .orderBy('startTime', descending: true)
+        .getDocuments()
+        .then((QuerySnapshot snapshot) {
+          if(snapshot.documents.length > 0) {
+            DocumentSnapshot doc = snapshot.documents[0];
+            return FocusSession.fromKeyValuePair(doc.data);
+          } else {
+            return FocusSession();
+          }
+    });
+  }
+
+  Stream<List<FocusSession>> getUnclaimedFocusSession({String studentId}) {
+    return db.collection('students')
+        .document(studentId)
+        .collection('focusSessions')
+        .where('claimed', isEqualTo: false)
+        .orderBy('startTime', descending: true)
+        .snapshots()
+        .map((QuerySnapshot snapshot) {
+          if(snapshot.documents.length > 0) {
+            return snapshot.documents.map((document) {
+              FocusSession session = FocusSession.fromKeyValuePair(document.data);
+              session.id = document.documentID;
+              return session;
+            }).toList();
+          } else {
+            return [];
+          }
+    });
+  }
+
+  Future<void> _addFocusSessionToHistory(String studentId, FocusSession focusSession) {
+    DocumentReference newDoc = db.collection("students")
+        .document(studentId)
+        .collection("focusSessions")
+        .document();
+    focusSession.id = newDoc.documentID;
+    return newDoc.setData(focusSession.toKeyValuePair());
   }
 
   Future<Group> _createGroup(String teacherId, Group group) {

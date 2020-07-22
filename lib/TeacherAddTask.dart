@@ -11,6 +11,7 @@ import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/AppDrawer.dart';
 import 'package:orbital2020/LoadingDialog.dart';
+import 'package:orbital2020/TeacherAppDrawer.dart';
 import 'package:provider/provider.dart';
 
 
@@ -24,6 +25,37 @@ class TeacherAddTask extends StatefulWidget {
 }
 
 class _TeacherAddTaskState extends State<TeacherAddTask> {
+<<<<<<< HEAD
+=======
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text('Add Task'),
+        ),
+        drawer: TeacherAppDrawer(),
+        body: AddTaskForm(group: widget.group)
+    );
+  }
+}
+
+class AddTaskForm extends StatefulWidget {
+  final Group group;
+
+  AddTaskForm({Key key, @required this.group}) : super(key: key);
+
+  @override
+  _AddTaskFormState createState() => _AddTaskFormState();
+}
+
+class _AddTaskFormState extends State<AddTaskForm> {
+>>>>>>> master
   final _formKey = GlobalKey<FormState>();
   final _dueDateController = TextEditingController();
   final _tagController = TextEditingController();

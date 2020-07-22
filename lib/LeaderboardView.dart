@@ -1,10 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:orbital2020/AppDrawer.dart';
+import 'package:orbital2020/StudentAppDrawer.dart';
 import 'package:orbital2020/DataContainers/LeaderboardData.dart';
-import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
-import 'package:provider/provider.dart';
 
 class LeaderBoardView extends StatefulWidget {
   LeaderBoardView({Key key}) : super(key: key);
@@ -16,12 +14,10 @@ class LeaderBoardView extends StatefulWidget {
 class _LeaderboardViewState extends State<LeaderBoardView> {
 
   final DatabaseController db = DatabaseController();
-  User _user;
 
   @override
   void initState() {
     super.initState();
-    _user = Provider.of<User>(context, listen: false);
   }
 
   @override
@@ -30,7 +26,7 @@ class _LeaderboardViewState extends State<LeaderBoardView> {
         appBar: AppBar(
           title: Text("Leaderboard"),
         ),
-        drawer: AppDrawer(),
+        drawer: StudentAppDrawer(),
         body: StreamBuilder(
           stream: db.getLeaderboardData(),
           builder: (context, snapshot) {
@@ -39,7 +35,8 @@ class _LeaderboardViewState extends State<LeaderBoardView> {
                 itemCount: snapshot.data.length,
                 itemBuilder: (context, index) {
                   List<LeaderboardData> leaderboardList = snapshot.data;
-                  leaderboardList.sort((a, b) => b.gemTotal.compareTo(a.gemTotal));
+                  leaderboardList.removeWhere((element) => element == null);
+                  leaderboardList.sort((a, b) => b.gemTotal.compareTo(a.gemTotal ?? 0));
                   return ListTile(
                     leading: Text((index + 1).toString() + "."),
                     title: Text(leaderboardList[index].name),

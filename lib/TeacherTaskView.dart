@@ -10,9 +10,9 @@ import 'package:orbital2020/LoadingDialog.dart';
 import 'package:orbital2020/StudentStatusTile.dart';
 import 'package:orbital2020/TaskProgressIndicator.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
+import 'package:orbital2020/TeacherAppDrawer.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
-import 'AppDrawer.dart';
 import 'DataContainers/StudentWithStatus.dart';
 import 'Sort.dart';
 
@@ -568,7 +568,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(),
-      drawer: AppDrawer(),
+      drawer: TeacherAppDrawer(),
       body: TabBarView(
           controller: _tabController,
           children: <Widget>[

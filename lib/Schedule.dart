@@ -4,8 +4,7 @@ import 'package:orbital2020/DataContainers/ScheduleDetails.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'AppDrawer.dart';
-import 'DataContainers/Task.dart';
+import 'StudentAppDrawer.dart';
 import 'DataContainers/User.dart';
 
 class Schedule extends StatefulWidget {
@@ -61,9 +60,7 @@ class _ScheduleState extends State<Schedule> {
     return StreamBuilder<List>(
       stream: db.getScheduleDetailsSnapshots(_user.id),
       builder: (context, snapshot) {
-        print("here");
         if (snapshot.hasData) {
-          print("there");
           List allTasks = snapshot.data;
           print(allTasks);
           _scheduledTasks = _mapToScheduledDate(allTasks);
@@ -129,7 +126,6 @@ class _ScheduleState extends State<Schedule> {
 
   Widget _buildTask(List tasks) {
     tasks.sort((a, b) => a.startTime.compareTo(b.startTime));
-    print("hello");
     if (tasks.isEmpty) {
       return Text("No scheduled tasks for the day!");
     } else {
@@ -137,34 +133,23 @@ class _ScheduleState extends State<Schedule> {
         itemCount: tasks.length,
         itemBuilder: (context, index) {
           ScheduleDetails task = tasks[index];
-          return StreamBuilder<Task>(
-            stream: db.getTask(task.taskId),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                print("rebuild");
-                return ListTile(
-                    leading: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text("From ${formatTime.format(task
-                            .startTime)} to ${formatTime.format(task
-                            .endTime)}"),
-                      ],
-                    ),
-                    title: Text(snapshot.data.name), //task.name),
-                    onTap: () {
-                      Map<String, dynamic> arguments = {
-                        'date': _selectedDate,
-                        'schedule': task
-                      };
-                      Navigator.of(context).pushNamed("addSchedule", arguments: arguments);
-                    }
-
-                );
-              } else {
-                return CircularProgressIndicator();
+          return ListTile(
+              leading: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text("From ${formatTime.format(task
+                      .startTime)} to ${formatTime.format(task
+                      .endTime)}"),
+                ],
+              ),
+              title: Text(task.taskName), //task.name),
+              onTap: () {
+                Map<String, dynamic> arguments = {
+                  'date': _selectedDate,
+                  'schedule': task
+                };
+                Navigator.of(context).pushNamed("addSchedule", arguments: arguments);
               }
-            },
           );
         },
       );
@@ -187,7 +172,7 @@ class _ScheduleState extends State<Schedule> {
           ),
         ],
       ),
-      drawer: AppDrawer(),
+      drawer: StudentAppDrawer(),
       body: SafeArea(
         //padding: EdgeInsets.symmetric(horizontal: 16.0),
         child: _buildCalendar()

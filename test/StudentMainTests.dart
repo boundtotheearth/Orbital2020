@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_unity_widget/flutter_unity_widget.dart';
-import 'package:orbital2020/AppDrawer.dart';
+import 'package:orbital2020/StudentAppDrawer.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
 import 'package:orbital2020/DataContainers/User.dart';
@@ -58,7 +58,7 @@ void runTests() {
     await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.menu));
     await tester.pump();
-    expect(find.byType(AppDrawer), findsOneWidget);
+    expect(find.byType(StudentAppDrawer), findsOneWidget);
   });
 
   testWidgets("Search UI", (WidgetTester tester) async {

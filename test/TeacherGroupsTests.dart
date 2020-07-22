@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:orbital2020/AppDrawer.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
+import 'package:orbital2020/TeacherAppDrawer.dart';
 import 'package:orbital2020/TeacherGroups.dart';
 import 'package:provider/provider.dart';
 
@@ -50,7 +50,7 @@ void runTests() {
     await tester.pumpWidget(app);
     await tester.tap(find.byIcon(Icons.menu));
     await tester.pump();
-    expect(find.byType(AppDrawer), findsOneWidget);
+    expect(find.byType(TeacherAppDrawer), findsOneWidget);
   });
 
   testWidgets("Search UI", (WidgetTester tester) async {

@@ -941,12 +941,12 @@ MonoBehaviour:
     collection: []
     plants: []
     gemTotal: 0
-    lastActiveUTC: 132384082708830040
+    focusDuration: 0
   testing: 0
-  testData: '{"inventory":[{"plantType":"testplant1","property":"Default Property"},{"plantType":"testplant2","property":"Default
-    Property"},{"plantType":"testplant1","property":"Default Property"}],"collection":[{"plantType":"testplant1"},{"plantType":"testplant2"}],"plants":[{"plantType":"testplant1","property":"Default
-    Property","isWatered":false,"gridX":2,"gridY":3,"growthStage":2,"growthProgress":0.0},{"plantType":"testplant2","property":"Default
-    Property","isWatered":false,"gridX":1,"gridY":1,"growthStage":2,"growthProgress":0.0}],"gemTotal":0,"lastActiveUTC":132384954482414190} '
+  testData: '{"inventory":[{"plantType":"lavender","property":"Default Property"},{"plantType":"hydrangea","property":"Default
+    Property"},{"plantType":"marigold","property":"Default Property"}],"collection":[{"plantType":"poppy"},{"plantType":"lavender"},{"plantType":"hydrangea"},{"plantType":"marigold"}],"plants":[{"plantType":"poppy","property":"Default
+    Property","isWatered":false,"gridX":1,"gridY":2,"growthStage":0,"growthProgress":0.0},{"plantType":"poppy","property":"Default
+    Property","isWatered":false,"gridX":2,"gridY":1,"growthStage":0,"growthProgress":0.0}],"gemTotal":0,"focusTime":31} '
 --- !u!4 &491494881
 Transform:
   m_ObjectHideFlags: 0

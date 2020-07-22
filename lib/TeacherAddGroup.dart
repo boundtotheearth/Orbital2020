@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:orbital2020/CloudStorageController.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/Student.dart';
@@ -11,6 +10,7 @@ import 'package:orbital2020/DataContainers/User.dart';
 
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/LoadingDialog.dart';
+import 'package:orbital2020/ImageHandler.dart';
 import 'package:provider/provider.dart';
 
 //View shown when teacher is assigning a task to a student
@@ -118,13 +118,11 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
   }
 
   Future<File> selectImage() {
-    return ImagePicker().getImage(source: ImageSource.gallery)
-        .then((pickedFile) {
-          File file = File(pickedFile.path);
-          setState(() {
-            _groupImage = file;
-          });
-          return file;
+    return ImageHandler.pickCropCompress().then((file) {
+      setState(() {
+        _groupImage = file;
+      });
+      return file;
     });
   }
 

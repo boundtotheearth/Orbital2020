@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/Login.dart';
-import 'package:orbital2020/NotificationHandlier.dart';
 import 'package:provider/provider.dart';
 import 'Auth.dart';
 import 'AuthProvider.dart';
 import 'DataContainers/User.dart';
-import 'HomePage.dart';
 
 class RootPage extends StatelessWidget {
   @override
@@ -25,7 +23,7 @@ class RootPage extends StatelessWidget {
                 create: (_) => DatabaseController(),
               )
             ],
-            child: MessageHandler(),
+            child: HomePage(),
           );
         } else if(snapshot.hasError) {
           return LoginPage();
