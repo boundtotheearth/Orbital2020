@@ -34,36 +34,24 @@ class _StudentStatusTileState extends State<StudentStatusTile> {
           child: const Text('Complete'),
           onPressed: () => widget.updateComplete(true),
         );
+      } else if (!widget.student.verified) {
+        return RaisedButton(
+            child: const Text('Verifying...'),
+            onPressed: () => widget.updateComplete(false),
+          );
       } else {
-        if(widget.student.verified) {
-          //Completed, verified
-          return RaisedButton(
+        return RaisedButton(
             child: const Text('Claim Reward'),
             onPressed: () => widget.onFinish,
           );
-        } else {
-          //Completed, not verified
-          return RaisedButton(
-            child: const Text('Waiting for Verification...'),
-            onPressed: () => widget.updateComplete(false),
-          );
-        }
-      }
+      } 
     } else {
       //On Teacher Account
       if(!widget.student.completed) {
         //Not conpleted
         return Text('Not completed');
-      } else {
-        if(widget.student.verified) {
-          //Completed, verified
-          return RaisedButton(
-            child: const Text('Undo Verify'),
-            onPressed: () => widget.updateVerify(false),
-          );
-        } else {
-          //Completed, not verified
-          return Wrap(
+      } else if (!widget.student.verified) {
+        return Wrap(
             children: <Widget>[
               RaisedButton(
                 child: const Text('Redo'),
@@ -75,7 +63,13 @@ class _StudentStatusTileState extends State<StudentStatusTile> {
               ),
             ],
           );
-        }
+      } else if (!widget.student.claimed) {
+        return RaisedButton(
+            child: const Text('Undo Verify'),
+            onPressed: () => widget.updateVerify(false),
+          );
+      } else {
+        return Text("Reward Claimed");
       }
     }
   }

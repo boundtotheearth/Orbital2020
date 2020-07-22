@@ -3,15 +3,18 @@ import 'package:orbital2020/DataContainers/Student.dart';
 class StudentWithStatus extends Student {
     bool completed;
     bool verified;
+    bool claimed;
 
     StudentWithStatus({
         String id,
         String name,
         bool completed,
-        bool verified
+        bool verified,
+        bool claimed
      }) :
     this.completed = completed ?? false,
     this.verified = verified ?? false,
+    this.claimed = claimed ?? false,
     super(id: id, name: name);
 
     Map<String, dynamic> toKeyValuePair() {
@@ -26,8 +29,10 @@ class StudentWithStatus extends Student {
             return 0;
         } else if (!verified) {
             return 1;
-        } else {
+        } else if (!claimed) {
             return 2;
+        } else {
+          return 3;
         }
     }
 }

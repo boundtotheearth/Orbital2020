@@ -48,36 +48,26 @@ class _TaskStatusTileState extends State<TaskStatusTile> {
           child: const Text('Complete'),
           onPressed: () => widget.updateComplete(true, false),
         );
-      } else {
-        if(widget.task.verified) {
-          //Completed, verified
-          return RaisedButton(
-            child: const Text('Claim Reward'),
-            onPressed: () => widget.onFinish(),
-          );
-        } else {
-          //Completed, not verified
-          return RaisedButton(
+      } else if (!widget.task.verified) {
+        return RaisedButton(
             child: const Text('Verifying...'),
             onPressed: () => widget.updateComplete(false, false),
           );
-        }
+      } else if (!widget.task.claimed) {
+         return RaisedButton(
+            child: const Text('Claim Reward'),
+            onPressed: () => widget.onFinish(),
+          );
+      } else {
+        return Text("Reward Claimed");
       }
     } else {
       //On Teacher Account
       if(!widget.task.completed) {
         //Not conpleted
         return Text('Not completed');
-      } else {
-        if(widget.task.verified) {
-          //Completed, verified
-          return RaisedButton(
-            child: const Text('Undo Verify'),
-            onPressed: () => widget.updateVerify(false),
-          );
-        } else {
-          //Completed, not verified
-          return Wrap(
+      } else if (!widget.task.verified) {
+        return Wrap(
             children: <Widget>[
               RaisedButton(
                 child: const Text('Redo'),
@@ -89,7 +79,13 @@ class _TaskStatusTileState extends State<TaskStatusTile> {
               ),
             ],
           );
-        }
+      } else if (!widget.task.claimed) {
+        return RaisedButton(
+            child: const Text('Undo Verify'),
+            onPressed: () => widget.updateVerify(false),
+          );
+      } else {
+        return Text("Reward Claimed");
       }
     }
   }
