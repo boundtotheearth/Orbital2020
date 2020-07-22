@@ -11,23 +11,19 @@ public class GameData
     public List<CollectionItem> collection = new List<CollectionItem>();
     public List<GamePlant> plants = new List<GamePlant>();
     public int gemTotal;
-    public long lastActiveUTC;
+    public int focusDuration;
 
     public GameData()
     {
         //Mock Inventory
-        inventory.Add(new InventoryItem("testplant1"));
-        inventory.Add(new InventoryItem("testplant2"));
 
         //Mock Collection
-        collection.Add(new CollectionItem("testplant1"));
-        collection.Add(new CollectionItem("testplant2"));
 
         //Mock Gem Total
         gemTotal = 0;
 
-        //Mock LastActive
-        lastActiveUTC = DateTime.Now.AddMinutes(-1).ToFileTimeUtc();
+        //Mock Idle Count
+        focusDuration = 0;
     }
 
     public static GameData From(string json)

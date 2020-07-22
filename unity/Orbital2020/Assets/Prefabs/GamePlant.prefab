@@ -201,7 +201,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 10.24, y: 10.24}
+  m_Size: {x: 16, y: 16}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -220,10 +220,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spriteRenderer: {fileID: 0}
-  plantData: {fileID: 0}
-  isWatered: 0
   movingSprite: {fileID: 1711155881}
+  data:
+    plantType: 
+    property: 
+    isWatered: 0
+    gridX: 0
+    gridY: 0
+    growthStage: 0
   moveDeleting: 0
+  originalPosition: {x: 0, y: 0, z: 0}
+  tile: {fileID: 0}
 --- !u!61 &7825223771396112678
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -242,7 +249,7 @@ BoxCollider2D:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 16, y: 16}
-    newSize: {x: 10.24, y: 10.24}
+    newSize: {x: 16, y: 16}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
