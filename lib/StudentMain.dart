@@ -290,7 +290,7 @@ class _StudentMainState extends State<StudentMain> {
           children: <Widget>[
             AspectRatio(
               aspectRatio: 3/2,
-              child: GameWidget(),
+              child: GameWidget(key: unityWidgetKey),
             ),
             Container(
               color: Colors.green,

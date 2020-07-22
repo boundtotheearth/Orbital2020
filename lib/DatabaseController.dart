@@ -695,7 +695,8 @@ class DatabaseController {
 
   Future<void> studentClaimReward({Task task, String studentId}) {
     return Future.wait([
-      _unassignTaskFromStudent(task: task, studentId: studentId),
+      //_unassignTaskFromStudent(task: task, studentId: studentId),
+      _updateTaskClaimed(task.id, studentId, true),
     ]);
   }
 
@@ -1111,5 +1112,13 @@ class DatabaseController {
         .collection('tasks')
         .document(taskId)
         .updateData({'verified': verified});
+  }
+
+  Future<void> _updateTaskClaimed(String taskId, String studentId, bool claimed) {
+    return db.collection('students')
+        .document(studentId)
+        .collection('tasks')
+        .document(taskId)
+        .updateData({'claimed': claimed});
   }
 }

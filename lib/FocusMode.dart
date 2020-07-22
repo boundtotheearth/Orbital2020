@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:orbital2020/AppDrawer.dart';
 import 'package:orbital2020/DataContainers/FocusSession.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/FocusHistoryChart.dart';
+import 'package:orbital2020/StudentAppDrawer.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_state/screen_state.dart';
 
@@ -132,7 +132,7 @@ class _FocusModeStatus extends State<FocusMode> {
 
   Widget buildDefaultUI(FocusSession prevFocusSession) {
     return Scaffold(
-        drawer: AppDrawer(),
+        drawer: StudentAppDrawer(),
         appBar: AppBar(
           title: const Text('Focus Mode'),
         ),
