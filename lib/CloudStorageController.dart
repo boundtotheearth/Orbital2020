@@ -13,4 +13,13 @@ class CloudStorageController {
           .then((value) => value.toString());
     });
   }
+
+  Future<String> uploadProfileImage({File image, String name}) async {
+    StorageReference ref = storage.ref().child("users/images/$name");
+    StorageUploadTask uploadTask = ref.putFile(image);
+    return uploadTask.onComplete.then((snapshot) {
+      return snapshot.ref.getDownloadURL()
+          .then((value) => value.toString());
+    });
+  }
 }

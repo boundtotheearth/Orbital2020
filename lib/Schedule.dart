@@ -4,7 +4,7 @@ import 'package:orbital2020/DataContainers/ScheduleDetails.dart';
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'AppDrawer.dart';
+import 'StudentAppDrawer.dart';
 import 'DataContainers/User.dart';
 
 class Schedule extends StatefulWidget {
@@ -172,7 +172,7 @@ class _ScheduleState extends State<Schedule> {
           ),
         ],
       ),
-      drawer: AppDrawer(),
+      drawer: StudentAppDrawer(),
       body: SafeArea(
         //padding: EdgeInsets.symmetric(horizontal: 16.0),
         child: _buildCalendar()

@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:orbital2020/AppDrawer.dart';
+import 'package:orbital2020/StudentAppDrawer.dart';
 import 'package:orbital2020/DataContainers/LeaderboardData.dart';
 import 'package:orbital2020/DatabaseController.dart';
 
@@ -26,7 +26,7 @@ class _LeaderboardViewState extends State<LeaderBoardView> {
         appBar: AppBar(
           title: Text("Leaderboard"),
         ),
-        drawer: AppDrawer(),
+        drawer: StudentAppDrawer(),
         body: StreamBuilder(
           stream: db.getLeaderboardData(),
           builder: (context, snapshot) {
