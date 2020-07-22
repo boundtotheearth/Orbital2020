@@ -59,7 +59,7 @@ class _TaskStatusTileState extends State<TaskStatusTile> {
             onPressed: () => widget.onFinish(),
           );
       } else {
-        Text("Reward Claimed");
+        return Text("Reward Claimed");
       }
     } else {
       //On Teacher Account

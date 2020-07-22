@@ -4,7 +4,7 @@ class TaskStatus {
   String name;
   bool completed;
   bool verified;
-  bool claimed
+  bool claimed;
 
   TaskStatus({String id, String name, bool completed, bool verified, bool claimed}) {
     this.id = id;
