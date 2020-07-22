@@ -5,6 +5,7 @@ import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 
 import 'package:orbital2020/DatabaseController.dart';
+import 'package:orbital2020/LoadingDialog.dart';
 import 'package:provider/provider.dart';
 
 //View shown when teacher is assigning a task to a student
@@ -87,9 +88,11 @@ class _TeacherAddStudentToGroupState extends State<TeacherAddStudentToGroup> {
 
   Future<void> submitAdd() {
     if(_studentsToAdd.length > 0) {
+      LoadingDialog loadingDialog = LoadingDialog(context: context, text: 'Adding Students...');
+      loadingDialog.show();
       return db.teacherAddStudentsToGroup(teacherId: _user.id,
           group: widget.group,
-          students: _studentsToAdd);
+          students: _studentsToAdd).then((value) => loadingDialog.close());
     }
     return Future(null);
   }

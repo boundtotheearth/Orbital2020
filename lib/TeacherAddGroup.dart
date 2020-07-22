@@ -9,6 +9,7 @@ import 'package:orbital2020/DataContainers/Student.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 
 import 'package:orbital2020/DatabaseController.dart';
+import 'package:orbital2020/LoadingDialog.dart';
 import 'package:orbital2020/ImageHandler.dart';
 import 'package:provider/provider.dart';
 
@@ -99,13 +100,19 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
 
   Future<bool> submitGroup() async {
     if(_formKey.currentState.validate()) {
+      LoadingDialog loadingDialog = LoadingDialog(context: context, text: 'Adding Group...');
+      loadingDialog.show();
+
       Group newGroup = Group(name: _groupName, students: _students);
       if(_groupImage != null) {
         await storage.uploadGroupImage(image: _groupImage, name: _groupName + DateTime.now().toString()).then((imageUrl) {
           newGroup.imageUrl = imageUrl;
         });
       }
-      return db.teacherCreateGroup(teacherId: _user.id, group: newGroup).then((value) => true);
+      return db.teacherCreateGroup(teacherId: _user.id, group: newGroup).then((value) {
+        loadingDialog.close();
+        return true;
+      });
     }
     return Future.value(false);
   }
@@ -192,24 +199,16 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
             ),
           )
       ),
-      floatingActionButton: Builder(
-        builder: (BuildContext context) {
-          return FloatingActionButton(
-            child: Icon(Icons.check),
-            tooltip: 'Add New Group',
-            onPressed: () {
-              Scaffold
-                  .of(context)
-                  .showSnackBar(SnackBar(content: Text('Processing Data')));
-
-              submitGroup()
-                  .then((canPop) {
-                    if(canPop) {
-                      Navigator.pop(context);
-                    }
-              });
-            },
-          );
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.check),
+        tooltip: 'Add New Group',
+        onPressed: () {
+          submitGroup()
+              .then((canPop) {
+                if(canPop) {
+                  Navigator.pop(context);
+                }
+          });
         },
       )
     );

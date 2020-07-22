@@ -9,6 +9,8 @@ import 'package:orbital2020/DataContainers/User.dart';
 
 import 'package:orbital2020/DatabaseController.dart';
 import 'package:orbital2020/DataContainers/Task.dart';
+import 'package:orbital2020/AppDrawer.dart';
+import 'package:orbital2020/LoadingDialog.dart';
 import 'package:orbital2020/TeacherAppDrawer.dart';
 import 'package:provider/provider.dart';
 
@@ -23,6 +25,8 @@ class TeacherAddTask extends StatefulWidget {
 }
 
 class _TeacherAddTaskState extends State<TeacherAddTask> {
+<<<<<<< HEAD
+=======
 
   @override
   void initState() {
@@ -51,6 +55,7 @@ class AddTaskForm extends StatefulWidget {
 }
 
 class _AddTaskFormState extends State<AddTaskForm> {
+>>>>>>> master
   final _formKey = GlobalKey<FormState>();
   final _dueDateController = TextEditingController();
   final _tagController = TextEditingController();
@@ -120,9 +125,8 @@ class _AddTaskFormState extends State<AddTaskForm> {
 
   void submit() {
     if (_formKey.currentState.validate()) {
-      Scaffold
-          .of(context)
-          .showSnackBar(SnackBar(content: Text('Processing Data')));
+      LoadingDialog loadingDialog = LoadingDialog(context: context, text: 'Adding Task...');
+      loadingDialog.show();
 
       _formKey.currentState.save();
 
@@ -136,10 +140,8 @@ class _AddTaskFormState extends State<AddTaskForm> {
       );
 
       db.teacherCreateTask(task: newTask, group: widget.group).then((task) {
-        print(task.id);
-        Scaffold
-            .of(context)
-            .showSnackBar(SnackBar(content: Text('Success')));
+        loadingDialog.close();
+
         Map<String, dynamic> arguments = {
           'task': task,
           'group': widget.group
@@ -151,105 +153,107 @@ class _AddTaskFormState extends State<AddTaskForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-        key: _formKey,
-        child: ListView(
-            padding: EdgeInsets.symmetric(horizontal: 5),
-            children: <Widget>[
-              TextFormField(
-                key: Key('name'),
-                decoration: const InputDecoration(
-                  labelText: 'Name',
-                ),
-                onSaved: (value) => _taskName = value,
-                validator: RequiredValidator(errorText: "Name cannot be empty!"),
-              ),
-              AspectRatio(
-                aspectRatio: 3/2,
-                child: TextFormField(
-                  key: Key('description'),
-                  decoration: const InputDecoration(
-                    alignLabelWithHint: true,
-                    labelText: 'Description',
-                  ),
-                  textAlignVertical: TextAlignVertical.top,
-                  expands: true,
-                  minLines: null,
-                  maxLines: null,
-                  onSaved: (value) => _taskDescription = value,
-                ),
-              ),
-              Row(
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text('Add Task'),
+        ),
+        drawer: AppDrawer(),
+        body: Form(
+            key: _formKey,
+            child: ListView(
+                padding: EdgeInsets.symmetric(horizontal: 5),
                 children: <Widget>[
-                  Expanded(
-                      child: TextFormField(
-                        key: Key('due'),
-                        decoration: const InputDecoration(
-                          labelText: 'Due',
-                          suffixIcon: Icon(Icons.calendar_today),
-                        ),
-                        onTap: () {
-                          setDueDate(context).then((value) {
-                            if(value != null) {
-                              _dueDateController.text =
-                                  DateFormat('y-MM-dd').format(value);
-                            }
-                          });
-                        },
-                        onSaved: (value) {
-                          if (value == "") {
-                            _dueDate = null;
-                          } else {
-                            _dueDate = DateTime.parse(value);
+                  TextFormField(
+                    key: Key('name'),
+                    decoration: const InputDecoration(
+                      labelText: 'Name',
+                    ),
+                    onSaved: (value) => _taskName = value,
+                    validator: RequiredValidator(errorText: "Name cannot be empty!"),
+                  ),
+                  AspectRatio(
+                    aspectRatio: 3/2,
+                    child: TextFormField(
+                      key: Key('description'),
+                      decoration: const InputDecoration(
+                        alignLabelWithHint: true,
+                        labelText: 'Description',
+                      ),
+                      textAlignVertical: TextAlignVertical.top,
+                      expands: true,
+                      minLines: null,
+                      maxLines: null,
+                      onSaved: (value) => _taskDescription = value,
+                    ),
+                  ),
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                          child: TextFormField(
+                            key: Key('due'),
+                            decoration: const InputDecoration(
+                              labelText: 'Due',
+                              suffixIcon: Icon(Icons.calendar_today),
+                            ),
+                            onTap: () {
+                              setDueDate(context).then((value) {
+                                if(value != null) {
+                                  _dueDateController.text =
+                                      DateFormat('y-MM-dd').format(value);
+                                }
+                              });
+                            },
+                            onSaved: (value) {
+                              if (value == "") {
+                                _dueDate = null;
+                              } else {
+                                _dueDate = DateTime.parse(value);
+                              }
+                            },
+                            controller: _dueDateController,
+                            validator: validateDueDate,
+                          )
+                      ),
+                    ],
+                  ),
+                  TextFormField(
+                    key: Key('tags'),
+                    controller: _tagController,
+                    decoration: InputDecoration(
+                      labelText: "Add Tag",
+                      suffixIcon: IconButton(
+                        icon: Icon(Icons.check),
+                        onPressed: () {
+                          if(_tagController.text.isNotEmpty) {
+                            addTag(_tagController.text);
+                            _tagController.text = "";
                           }
                         },
-                        controller: _dueDateController,
-                        validator: validateDueDate,
-                      )
-                  ),
-                ],
-              ),
-              TextFormField(
-                key: Key('tags'),
-                controller: _tagController,
-                decoration: InputDecoration(
-                  labelText: "Add Tag",
-                  suffixIcon: IconButton(
-                    icon: Icon(Icons.check),
-                    onPressed: () {
-                      if(_tagController.text.isNotEmpty) {
-                        addTag(_tagController.text);
+                      ),
+                    ),
+                    //onFieldSubmitted: (text) => addTag(text),
+                    onChanged: (text) {
+                      if(text.contains("\n")) {
+                        if(!text.startsWith("\n")) {
+                          addTag(text.trim());
+                        }
                         _tagController.text = "";
                       }
                     },
+                    maxLines: 2,
+                    minLines: 1,
                   ),
-                ),
-                //onFieldSubmitted: (text) => addTag(text),
-                onChanged: (text) {
-                  if(text.contains("\n")) {
-                    if(!text.startsWith("\n")) {
-                      addTag(text.trim());
-                    }
-                    _tagController.text = "";
-                  }
-                },
-                maxLines: 2,
-                minLines: 1,
-              ),
-              Wrap(
-                spacing: 8.0,
-                children: getTagChips(),
-              ),
-              Row(
-                children: <Widget>[
-                  RaisedButton(
-                    onPressed: submit,
-                    child: const Text('Add'),
+                  Wrap(
+                    spacing: 8.0,
+                    children: getTagChips(),
                   ),
-                ],
-              )
-            ]
-        )
+                ]
+            )
+        ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: submit,
+        child: Icon(Icons.check),
+      ),
     );
   }
 }
