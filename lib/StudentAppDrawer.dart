@@ -1,3 +1,4 @@
+import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:orbital2020/AuthProvider.dart';
@@ -16,6 +17,7 @@ class StudentAppDrawer extends StatelessWidget {
       Auth auth = AuthProvider.of(context).auth;
       await auth.signOut();
       print("Signed out: ${_user.id}");
+      BackgroundFetch.stop();
       Navigator.of(context, rootNavigator: true).pushReplacement(
         MaterialPageRoute(builder: (context) => RootPage())
       );
@@ -63,6 +65,14 @@ class StudentAppDrawer extends StatelessWidget {
                 Navigator.pop(context);
                 Navigator.of(context).pushNamed("schedule");
               }
+            ),
+            ListTile(
+                title: const Text("Focus Mode"),
+                onTap: () {
+                  print("Tapped Focus");
+                  Navigator.pop(context);
+                  Navigator.of(context).pushNamed("focus");
+                }
             ),
             ListTile(
                 title: const Text("Leaderboard"),
