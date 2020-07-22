@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'Auth.dart';
 import 'AuthProvider.dart';
 import 'DataContainers/User.dart';
-import 'HomePage.dart';
 
 class RootPage extends StatelessWidget {
   @override

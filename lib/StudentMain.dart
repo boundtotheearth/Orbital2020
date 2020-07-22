@@ -9,7 +9,7 @@ import 'package:orbital2020/TaskStatusTile.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'dart:async';
-import 'AppDrawer.dart';
+import 'StudentAppDrawer.dart';
 import 'DataContainers/TaskStatus.dart';
 import 'DataContainers/User.dart';
 import 'Sort.dart';
@@ -283,7 +283,7 @@ class _StudentMainState extends State<StudentMain> {
 
     return Scaffold(
       appBar: buildAppBar(),
-      drawer: AppDrawer(),
+      drawer: StudentAppDrawer(),
       body: SafeArea(
         child: Column(
           children: <Widget>[
@@ -328,8 +328,7 @@ class _StudentMainState extends State<StudentMain> {
         tooltip: 'Add',
         onPressed: () {
           Navigator.of(context).pushNamed('student_addTask');
-          db.test();
-        },
+        }
       ),
     );
   }

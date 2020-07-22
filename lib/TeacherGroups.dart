@@ -4,9 +4,9 @@ import 'package:orbital2020/CloudStorageController.dart';
 import 'package:orbital2020/DataContainers/Group.dart';
 import 'package:orbital2020/DataContainers/User.dart';
 import 'package:orbital2020/DatabaseController.dart';
+import 'package:orbital2020/TeacherAppDrawer.dart';
 import 'package:provider/provider.dart';
 
-import 'AppDrawer.dart';
 
 
 class TeacherGroups extends StatefulWidget {
@@ -119,7 +119,7 @@ class _TeacherGroupsState extends State<TeacherGroups> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(),
-      drawer: AppDrawer(),
+      drawer: TeacherAppDrawer(),
       body: SafeArea(
         child: Scrollbar(
           child: RefreshIndicator(

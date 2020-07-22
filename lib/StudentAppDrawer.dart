@@ -8,8 +8,8 @@ import 'package:provider/provider.dart';
 import 'Auth.dart';
 import 'DataContainers/User.dart';
 
-class AppDrawer extends StatelessWidget {
-  AppDrawer({ Key key }) : super(key: key);
+class StudentAppDrawer extends StatelessWidget {
+  StudentAppDrawer({ Key key }) : super(key: key);
 
   Future<void> signOut(BuildContext context, User _user) async {
     print("Tapped Logout");
@@ -32,14 +32,18 @@ class AppDrawer extends StatelessWidget {
     return Drawer(
         child: ListView(
           children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: ListTile(
-                leading: const Icon(Icons.account_circle),
-                title: Text('${_user.name}'),
-              ),
+            UserAccountsDrawerHeader(
+              accountEmail: Text(_user.email),
+              accountName: Text(_user.name),
+              currentAccountPicture: _user.photoUrl != null ?
+                CircleAvatar(
+                  backgroundImage: NetworkImage(_user.photoUrl),
+                  radius: 40,
+                ) :
+                CircleAvatar(
+                  child: const Text("U"),
+                  radius: 40,
+                ),
             ),
             ListTile(
               title: const Text('Home'),
@@ -52,20 +56,6 @@ class AppDrawer extends StatelessWidget {
                 } else {
                   Navigator.pushNamed(context, 'teacher_gruops');
                 }
-              },
-            ),
-            ListTile(
-              title: const Text('Add task'),
-              onTap: () {
-                print('Tapped Add Task');
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text('Groups'),
-              onTap: () {
-                print('Tapped Groups');
-                Navigator.pop(context);
               },
             ),
             ListTile(
@@ -90,13 +80,6 @@ class AppDrawer extends StatelessWidget {
                   Navigator.pop(context);
                   Navigator.of(context).pushNamed("leaderboard");
                 }
-            ),
-            ListTile(
-              title: const Text('Settings'),
-              onTap: () {
-                print('Tapped Settings');
-                Navigator.pop(context);
-              },
             ),
             ListTile(
               title: Text('Logout'),
