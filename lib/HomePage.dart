@@ -62,20 +62,29 @@ class _HomePageState extends State<HomePage> {
 
     _fcm.configure(
       onMessage: (Map<String, dynamic> message) async {
-        print("onMessage: $message");
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text(message['data']['title']),
-            content: Text(message['data']['body']),
-            actions: <Widget>[
-              FlatButton(
-                child: Text('Ok'),
-                onPressed: () => Navigator.of(context).pop(),
+        Future.doWhile(() {
+          bool dialogVisible = dialogIsVisible(context);
+          print(dialogVisible);
+          if(dialogVisible) {
+            return Future.delayed(Duration(seconds: 1)).then((value) => true);
+          } else {
+            print("onMessage: $message");
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text(message['data']['title']),
+                content: Text(message['data']['body']),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text('Ok'),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
               ),
-            ],
-          ),
-        );
+            );
+            return false;
+          }
+        });
       },
       onLaunch: (Map<String, dynamic> message) async {
         print("onLaunch: $message");
@@ -85,6 +94,15 @@ class _HomePageState extends State<HomePage> {
         print("onResume: $message");
       },
     );
+  }
+
+  bool dialogIsVisible(BuildContext context) {
+    bool isVisible = false;
+    Navigator.popUntil(context, (route) {
+      isVisible = route is PopupRoute;
+      return true;
+    });
+    return isVisible;
   }
 
   /// Get the token, save it to the database for current user

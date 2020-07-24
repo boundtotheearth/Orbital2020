@@ -45,7 +45,6 @@ class GameWidgetState extends State<GameWidget> {
 
   void _onUnityCreated(controller) async {
     this._unityWidgetController = controller;
-    print("USEr id: " + _user.id);
     Map<String, dynamic> data = await db.fetchGameData(studentId: _user.id);
     _setGameData(data);
     focusSessionStream = db.getUnclaimedFocusSession(studentId: _user.id);
@@ -54,17 +53,17 @@ class GameWidgetState extends State<GameWidget> {
   }
 
   void _onUnityMessage(controller, message) async {
-    latestGameData = message;
-    _saveGameData();
+    if(mounted) {
+      latestGameData = message;
+      _saveGameData();
+    }
   }
 
   void resetGame() {
-    print("Reset called");
     _unityWidgetController?.postMessage("GameField", "resetGame", "");
   }
 
   void _setGameData(Map<String, dynamic> data) {
-    print("Start loading game data");
     data.remove('timestamp');
     String gameData = data != null ? jsonEncode(data) : "";
     _unityWidgetController?.postMessage("GameField", "setGameData", gameData);
@@ -85,7 +84,6 @@ class GameWidgetState extends State<GameWidget> {
 
   void _saveGameData() {
     if(latestGameData != null) {
-      print("saving...");
       Map<String, dynamic> data = jsonDecode(latestGameData);
       data['timestamp'] = DateTime.now();
       db.saveGameData(data: data, studentId: _user.id);

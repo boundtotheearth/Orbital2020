@@ -272,47 +272,25 @@ class DatabaseController {
 
   //Method to be called when a teacher assigns a student to list of tasks
   Future<void> teacherAssignTasksToStudent(Iterable<Task> tasks, Student student) {
-    WriteBatch batch = db.batch();
+    List<Future> futures = [];
 
     for(Task task in tasks) {
-      _assignStudentToTask(student, task.id);
-      _assignTaskToStudent(task, student.id);
-//      DocumentReference taskDoc = db.collection('students')
-//          .document(student.id)
-//          .collection('tasks')
-//          .document(task.id);
-//      DocumentReference stuDoc = db.collection('tasks')
-//          .document(task.id)
-//          .collection('students')
-//          .document(student.id);
-//
-//      batch.setData(taskDoc, {"completed" : false, "verified" : false});
-//      batch.setData(stuDoc, student.toKeyValuePair());
+      futures.add(_assignStudentToTask(student, task.id));
+      futures.add(_assignTaskToStudent(task, student.id));
     }
 
-    return batch.commit();
+    return Future.wait(futures);
   }
   //assigns a group of students of a task
   Future<void> teacherAssignStudentsToTask(Iterable<Student> students, Task task) {
-    WriteBatch batch = db.batch();
+    List<Future> futures = [];
 
     for(Student student in students) {
-      _assignStudentToTask(student, task.id);
-      _assignTaskToStudent(task, student.id);
-//      DocumentReference taskDoc = db.collection('students')
-//          .document(student.id)
-//          .collection('tasks')
-//          .document(task.id);
-//      DocumentReference stuDoc = db.collection('tasks')
-//          .document(task.id)
-//          .collection('students')
-//          .document(student.id);
-//
-//      batch.setData(taskDoc, {"completed" : false, "verified" : false});
-//      batch.setData(stuDoc, student.toKeyValuePair());
+      futures.add(_assignStudentToTask(student, task.id));
+      futures.add(_assignTaskToStudent(task, student.id));
     }
 
-    return batch.commit();
+    return Future.wait(futures);
   }
 
 //  Future<void> createAndAssignTaskToGroup(Task task, String groupId) {
@@ -1044,6 +1022,7 @@ class DatabaseController {
   //Assigns the task with taskID to the student with studentID, duplicating the task data
   Future<void> _assignTaskToStudent(Task task, String studentId) {
     //send notif to student if not self-created
+    print("Assign task to student");
     if (task.createdById != studentId) {
       final HttpsCallable callable = CloudFunctions.instance.getHttpsCallable(
         functionName: 'assignTask',
@@ -1052,6 +1031,8 @@ class DatabaseController {
 //      data["studentId"] = studentId;
       callable.call(data);
     }
+
+    print("Notification stuff completed");
     return db.collection('students')
         .document(studentId)
         .collection('tasks')
@@ -1063,6 +1044,7 @@ class DatabaseController {
   //Assigns the student with studentID to the task with taskId, duplicating the student data
   Future<void> _assignStudentToTask(Student student, String taskId) {
     //StudentWithStatus studentWithStatus = student.addStatus(false, false);
+    print("Assign student to task");
     return db.collection('tasks')
         .document(taskId)
         .collection('students')
