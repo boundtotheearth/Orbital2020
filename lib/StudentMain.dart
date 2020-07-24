@@ -36,8 +36,6 @@ class _StudentMainState extends State<StudentMain> {
     DropdownMenuItem(child: Text("Completion Status"), value: Sort.status,),
   ];
 
-  final unityWidgetKey = GlobalKey<GameWidgetState>();
-
   @override
   void initState() {
     super.initState();
@@ -199,7 +197,7 @@ class _StudentMainState extends State<StudentMain> {
                     if(task.createdById == _user.id) {
                       _onDelete(task).then((value) {
                         if (value) {
-                          unityWidgetKey.currentState.giveReward(1);
+                          GameWidget.unityWidgetKey.currentState.giveReward(1);
                         }
                       });
                     } else {
@@ -210,7 +208,7 @@ class _StudentMainState extends State<StudentMain> {
                   onFinish: () {
                     _onClaim(task).then((value) {
                       if (value) {
-                        unityWidgetKey.currentState.giveReward(5);
+                        GameWidget.unityWidgetKey.currentState.giveReward(5);
                       }
                     });
                   },
@@ -290,7 +288,7 @@ class _StudentMainState extends State<StudentMain> {
           children: <Widget>[
             AspectRatio(
               aspectRatio: 3/2,
-              child: GameWidget(key: unityWidgetKey),
+              child: GameWidget(),
             ),
             Container(
               color: Colors.green,

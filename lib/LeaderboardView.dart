@@ -34,7 +34,7 @@ class _LeaderboardViewState extends State<LeaderBoardView> {
               return ListView.builder(
                 itemCount: snapshot.data.length,
                 itemBuilder: (context, index) {
-                  List<LeaderboardData> leaderboardList = snapshot.data;
+                  List<LeaderboardData> leaderboardList = List<LeaderboardData>.from(snapshot.data);
                   leaderboardList.removeWhere((element) => element == null);
                   leaderboardList.sort((a, b) => b.gemTotal.compareTo(a.gemTotal ?? 0));
                   return ListTile(

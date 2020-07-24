@@ -153,7 +153,7 @@ class _FocusModeStatus extends State<FocusMode> {
                 }
               },
             ),
-            Text('Previous Focus Duration: ${prevFocusSession.durationMins}'),
+            Text('Previous Focus Duration: ${prevFocusSession.durationMins} mins'),
             RaisedButton(
               child: const Text('Start Focus Mode', textAlign: TextAlign.center),
               onPressed: startFocus,

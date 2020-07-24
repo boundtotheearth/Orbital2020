@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour
 {
@@ -22,6 +23,8 @@ public class GameController : MonoBehaviour
 
     public bool testing;
     public string testData;
+
+    public GameObject defaultGameField;
 
     //List<PlantableTile> plantableTiles = new List<PlantableTile>();
     PlantableTile[,] plantableTiles;
@@ -56,6 +59,11 @@ public class GameController : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void ResetGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void SetGameData(string json)

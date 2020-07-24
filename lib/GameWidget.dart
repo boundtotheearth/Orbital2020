@@ -10,14 +10,14 @@ import 'package:orbital2020/DatabaseController.dart';
 import 'package:provider/provider.dart';
 
 class GameWidget extends StatefulWidget {
-  GameWidget({Key key}) : super(key: key);
+  static final unityWidgetKey = GlobalKey<GameWidgetState>();
+  GameWidget() : super(key: unityWidgetKey);
 
   @override
   GameWidgetState createState() => GameWidgetState();
 }
 
 class GameWidgetState extends State<GameWidget> {
-
   final DatabaseController db = DatabaseController();
   User _user;
   UnityWidgetController _unityWidgetController;
@@ -45,7 +45,9 @@ class GameWidgetState extends State<GameWidget> {
 
   void _onUnityCreated(controller) async {
     this._unityWidgetController = controller;
-    _setGameData(await db.fetchGameData(studentId: _user.id));
+    print("USEr id: " + _user.id);
+    Map<String, dynamic> data = await db.fetchGameData(studentId: _user.id);
+    _setGameData(data);
     focusSessionStream = db.getUnclaimedFocusSession(studentId: _user.id);
     focusSessionSub = focusSessionStream.listen(_handleFocusTime);
     //_setGameData();
@@ -54,6 +56,11 @@ class GameWidgetState extends State<GameWidget> {
   void _onUnityMessage(controller, message) async {
     latestGameData = message;
     _saveGameData();
+  }
+
+  void resetGame() {
+    print("Reset called");
+    _unityWidgetController?.postMessage("GameField", "resetGame", "");
   }
 
   void _setGameData(Map<String, dynamic> data) {

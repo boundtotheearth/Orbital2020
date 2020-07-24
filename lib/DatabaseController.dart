@@ -802,6 +802,7 @@ class DatabaseController {
 
   //Fetching Game Data
   Future<Map<String, dynamic>> fetchGameData({String studentId}) {
+    print("DB: " + studentId);
     return db.collection('students')
         .document(studentId)
         .collection('gameData')
@@ -811,6 +812,7 @@ class DatabaseController {
         .then((snapshot) {
           if(snapshot.documents.length > 0) {
             DocumentSnapshot document = snapshot.documents[0];
+            print(document.data);
             return document.data;
           } else {
             return {};
@@ -826,13 +828,12 @@ class DatabaseController {
           List<Future<LeaderboardData>> futures = [];
           for(DocumentSnapshot documentSnapshot in stuSnapshot.documents) {
             String name = documentSnapshot['name'];
-            print(name);
 
             Future<LeaderboardData> future = fetchGameData(studentId: documentSnapshot.documentID).then((data) {
               return LeaderboardData(
                 id: documentSnapshot.documentID,
                 name: name,
-                gemTotal: data != null ? data['gemTotal'] : 0,
+                gemTotal: data != null ? data['gemTotal'] ?? 0 : 0,
               );
             });
             futures.add(future);

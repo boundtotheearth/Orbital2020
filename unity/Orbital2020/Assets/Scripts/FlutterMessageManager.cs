@@ -34,6 +34,11 @@ public class FlutterMessageManager : MonoBehaviour
         gameController.GrowAndDrop(focusTime);
     }
 
+    public void resetGame(string args)
+    {
+        gameController.ResetGame();
+    }
+
     //Sending
     public void sendGameData(string data)
     {

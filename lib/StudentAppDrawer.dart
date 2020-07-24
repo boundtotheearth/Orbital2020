@@ -1,7 +1,7 @@
-import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:orbital2020/AuthProvider.dart';
+import 'package:orbital2020/GameWidget.dart';
 import 'package:orbital2020/Root.dart';
 import 'package:provider/provider.dart';
 
@@ -17,7 +17,7 @@ class StudentAppDrawer extends StatelessWidget {
       Auth auth = AuthProvider.of(context).auth;
       await auth.signOut();
       print("Signed out: ${_user.id}");
-      BackgroundFetch.stop();
+      GameWidget.unityWidgetKey.currentState.resetGame();
       Navigator.of(context, rootNavigator: true).pushReplacement(
         MaterialPageRoute(builder: (context) => RootPage())
       );
