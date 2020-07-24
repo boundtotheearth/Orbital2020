@@ -10,24 +10,23 @@ class LoadingDialog {
 
   void show() {
     showDialog(
-      useRootNavigator: false,
-      barrierDismissible: false,
-      context: context,
-      builder: (context) {
-        dialogContext = context;
-        return WillPopScope(
-          onWillPop: () {
-            return Future.value(canPop);
-          },
-          child: SimpleDialog(
-            title: ListTile(
-              leading: CircularProgressIndicator(),
-              title: Text(text),
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          dialogContext = context;
+          return WillPopScope(
+            onWillPop: () {
+              return Future.value(canPop);
+            },
+            child: SimpleDialog(
+              title: ListTile(
+                leading: CircularProgressIndicator(),
+                title: Text(text),
+              ),
+              titlePadding: EdgeInsets.all(16),
             ),
-            titlePadding: EdgeInsets.all(16),
-          ),
-        );
-      }
+          );
+        }
     );
   }
 
