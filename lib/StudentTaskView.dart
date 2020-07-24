@@ -42,10 +42,17 @@ class _StudentTaskViewState extends State<StudentTaskView> {
   }
 
   Future<DateTime> setDueDate(BuildContext context) async {
+    DateTime initialDate;
+    if (widget.task.dueDate == null) {
+      initialDate = DateTime.now();
+    } else if (widget.task.dueDate.isAfter(DateTime.now())) {
+      initialDate = widget.task.dueDate;
+    } else {
+      initialDate = DateTime.now();
+    }
     return showDatePicker(
         context: context,
-        initialDate: widget.task.dueDate == null ? DateTime.now().add(Duration(days: 1))
-          : widget.task.dueDate,
+        initialDate: initialDate,
         firstDate: DateTime.now(),
         lastDate: DateTime(2101)
     );
@@ -112,47 +119,13 @@ class _StudentTaskViewState extends State<StudentTaskView> {
     }
   }
 
-  //Custom validator for the name field as the default is ugly
-//  String _validateName(String value) {
-//    if(value.isEmpty) {
-//      showDialog(
-//        context: context,
-//        builder: (BuildContext context) {
-//          return AlertDialog(
-//            title: Text('Name Cannot be Empty!'),
-//            content: SingleChildScrollView(
-//              child: ListBody(
-//                children: <Widget>[
-//                  Text('Please enter a name for the task.'),
-//                ],
-//              ),
-//            ),
-//            actions: <Widget>[
-//              FlatButton(
-//                child: Text('ok'),
-//                onPressed: () {
-//                  Navigator.of(context).pop();
-//                  _nameFocusNode.requestFocus();
-//                },
-//              ),
-//            ],
-//          );
-//        }
-//      );
-//      return "";
-//    }
-//    return null;
-//  }
-
   String validateDueDate(String value) {
     if (value == "") {
       return null;
     }
     String checkFormat = DateValidator("y-MM-dd", errorText: "Invalid date format! Should be y-MM-dd.").call(value);
-    if (checkFormat != null){
+    if (checkFormat != null) {
       return checkFormat;
-    } else if (DateTime.parse(value).isBefore(DateTime.now())) {
-      return "Due date cannot be before today!";
     } else {
       return null;
     }
