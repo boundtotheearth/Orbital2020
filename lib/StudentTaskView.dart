@@ -18,15 +18,13 @@ class StudentTaskView extends StatefulWidget {
 
 class _StudentTaskViewState extends State<StudentTaskView> {
   final DatabaseController db = DatabaseController();
-  final _nameFormKey = GlobalKey<FormState>();
   final _mainFormKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
   final _createdByController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _dueDateController = TextEditingController();
   final _tagController = TextEditingController();
 
-  final _nameFocusNode = FocusNode();
+
 
   User _user;
   bool editable;
@@ -36,7 +34,6 @@ class _StudentTaskViewState extends State<StudentTaskView> {
     super.initState();
     _user = Provider.of<User>(context, listen: false);
     editable = _user.id == widget.task.createdById;
-    _nameController.text = widget.task.name;
     _createdByController.text = editable ? "Me" : widget.task.createdByName;
     _descriptionController.text = widget.task.description;
     _dueDateController.text = widget.task.dueDate != null ?
@@ -45,10 +42,17 @@ class _StudentTaskViewState extends State<StudentTaskView> {
   }
 
   Future<DateTime> setDueDate(BuildContext context) async {
+    DateTime initialDate;
+    if (widget.task.dueDate == null) {
+      initialDate = DateTime.now();
+    } else if (widget.task.dueDate.isAfter(DateTime.now())) {
+      initialDate = widget.task.dueDate;
+    } else {
+      initialDate = DateTime.now();
+    }
     return showDatePicker(
         context: context,
-        initialDate: widget.task.dueDate == null ? DateTime.now().add(Duration(days: 1))
-          : widget.task.dueDate,
+        initialDate: initialDate,
         firstDate: DateTime.now(),
         lastDate: DateTime(2101)
     );
@@ -115,55 +119,20 @@ class _StudentTaskViewState extends State<StudentTaskView> {
     }
   }
 
-  //Custom validator for the name field as the default is ugly
-  String _validateName(String value) {
-    if(value.isEmpty) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Name Cannot be Empty!'),
-            content: SingleChildScrollView(
-              child: ListBody(
-                children: <Widget>[
-                  Text('Please enter a name for the task.'),
-                ],
-              ),
-            ),
-            actions: <Widget>[
-              FlatButton(
-                child: Text('ok'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  _nameFocusNode.requestFocus();
-                },
-              ),
-            ],
-          );
-        }
-      );
-      return "";
-    }
-    return null;
-  }
-
   String validateDueDate(String value) {
     if (value == "") {
       return null;
     }
     String checkFormat = DateValidator("y-MM-dd", errorText: "Invalid date format! Should be y-MM-dd.").call(value);
-    if (checkFormat != null){
+    if (checkFormat != null) {
       return checkFormat;
-    } else if (DateTime.parse(value).isBefore(DateTime.now())) {
-      return "Due date cannot be before today!";
     } else {
       return null;
     }
   }
 
   Future<bool> submit() {
-    if (_mainFormKey.currentState.validate() && _nameFormKey.currentState.validate()) {
-      _nameFormKey.currentState.save();
+    if (_mainFormKey.currentState.validate()) {
       _mainFormKey.currentState.save();
 
       return db.updateTaskDetails(task: widget.task).then((value) => true);
@@ -239,24 +208,7 @@ class _StudentTaskViewState extends State<StudentTaskView> {
           onPressed: Navigator.of(context).maybePop,
           tooltip: 'Back',
         ),
-        title: Form(
-          key: _nameFormKey,
-          child: TextFormField(
-            key: Key('name'),
-            controller: _nameController,
-            focusNode: _nameFocusNode,
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              focusedErrorBorder: InputBorder.none,
-              errorStyle: TextStyle(height: 0),
-            ),
-            style: Theme.of(context).primaryTextTheme.headline6,
-            onSaved: (value) => widget.task.name = value,
-            validator: _validateName,
-            enabled: editable,
-          ),
-        ),
+        title: Text(widget.task.name),
         actions: <Widget>[
           editable ? PopupMenuButton(
             itemBuilder: _actionMenuBuilder,

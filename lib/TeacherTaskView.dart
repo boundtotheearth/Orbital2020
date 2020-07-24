@@ -31,14 +31,11 @@ class TeacherTaskView extends StatefulWidget {
 class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProviderStateMixin{
 
   DatabaseController db;
-  final _nameFormKey = GlobalKey<FormState>();
   final _mainFormKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _dueDateController = TextEditingController();
   final _tagController = TextEditingController();
 
-  final _nameFocusNode = FocusNode();
 
   Stream<List<Student>> _students;
   String _searchText;
@@ -61,7 +58,6 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
     _tabController = TabController(length: 2, vsync: this, initialIndex: 0);
     _tabController.addListener(onTabChange);
     _canSearch = false;
-    _nameController.text = widget.task.name;
     _descriptionController.text = widget.task.description;
     _dueDateController.text = widget.task.dueDate != null ?
     DateFormat('y-MM-dd').format(widget.task.dueDate) :
@@ -228,24 +224,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
       );
     } else {
       return AppBar(
-        //title: Text(widget.task.name),
-        title: Form(
-          key: _nameFormKey,
-          child: TextFormField(
-            key: Key('name'),
-            controller: _nameController,
-            focusNode: _nameFocusNode,
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              focusedErrorBorder: InputBorder.none,
-              errorStyle: TextStyle(height: 0),
-            ),
-            style: Theme.of(context).primaryTextTheme.headline6,
-            onSaved: (value) => widget.task.name = value,
-            validator: _validateName,
-          ),
-        ),
+        title: Text(widget.task.name),
         actions: <Widget>[
           _canSearch ? IconButton(
             icon: Icon(Icons.search),
@@ -379,10 +358,17 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
   }
 
   Future<DateTime> setDueDate(BuildContext context) async {
+    DateTime initialDate;
+    if (widget.task.dueDate == null) {
+      initialDate = DateTime.now();
+    } else if (widget.task.dueDate.isAfter(DateTime.now())) {
+      initialDate = widget.task.dueDate;
+    } else {
+      initialDate = DateTime.now();
+    }
     return showDatePicker(
         context: context,
-        initialDate: widget.task.dueDate == null ? DateTime.now().add(Duration(days: 1))
-            : widget.task.dueDate,
+        initialDate: initialDate,
         firstDate: DateTime.now(),
         lastDate: DateTime(2101)
     );
@@ -413,37 +399,6 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
     });
   }
 
-  //Custom validator for the name field as the default is ugly
-  String _validateName(String value) {
-    if(value.isEmpty) {
-      showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Name Cannot be Empty!'),
-              content: SingleChildScrollView(
-                child: ListBody(
-                  children: <Widget>[
-                    Text('Please enter a name for the task.'),
-                  ],
-                ),
-              ),
-              actions: <Widget>[
-                FlatButton(
-                  child: Text('ok'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    _nameFocusNode.requestFocus();
-                  },
-                ),
-              ],
-            );
-          }
-      );
-      return "";
-    }
-    return null;
-  }
 
   String validateDueDate(String value) {
     if (value == "") {
@@ -452,16 +407,13 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
     String checkFormat = DateValidator("y-MM-dd", errorText: "Invalid date format! Should be y-MM-dd.").call(value);
     if (checkFormat != null){
       return checkFormat;
-    } else if (DateTime.parse(value).isBefore(DateTime.now())) {
-      return "Due date cannot be before today!";
     } else {
       return null;
     }
   }
 
   Future<bool> submit() {
-    if (_mainFormKey.currentState.validate() && _nameFormKey.currentState.validate()) {
-      _nameFormKey.currentState.save();
+    if (_mainFormKey.currentState.validate()) {
       _mainFormKey.currentState.save();
       return db.updateTaskDetails(task: widget.task).then((value) => true);
     }

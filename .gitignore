@@ -85,6 +85,7 @@ crashlytics-build.properties
 *.ipr
 *.iws
 .idea/
+.project
 
 # Visual Studio Code related
 .vscode/
@@ -103,6 +104,7 @@ gradle/
 gradlew
 gradlew.bat
 local.properties
+.settings/
 
 # Android related
 **/android/**/gradle-wrapper.jar

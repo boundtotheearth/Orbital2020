@@ -52,7 +52,7 @@ class TeacherAppDrawer extends StatelessWidget {
                 if(user.accountType == 'student') {
                   Navigator.pushNamed(context, 'student_main');
                 } else {
-                  Navigator.pushNamed(context, 'teacher_gruops');
+                  Navigator.pushNamed(context, 'teacher_groups');
                 }
               },
             ),

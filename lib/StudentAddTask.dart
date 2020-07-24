@@ -83,8 +83,6 @@ class _StudentAddTaskState extends State<StudentAddTask> {
     String checkFormat = DateValidator("y-MM-dd", errorText: "Invalid date format! Should be y-MM-dd.").call(value);
     if (checkFormat != null){
       return checkFormat;
-    } else if (DateTime.parse(value).isBefore(DateTime.now())) {
-      return "Due date cannot be before today!";
     } else {
       return null;
     }
