@@ -70,7 +70,7 @@ class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
     return StreamBuilder<Set<Student>>(
       stream: db.getStudentsUnassignedTask(_user.id, widget.group.id, widget.task.id),
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
+        if (snapshot.hasData && snapshot.data.length > 0) {
             return Expanded(
                 child: ListView.builder(
                     itemCount: snapshot.data.length,
@@ -88,6 +88,8 @@ class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
                       }
                     })
             );
+          } else if (snapshot.hasData) {
+            return Expanded(child: Center(child: Text("No students to assign.")));
           } else {
             return Expanded(child: Center(child: CircularProgressIndicator()));
           }

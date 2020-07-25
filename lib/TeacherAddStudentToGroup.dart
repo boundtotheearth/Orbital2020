@@ -64,7 +64,7 @@ class _TeacherAddStudentToGroupState extends State<TeacherAddStudentToGroup> {
     return StreamBuilder(
       stream: db.getStudentsNotInGroup(_user.id, widget.group.id),
       builder: (context, snapshot) {
-        if(snapshot.hasData) {
+        if(snapshot.hasData && snapshot.data.length > 0) {
           List<Student> suggestions = snapshot.data.where((element) =>
           element.name.startsWith(_searchText) && !_studentsToAdd.contains(element)).toList();
           return ListView.builder(
@@ -79,6 +79,8 @@ class _TeacherAddStudentToGroupState extends State<TeacherAddStudentToGroup> {
                 );
               }
           );
+        } else if (snapshot.hasData) {
+          return Center(child: Text("No students to add."));
         } else {
           return Center(child: CircularProgressIndicator());
         }
