@@ -134,7 +134,7 @@ class _TeacherGroupsState extends State<TeacherGroups> {
                       return Center(child: Text('No groups'));
                     }
                   } else {
-                    return CircularProgressIndicator();
+                    return Center(child: CircularProgressIndicator());
                   }
                 },
               )
