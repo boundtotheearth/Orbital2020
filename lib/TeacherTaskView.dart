@@ -119,7 +119,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
               },
             );
           } else {
-            return CircularProgressIndicator();
+            return Center(child: CircularProgressIndicator());
           }
         },
       ),
@@ -306,9 +306,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
                                 .length;
                             return buildProgressIndicator(completed, total);
                           } else {
-                            return ListTile(
-                              title: CircularProgressIndicator(),
-                            );
+                            return Center(child: CircularProgressIndicator());
                           }
                         }
                     );
@@ -316,7 +314,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
                     return buildProgressIndicator(completed, total);
                   }
                 } else {
-                  return CircularProgressIndicator();
+                  return Center(child: CircularProgressIndicator());
                 }
               },
             ),
@@ -348,7 +346,7 @@ class _TeacherTaskViewState extends State<TeacherTaskView> with SingleTickerProv
                   }
                 } else {
                   print('here');
-                  return CircularProgressIndicator();
+                  return Expanded(child: Center(child: CircularProgressIndicator()));
                 }
               },
             )

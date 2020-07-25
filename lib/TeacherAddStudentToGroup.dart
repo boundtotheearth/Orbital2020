@@ -64,7 +64,7 @@ class _TeacherAddStudentToGroupState extends State<TeacherAddStudentToGroup> {
     return StreamBuilder(
       stream: db.getStudentsNotInGroup(_user.id, widget.group.id),
       builder: (context, snapshot) {
-        if(snapshot.hasData) {
+        if(snapshot.hasData && snapshot.data.length > 0) {
           List<Student> suggestions = snapshot.data.where((element) =>
           element.name.startsWith(_searchText) && !_studentsToAdd.contains(element)).toList();
           return ListView.builder(
@@ -79,22 +79,41 @@ class _TeacherAddStudentToGroupState extends State<TeacherAddStudentToGroup> {
                 );
               }
           );
+        } else if (snapshot.hasData) {
+          return Center(child: Text("No students to add."));
         } else {
-          return CircularProgressIndicator();
+          return Center(child: CircularProgressIndicator());
         }
       },
     );
   }
 
-  Future<void> submitAdd() {
-    if(_studentsToAdd.length > 0) {
+  Future<bool> submitAdd() {
+    if(_studentsToAdd.isNotEmpty) {
       LoadingDialog loadingDialog = LoadingDialog(context: context, text: 'Adding Students...');
       loadingDialog.show();
       return db.teacherAddStudentsToGroup(teacherId: _user.id,
           group: widget.group,
-          students: _studentsToAdd).then((value) => loadingDialog.close());
+          students: _studentsToAdd).then((value) {
+            loadingDialog.close();
+            return true;});
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) =>
+            AlertDialog(
+              title: Text("Error"),
+              content: Text("No students selected."),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('Ok'),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
+      );
+      return Future.value(false);
     }
-    return Future(null);
   }
 
   @override
@@ -138,7 +157,11 @@ class _TeacherAddStudentToGroupState extends State<TeacherAddStudentToGroup> {
         tooltip: 'Add Students',
         onPressed: () {
           submitAdd()
-              .then((value) => Navigator.pop(context));
+              .then((value) {
+                if (value) {
+                  Navigator.pop(context);
+                }
+              });
         },
       ),
     );

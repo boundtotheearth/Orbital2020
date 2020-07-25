@@ -75,7 +75,7 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
     return StreamBuilder(
       stream: _allStudents,
       builder: (context, snapshot) {
-        if(snapshot.hasData) {
+        if(snapshot.hasData && snapshot.data.length > 0) {
           List<Student> allStudents = snapshot.data;
           List<Student> suggestions = allStudents.where((element) =>
               element.name.startsWith(_searchText) && !_students.contains(element)).toList();
@@ -91,8 +91,10 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
                 );
               }
           );
+        } else if (snapshot.hasData) {
+          return Center(child: Text("No students to add."));
         } else {
-          return CircularProgressIndicator();
+          return Center(child: CircularProgressIndicator());
         }
       },
     );

@@ -117,11 +117,7 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
               ),
             );
           } else {
-            return SizedBox(
-              width: 30,
-              height: 30,
-              child: CircularProgressIndicator(),
-            );
+            return Expanded(child: Center(child: CircularProgressIndicator()));
           }
         },
       );
@@ -268,14 +264,10 @@ class _TeacherStudentViewState extends State<TeacherStudentView> {
                     if(snapshot.data.length > 0) {
                       return _buildTaskList(snapshot.data.toList());
                     } else {
-                      return Text('No tasks assigned!');
+                      return Expanded(child: Center(child: Text('No tasks assigned!')));
                     }
                   } else {
-                    return SizedBox(
-                      width: 30,
-                      height: 30,
-                      child: CircularProgressIndicator(),
-                    );
+                    return Expanded(child: Center(child: CircularProgressIndicator()));
                   }
                 },
               )

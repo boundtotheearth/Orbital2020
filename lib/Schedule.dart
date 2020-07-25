@@ -127,7 +127,7 @@ class _ScheduleState extends State<Schedule> {
   Widget _buildTask(List tasks) {
     tasks.sort((a, b) => a.startTime.compareTo(b.startTime));
     if (tasks.isEmpty) {
-      return Text("No scheduled tasks for the day!");
+      return Center(child: Text("No scheduled tasks for the day!"));
     } else {
       return ListView.builder(
         itemCount: tasks.length,

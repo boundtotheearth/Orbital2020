@@ -120,7 +120,7 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
               }
           );
         } else {
-          return CircularProgressIndicator();
+          return Center(child: CircularProgressIndicator());
         }
       },
     );
@@ -194,7 +194,7 @@ class _TeacherGroupViewState extends State<TeacherGroupView> with SingleTickerPr
               return Center(child: Text('No students assigned!'));
             }
           } else {
-            return CircularProgressIndicator();
+            return Center(child: CircularProgressIndicator());
           }
         },
      );

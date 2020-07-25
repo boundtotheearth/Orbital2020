@@ -70,7 +70,7 @@ class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
     return StreamBuilder<Set<Student>>(
       stream: db.getStudentsUnassignedTask(_user.id, widget.group.id, widget.task.id),
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
+        if (snapshot.hasData && snapshot.data.length > 0) {
             return Expanded(
                 child: ListView.builder(
                     itemCount: snapshot.data.length,
@@ -88,17 +88,41 @@ class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
                       }
                     })
             );
+          } else if (snapshot.hasData) {
+            return Expanded(child: Center(child: Text("No students to assign.")));
           } else {
-            return CircularProgressIndicator();
+            return Expanded(child: Center(child: CircularProgressIndicator()));
           }
       });
   }
 
-  Future<void> submitAssignment() {
-    LoadingDialog loadingDialog = LoadingDialog(context: context, text: 'Assigning...');
-    loadingDialog.show();
+  Future<bool> submitAssignment() {
+    if (_students.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("Error"),
+          content: Text("No students selected."),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Ok'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+      );
+      return Future.value(false);
+    } else {
+      LoadingDialog loadingDialog = LoadingDialog(
+          context: context, text: 'Assigning...');
+      loadingDialog.show();
 
-    return db.teacherAssignStudentsToTask(_students, widget.task).then((value) => loadingDialog.close());
+      return db.teacherAssignStudentsToTask(_students, widget.task).then((
+          value) {
+        loadingDialog.close();
+        return true;
+      });
+    }
   }
 
   @override
@@ -140,7 +164,11 @@ class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
         tooltip: 'Add Students',
         onPressed: () {
           submitAssignment()
-              .then((value) => Navigator.pop(context));
+              .then((value) {
+                if (value) {
+                  Navigator.pop(context);
+                }
+              });
         },
       ),
     );

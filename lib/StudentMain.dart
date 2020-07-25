@@ -219,7 +219,7 @@ class _StudentMainState extends State<StudentMain> {
               },
             );
           } else {
-            return CircularProgressIndicator();
+            return Center(child: CircularProgressIndicator());
           }
         },
       ),
@@ -312,10 +312,10 @@ class _StudentMainState extends State<StudentMain> {
                   if(snapshot.data.length > 0) {
                     return _buildTaskList(snapshot.data);
                   } else {
-                    return Text('No tasks!');
+                    return Expanded(child: Center(child: Text('No tasks!')));
                   }
                 } else {
-                  return CircularProgressIndicator();
+                  return Expanded(child: Center(child: CircularProgressIndicator()));
                 }
               },
             )
