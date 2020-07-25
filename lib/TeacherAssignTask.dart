@@ -105,7 +105,7 @@ class _TeacherAssignTaskState extends State<TeacherAssignTask> {
                           } else if (snapshot.hasData) {
                             return Container(width: 0.0, height: 0.0,);
                           } else {
-                            return CircularProgressIndicator();
+                            return Center(child: CircularProgressIndicator());
                           }
                         }
                     );
@@ -113,16 +113,39 @@ class _TeacherAssignTaskState extends State<TeacherAssignTask> {
               ),
             );
           } else {
-            return CircularProgressIndicator();
+            return Expanded(child: Center(child: CircularProgressIndicator()));
           }
       });
   }
 
-  Future<void> submitAssignment() {
-    LoadingDialog loadingDialog = LoadingDialog(context: context, text: 'Assigning...');
-    loadingDialog.show();
+  Future<bool> submitAssignment() {
+    if (_tasks.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) =>
+            AlertDialog(
+              title: Text("Error"),
+              content: Text("No tasks selected."),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('Ok'),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
+      );
+      return Future.value(false);
+    } else {
+      LoadingDialog loadingDialog = LoadingDialog(
+          context: context, text: 'Assigning...');
+      loadingDialog.show();
 
-    return db.teacherAssignTasksToStudent(_tasks, widget.student).then((value) => loadingDialog.close());
+      return db.teacherAssignTasksToStudent(_tasks, widget.student).then((
+          value) {
+        loadingDialog.close();
+        return true;
+      });
+    }
   }
 
   @override
@@ -164,7 +187,11 @@ class _TeacherAssignTaskState extends State<TeacherAssignTask> {
         tooltip: 'Assign Task',
         onPressed: () {
           submitAssignment()
-              .then((value) => Navigator.pop(context));
+              .then((value) {
+                if (value) {
+                  Navigator.pop(context);
+                }
+              });
         },
       ),
     );

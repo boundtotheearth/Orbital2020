@@ -80,21 +80,38 @@ class _TeacherAddStudentToGroupState extends State<TeacherAddStudentToGroup> {
               }
           );
         } else {
-          return CircularProgressIndicator();
+          return Center(child: CircularProgressIndicator());
         }
       },
     );
   }
 
-  Future<void> submitAdd() {
-    if(_studentsToAdd.length > 0) {
+  Future<bool> submitAdd() {
+    if(_studentsToAdd.isNotEmpty) {
       LoadingDialog loadingDialog = LoadingDialog(context: context, text: 'Adding Students...');
       loadingDialog.show();
       return db.teacherAddStudentsToGroup(teacherId: _user.id,
           group: widget.group,
-          students: _studentsToAdd).then((value) => loadingDialog.close());
+          students: _studentsToAdd).then((value) {
+            loadingDialog.close();
+            return true;});
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) =>
+            AlertDialog(
+              title: Text("Error"),
+              content: Text("No students selected."),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('Ok'),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
+      );
+      return Future.value(false);
     }
-    return Future(null);
   }
 
   @override
@@ -138,7 +155,11 @@ class _TeacherAddStudentToGroupState extends State<TeacherAddStudentToGroup> {
         tooltip: 'Add Students',
         onPressed: () {
           submitAdd()
-              .then((value) => Navigator.pop(context));
+              .then((value) {
+                if (value) {
+                  Navigator.pop(context);
+                }
+              });
         },
       ),
     );

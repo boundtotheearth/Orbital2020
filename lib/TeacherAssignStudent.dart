@@ -89,16 +89,38 @@ class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
                     })
             );
           } else {
-            return CircularProgressIndicator();
+            return Expanded(child: Center(child: CircularProgressIndicator()));
           }
       });
   }
 
-  Future<void> submitAssignment() {
-    LoadingDialog loadingDialog = LoadingDialog(context: context, text: 'Assigning...');
-    loadingDialog.show();
+  Future<bool> submitAssignment() {
+    if (_students.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("Error"),
+          content: Text("No students selected."),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Ok'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+      );
+      return Future.value(false);
+    } else {
+      LoadingDialog loadingDialog = LoadingDialog(
+          context: context, text: 'Assigning...');
+      loadingDialog.show();
 
-    return db.teacherAssignStudentsToTask(_students, widget.task).then((value) => loadingDialog.close());
+      return db.teacherAssignStudentsToTask(_students, widget.task).then((
+          value) {
+        loadingDialog.close();
+        return true;
+      });
+    }
   }
 
   @override
@@ -140,7 +162,11 @@ class _TeacherAssignStudentState extends State<TeacherAssignStudent> {
         tooltip: 'Add Students',
         onPressed: () {
           submitAssignment()
-              .then((value) => Navigator.pop(context));
+              .then((value) {
+                if (value) {
+                  Navigator.pop(context);
+                }
+              });
         },
       ),
     );
