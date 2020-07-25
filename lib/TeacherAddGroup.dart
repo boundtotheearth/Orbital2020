@@ -92,7 +92,7 @@ class _TeacherAddGroupState extends State<TeacherAddGroup> {
               }
           );
         } else {
-          return CircularProgressIndicator();
+          return Center(child: CircularProgressIndicator());
         }
       },
     );
