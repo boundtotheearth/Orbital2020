@@ -979,7 +979,9 @@ class DatabaseController {
       final HttpsCallable callable = CloudFunctions.instance.getHttpsCallable(
         functionName: 'unassignTask',
       );
-      Map<String, dynamic> data = {"task" : task.toKeyValuePair(), "studentId" : studentId};
+      Map<String, dynamic> taskDetails = task.toKeyValuePair();
+      taskDetails.remove("dueDate");
+      Map<String, dynamic> data = {"task" : taskDetails, "studentId" : studentId};
 //      data["studentId"] = studentId;
       callable.call(data);
     }
@@ -1027,7 +1029,9 @@ class DatabaseController {
       final HttpsCallable callable = CloudFunctions.instance.getHttpsCallable(
         functionName: 'assignTask',
       );
-      Map<String, dynamic> data = {"task" : task.toKeyValuePair(), "studentId" : studentId};
+      Map<String, dynamic> taskDetails = task.toKeyValuePair();
+      taskDetails.remove("dueDate");
+      Map<String, dynamic> data = {"task" : taskDetails, "studentId" : studentId};
 //      data["studentId"] = studentId;
       callable.call(data);
     }
