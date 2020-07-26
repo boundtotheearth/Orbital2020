@@ -17,7 +17,7 @@ class FocusHistoryChart extends StatelessWidget {
 
     Map<String, int> chartMap = {};
     for(FocusSession session in sessionList) {
-      String date = DateFormat('y-MM-dd').format(session.startTime);
+      String date = DateFormat('MM-dd').format(session.startTime);
       int time = session.durationMins;
       int prev = chartMap[date] ?? 0;
       chartMap[date] = prev + time;
