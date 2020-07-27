@@ -49,7 +49,7 @@ class _LeaderboardViewState extends State<LeaderBoardView> {
                 },
               );
             } else {
-              return CircularProgressIndicator();
+              return Center(child: CircularProgressIndicator());
             }
           },
         )

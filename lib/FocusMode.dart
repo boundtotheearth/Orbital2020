@@ -149,7 +149,7 @@ class _FocusModeStatus extends State<FocusMode> {
                 if(snapshot.hasData) {
                   return FocusHistoryChart(snapshot.data);
                 } else {
-                  return CircularProgressIndicator();
+                  return Center(child :CircularProgressIndicator());
                 }
               },
             ),
