@@ -76,6 +76,7 @@ class _TeacherGroupsState extends State<TeacherGroups> {
   void _deactivateSearchBar() {
     setState(() {
       _searchBarActive = false;
+      _searchText = "";
     });
   }
 
