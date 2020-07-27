@@ -72,7 +72,9 @@ class StudentAppDrawer extends StatelessWidget {
                 onTap: () {
                   print("Tapped Focus");
                   Navigator.pop(context);
-                  Navigator.of(context).pushNamed("focus");
+                  Navigator.of(context).pushNamed("focus").then((value) {
+                    GameWidget.unityWidgetKey.currentState.handleFocusTime();
+                  });
                 }
             ),
             ListTile(
