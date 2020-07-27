@@ -52,7 +52,8 @@ class StudentAppDrawer extends StatelessWidget {
                 User user = Provider.of<User>(context, listen: false);
                 Navigator.pop(context);
                 if(user.accountType == 'student') {
-                  Navigator.pushNamed(context, 'student_main');
+                  //Navigator.pushNamed(context, 'student_main');
+                  Navigator.popUntil(context, ModalRoute.withName('student_main'));
                 } else {
                   Navigator.pushNamed(context, 'teacher_gruops');
                 }
@@ -71,7 +72,9 @@ class StudentAppDrawer extends StatelessWidget {
                 onTap: () {
                   print("Tapped Focus");
                   Navigator.pop(context);
-                  Navigator.of(context).pushNamed("focus");
+                  Navigator.of(context).pushNamed("focus").then((value) {
+                    GameWidget.unityWidgetKey.currentState.handleFocusTime();
+                  });
                 }
             ),
             ListTile(

@@ -880,14 +880,14 @@ class DatabaseController {
     });
   }
 
-  Stream<List<FocusSession>> getUnclaimedFocusSession({String studentId}) {
+  Future<List<FocusSession>> getUnclaimedFocusSession({String studentId}) {
     return db.collection('students')
         .document(studentId)
         .collection('focusSessions')
         .where('claimed', isEqualTo: false)
         .orderBy('startTime', descending: true)
-        .snapshots()
-        .map((QuerySnapshot snapshot) {
+        .getDocuments()
+        .then((QuerySnapshot snapshot) {
           if(snapshot.documents.length > 0) {
             return snapshot.documents.map((document) {
               FocusSession session = FocusSession.fromKeyValuePair(document.data);

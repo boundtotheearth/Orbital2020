@@ -13,7 +13,6 @@ class FocusSession {
   int durationMins = 0;
   FocusStatus focusStatus = FocusStatus.COMPLETED;
   bool claimed = false;
-  bool didSleep = false;
 
   FocusSession();
   FocusSession.fromKeyValuePair(Map<String, dynamic> map) {
@@ -40,8 +39,6 @@ class FocusSession {
     }
 
     this.claimed = map['claimed'];
-    this.didSleep = map['didSleep'] ?? false;
-
   }
 
   void start() {
@@ -55,18 +52,15 @@ class FocusSession {
     durationMins = endTime.difference(startTime).inMinutes;
   }
 
+  void resume() {
+    endTime = null;
+    focusStatus = FocusStatus.ONGOING;
+  }
+
   void interrupt() {
     endTime = DateTime.now();
     focusStatus = FocusStatus.INTERRUPTED;
     durationMins = endTime.difference(startTime).inMinutes;
-  }
-
-  void onSleep() {
-    didSleep = true;
-  }
-
-  void onWake() {
-    didSleep = false;
   }
 
   Map<String, dynamic> toKeyValuePair() {
@@ -77,7 +71,6 @@ class FocusSession {
     if(durationMins != null) map['durationMins'] = durationMins;
     if(focusStatus != null) map['focusStatus'] = describeEnum(focusStatus);
     if(claimed != null) map['claimed'] = claimed;
-    if(didSleep != null) map['didSleep'] = didSleep;
     return map;
   }
 

@@ -47,8 +47,9 @@ class GameWidgetState extends State<GameWidget> {
     this._unityWidgetController = controller;
     Map<String, dynamic> data = await db.fetchGameData(studentId: _user.id);
     _setGameData(data);
-    focusSessionStream = db.getUnclaimedFocusSession(studentId: _user.id);
-    focusSessionSub = focusSessionStream.listen(_handleFocusTime);
+//    focusSessionStream = db.getUnclaimedFocusSession(studentId: _user.id);
+//    focusSessionSub = focusSessionStream.listen(_handleFocusTime);
+    handleFocusTime();
     //_setGameData();
   }
 
@@ -70,16 +71,30 @@ class GameWidgetState extends State<GameWidget> {
     latestGameData = gameData;
   }
 
-  void _handleFocusTime(List<FocusSession> sessions) {
-    int totalFocus = 0;
-    for(FocusSession session in sessions) {
-      if(session.focusStatus != FocusStatus.ONGOING) {
-        totalFocus += session.durationMins;
-        session.claimed = true;
-        db.updateFocusSession(studentId: _user.id, focusSession: session);
+//  void _handleFocusTime(List<FocusSession> sessions) {
+//    int totalFocus = 0;
+//    for(FocusSession session in sessions) {
+//      if(session.focusStatus != FocusStatus.ONGOING) {
+//        totalFocus += session.durationMins;
+//        session.claimed = true;
+//        db.updateFocusSession(studentId: _user.id, focusSession: session);
+//      }
+//    }
+//    _unityWidgetController?.postMessage("GameField", "handleFocusTime", totalFocus.toString());
+//  }
+
+  void handleFocusTime() {
+    db.getUnclaimedFocusSession(studentId: _user.id).then((sessions) {
+      int totalFocus = 0;
+      for(FocusSession session in sessions) {
+        if(session.focusStatus != FocusStatus.ONGOING) {
+          totalFocus += session.durationMins;
+          session.claimed = true;
+          db.updateFocusSession(studentId: _user.id, focusSession: session);
+        }
       }
-    }
-    _unityWidgetController?.postMessage("GameField", "handleFocusTime", totalFocus.toString());
+      _unityWidgetController?.postMessage("GameField", "handleFocusTime", totalFocus.toString());
+    });
   }
 
   void _saveGameData() {
