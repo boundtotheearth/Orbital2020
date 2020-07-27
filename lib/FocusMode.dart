@@ -32,6 +32,8 @@ class _FocusModeStatus extends State<FocusMode> {
   FocusSession currentSession;
   DateTime startTime;
 
+  bool _interrupt;
+
   @override
   void initState() {
     super.initState();
@@ -43,7 +45,7 @@ class _FocusModeStatus extends State<FocusMode> {
       detachedCallBack: () => {},
       inactiveCallback: interruptFocus,
       pauseCallback: interruptFocus,
-      resumeCallBack: () => {},
+      resumeCallBack: cancelInterrupt,
     );
     WidgetsBinding.instance.addObserver(focusObserver);
 
@@ -61,15 +63,6 @@ class _FocusModeStatus extends State<FocusMode> {
     setState(() {
       screenStateEvent = event;
     });
-    if(currentSession != null && currentSession.focusStatus == FocusStatus.ONGOING) {
-      if(event == ScreenStateEvent.SCREEN_ON) {
-        currentSession.onWake();
-        db.updateFocusSession(studentId: _user.id, focusSession: currentSession);
-      } else if(event == ScreenStateEvent.SCREEN_OFF) {
-        currentSession.onSleep();
-        db.updateFocusSession(studentId: _user.id, focusSession: currentSession);
-      }
-    }
   }
 
   @override
@@ -83,7 +76,6 @@ class _FocusModeStatus extends State<FocusMode> {
   void resumeFocus(FocusSession session) {
     _inFocus = true;
     currentSession = session;
-    currentSession.didSleep = false;
     db.updateFocusSession(studentId: _user.id, focusSession: currentSession);
   }
 
@@ -97,25 +89,24 @@ class _FocusModeStatus extends State<FocusMode> {
   }
 
   void interruptFocus() {
-    Future.delayed(Duration(milliseconds: 5000), () {
-      print("Checking: " + screenStateEvent.toString());
-      if(screenStateEvent == ScreenStateEvent.SCREEN_ON) {
-        immediateInterruptFocus();
+    _interrupt = true;
+    Future.delayed(Duration(seconds: 5)).then((value) {
+      if(_interrupt && screenStateEvent == ScreenStateEvent.SCREEN_ON) {
+        print(screenStateEvent);
+        print("interrupt");
+        _inFocus = false;
+        currentSession.interrupt();
+        db.updateFocusSession(studentId: _user.id, focusSession: currentSession);
       }
     });
   }
 
-  void immediateInterruptFocus() {
-    currentSession.interrupt();
-    endFocus();
+  void cancelInterrupt() {
+    _interrupt = false;
   }
 
   void stopFocus() {
     currentSession.stop();
-    endFocus();
-  }
-
-  void endFocus() {
     _inFocus = false;
     db.updateFocusSession(studentId: _user.id, focusSession: currentSession);
   }
@@ -171,16 +162,10 @@ class _FocusModeStatus extends State<FocusMode> {
         if(snapshot.hasData) {
           FocusSession session = snapshot.data;
           if(session.focusStatus == FocusStatus.ONGOING) {
-            currentSession = session;
-            if(session.didSleep || _inFocus) {
-              resumeFocus(currentSession);
-              return buildFocusUI();
-            }
-            immediateInterruptFocus();
+            resumeFocus(session);
+            return buildFocusUI();
           }
           return buildDefaultUI(snapshot.data);
-
-
         } else {
           return Container();
         }
